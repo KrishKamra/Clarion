@@ -55,3 +55,11 @@ app.*.map.json
 
 # Widget Preview
 .widget_preview/
+
+# Flutter tooling (legacy plugin manifest) & Kotlin compiler caches
+.flutter-plugins
+**/.kotlin/
+
+# AI assistant local settings & working briefs
+.claude/settings.local.json
+prompt.md
