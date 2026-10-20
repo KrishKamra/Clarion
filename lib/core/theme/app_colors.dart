@@ -1,69 +1,75 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 
-/// Clarion colour tokens.
+/// Clarion colour tokens — "Midnight Obsidian & Ethereal Mint".
 ///
-/// The palette is tuned for a deep, near-black navy canvas lit by soft
-/// indigo / violet / cyan glows. Semantic "fit" colours communicate how well
-/// a product matches the user's declared intent and are reused by every
-/// score, gauge and trade-off indicator in the app.
+/// A matte, near-neutral black canvas (no blue cast) with surfaces that read
+/// as stacked sheets of vellum. Colour is spent sparingly: each accent carries
+/// one meaning, so it can direct attention without decoration.
 abstract final class AppColors {
-  // ── Canvas ────────────────────────────────────────────────────────────────
-  static const Color backgroundDeep = Color(0xFF090D16);
-  static const Color backgroundRaised = Color(0xFF0C111D);
-  static const Color surface = Color(0xFF111827);
-  static const Color surfaceHigh = Color(0xFF172033);
+  // ── Canvas & surfaces ─────────────────────────────────────────────────────
+  /// Obsidian Deep: the app canvas.
+  static const Color canvas = Color(0xFF08090C);
 
-  // ── Brand cores ───────────────────────────────────────────────────────────
-  static const Color primary = Color(0xFF6366F1); // Indigo glow
-  static const Color secondary = Color(0xFF8B5CF6); // Violet accent
-  static const Color accent = Color(0xFF06B6D4); // Cyan – local / value
+  /// Raised cards and solid chrome.
+  static const Color surface = Color(0xFF0F1117);
 
-  // ── Semantic fit scale ────────────────────────────────────────────────────
-  static const Color fitHigh = Color(0xFF10B981); // Emerald, 90–100
-  static const Color fitMid = Color(0xFFF59E0B); // Amber, 70–89
-  static const Color fitLow = Color(0xFFEF4444); // Coral red, trade-off
+  /// Sheets, snackbars, tooltips: one step above [surface].
+  static const Color surfaceHigh = Color(0xFF151821);
+
+  /// Frosted vellum fill: white at 3 %.
+  static const Color vellum = Color(0x08FFFFFF);
+
+  /// Vellum under a finger or when selected: white at 5 %.
+  static const Color vellumActive = Color(0x0DFFFFFF);
+
+  /// Directional rim highlight on the top edge: white at 9 %.
+  static const Color rim = Color(0x17FFFFFF);
+
+  /// Brighter rim for floating chrome and focus: white at 12 %.
+  static const Color rimBright = Color(0x1FFFFFFF);
+
+  /// Dividers and inactive tracks: white at 6 %.
+  static const Color hairline = Color(0x0FFFFFFF);
+
+  // ── Accents (one meaning each) ────────────────────────────────────────────
+  /// Iris: primary actions, focus, the active tab.
+  static const Color iris = Color(0xFF4F46E5);
+  static const Color irisGlow = Color(0xFF6366F1);
+
+  /// Botanical emerald: optimal fit, within budget, a criterion won.
+  static const Color emerald = Color(0xFF10B981);
+  static const Color emeraldGlow = Color(0xFF34D399);
+
+  /// Warm amber: trade-offs, approaching the ceiling, cooling off.
+  static const Color amber = Color(0xFFF59E0B);
+
+  /// Muted rose: anti-impulse friction, over budget.
+  static const Color rose = Color(0xFFF43F5E);
 
   // ── Text ──────────────────────────────────────────────────────────────────
-  static const Color textPrimary = Color(0xFFF1F5F9);
+  /// Pure Titanium: headings and key metrics.
+  static const Color textPrimary = Color(0xFFF8FAFC);
+
+  /// Slate Silver: explanations and specs.
   static const Color textSecondary = Color(0xFF94A3B8);
-  static const Color textTertiary = Color(0xFF64748B);
-  static const Color textOnAccent = Colors.white;
 
-  // ── Glass ─────────────────────────────────────────────────────────────────
-  static const Color glassTintLow = Color(0x0AFFFFFF); // 4 %
-  static const Color glassTint = Color(0x12FFFFFF); // 7 %
-  static const Color glassTintHigh = Color(0x14FFFFFF); // 8 %
-  static const Color glassBorder = Color(0x1FFFFFFF); // 12 %
-  static const Color glassBorderFaint = Color(0x14FFFFFF); // 8 %
-  static const Color hairline = Color(0x0FFFFFFF); // 6 %
+  /// Muted Slate: micro labels and inactive states.
+  static const Color textTertiary = Color(0xFF475569);
 
-  // ── Gradients ─────────────────────────────────────────────────────────────
-  static const LinearGradient brandGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [primary, secondary],
-  );
+  /// Text placed on a solid accent fill.
+  static const Color onAccent = Color(0xFFFFFFFF);
 
-  static const LinearGradient valueGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [accent, primary],
-  );
-
-  /// Green → amber → red, used by budget gauges.
-  static const List<Color> budgetSweep = [fitHigh, fitMid, fitLow];
-
-  /// Resolves the semantic colour for a 0–100 fit score.
-  static Color forFitScore(num score) {
-    if (score >= 90) return fitHigh;
-    if (score >= 70) return fitMid;
-    return fitLow;
+  /// Semantic colour for a 0–100 personal fit score.
+  static Color forFit(num score) {
+    if (score >= 85) return emeraldGlow;
+    if (score >= 70) return irisGlow;
+    return amber;
   }
 
-  /// Resolves budget utilisation (0.0 = nothing used, 1.0 = at limit).
+  /// Semantic colour for budget utilisation (1.0 = at the ceiling).
   static Color forBudgetRatio(double ratio) {
-    if (ratio > 1.0) return fitLow;
-    if (ratio >= 0.85) return fitMid;
-    return fitHigh;
+    if (ratio > 1.0) return rose;
+    if (ratio >= 0.85) return amber;
+    return emeraldGlow;
   }
 }

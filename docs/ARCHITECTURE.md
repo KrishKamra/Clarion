@@ -1,56 +1,181 @@
 # Clarion Architecture
 
-## Layout
+> [!NOTE]
+> This describes the current, backend-free foundation. Everything reads products through `catalogProvider`, which is the single seam for a future repository/API.
 
-Feature-first. Shared, feature-agnostic code lives in `lib/core/`; each feature owns an `application/` layer (Riverpod state) and a `presentation/` layer (screens + widgets).
+## Layers
+
+Feature-first. Shared, feature-agnostic code lives in `lib/core/`; each feature owns an `application/` layer (Riverpod state) and a `presentation/` or `widgets/` layer (UI).
+
+```mermaid
+flowchart TB
+  subgraph Presentation["Presentation · features/*/presentation, widgets"]
+    H["Intent Horizon"]
+    DC["Decision canvas"]
+    DN["Decision Node"]
+    SC["Smart Cart"]
+    SM["Spending Memory"]
+  end
+  subgraph Application["Application · features/*/application"]
+    IC["intent"]
+    CC["cart + swaps"]
+    BC["budget + snapshot"]
+    CO["compare"]
+    CD["cooldowns"]
+    NV["navigation"]
+  end
+  subgraph Core["Core · lib/core"]
+    CAT["catalogProvider"]
+    MOD["models"]
+    TH["theme tokens"]
+    WG["atomic widgets"]
+  end
+  Presentation --> Application
+  Presentation --> WG
+  WG --> TH
+  Application --> CAT
+  CAT --> MOD
+```
 
 ```text
-core/        theme · widgets · models · data (mock) · utils
+core/        theme · widgets · models · data (catalog + mock) · utils
 features/
-  navigation/  AppTab + MainScaffold shell
-  home/        IntentQuery parsing & ranking → IntentHomeScreen
-  decision/    ProductDecisionScreen, CompareMatrixScreen, cooldowns, compare scoring
-  cart/        CartController, swap suggestions → SmartCartScreen
-  budget/      BudgetController + BudgetSnapshot (no UI of its own)
-  profile/     InsightsScreen
+  navigation/  AppTab + MainScaffold shell (floating island)
+  home/        Intent parsing & ranking → Intent Horizon
+  decision/    Decision canvas, Decision Node, cooldowns, compare scoring
+  cart/        CartController, Guardian Swap Engine → Smart Cart
+  budget/      BudgetController + BudgetSnapshot, ceiling sheet
+  memory/      Spending Memory (envelope, trend, categories)
 ```
 
 ## State (Riverpod 3)
 
-| Provider | Type | Responsibility |
-| :--- | :--- | :--- |
-| `navigationProvider` | `Notifier<AppTab>` | Active shell tab; any screen can redirect (e.g. Decision View → cart). |
-| `intentProvider` / `fitPicksProvider` | `Notifier<IntentQuery?>` / derived | Parsed intent; ranked, budget-filtered picks. |
-| `budgetProvider` | `Notifier<BudgetState>` | Monthly limit, settled spend by category, mindful-win stats. |
-| `cartProvider` | `Notifier<List<CartLine>>` | Add / remove / restore / quantity / in-place swap. |
-| `cartTotalProvider`, `cartCountProvider` | derived | Totals for badges and the gauge. |
-| `budgetSnapshotProvider` | derived | Settled + cart vs limit: `committed`, `headroom`, `overBy`, `leftAfter(price)`. |
-| `swapSuggestionsProvider` | derived | Cheaper verified alternatives for cart items, biggest saving first. |
-| `cooldownProvider` / `clockProvider` | `Notifier<Map>` / `StreamProvider` | *Hold to Think* expiries; a 30 s tick for countdowns. |
-| `compareProvider` / `compareResultProvider` | `Notifier` / derived | Selected pair + priorities → aligned rows, per-row winners, weighted verdict. |
+Raw catalogue state is kept separate from volatile interaction state. Arrows point from a provider to what it watches.
 
-Derived providers keep business rules (budget arithmetic, ranking, compare scoring) out of widgets, so they are unit-testable and swap cleanly onto a real backend later.
+```mermaid
+flowchart LR
+  CAT[("catalogProvider<br/>read-only")]
+  INT["intentProvider"] 
+  FIT["fitPicksProvider"]
+  CART["cartProvider"]
+  TOT["cartTotalProvider"]
+  CNT["cartCountProvider"]
+  BUD["budgetProvider"]
+  SNAP["budgetSnapshotProvider"]
+  SWAP["swapSuggestionsProvider"]
+  CMP["compareProvider"]
+  RES["compareResultProvider"]
+  COOL["cooldownProvider"]
+  CLK["clockProvider"]
+  NAV["navigationProvider"]
+
+  FIT --> INT
+  FIT --> CAT
+  CART --> CAT
+  TOT --> CART
+  CNT --> CART
+  SNAP --> BUD
+  SNAP --> TOT
+  SWAP --> CART
+  SWAP --> CAT
+  CMP --> CAT
+  RES --> CMP
+  RES --> CAT
+```
+
+| Provider | Kind | Responsibility |
+| :--- | :--- | :--- |
+| `catalogProvider` | `Provider<Catalog>` | Read-only products and compare pairs. |
+| `navigationProvider` | `Notifier<AppTab>` | Active tab (`horizon`, `decisions`, `cart`, `memory`); any screen can redirect the shell. |
+| `intentProvider` / `fitPicksProvider` | `Notifier` / derived | Parsed intent; ranked, budget-filtered Fit Stream. |
+| `budgetProvider` | `Notifier<BudgetState>` | Ceiling, settled spend by category, mindful-win stats. |
+| `cartProvider`, `cartTotalProvider`, `cartCountProvider` | `Notifier` / derived | Lines hold `Product`s; add / remove / restore / quantity / in-place swap. |
+| `budgetSnapshotProvider` | derived | `committed`, `headroom`, `overBy`, `leftAfter`, `leftAfterWithCart`. |
+| `swapSuggestionsProvider` | derived | Cheaper verified equivalents with spec parity, biggest saving first. |
+| `cooldownProvider` / `clockProvider` | `Notifier<Map>` / `StreamProvider` | 24h cooling-off expiries; a 30 s tick for countdowns. |
+| `compareProvider` / `compareResultProvider` | `Notifier` / derived | Selected pair + priorities → aligned rows, winners, weighted verdict. |
+
+> [!TIP]
+> Business rules (budget arithmetic, ranking, compare scoring, swaps) live in derived providers, so they're unit-testable with a bare `ProviderContainer` — see `test/widget_test.dart`.
+
+## Key flows
+
+### Add to Intent Cart (friction by design)
+
+```mermaid
+sequenceDiagram
+  actor U as User
+  participant D as DecisionDrawer
+  participant B as budgetSnapshotProvider
+  participant M as Mindful check sheet
+  participant C as cartProvider
+  U->>D: Tap "Add to Intent Cart"
+  D->>B: leftAfterWithCart(price)
+  alt still within ceiling
+    D->>C: add(productId)
+  else would break the ceiling
+    D->>M: show arithmetic
+    alt Cool off
+      M-->>D: coolOff → cooldownProvider.hold
+    else See alternative
+      M-->>D: open alternative's canvas
+    else Add anyway
+      M-->>D: addAnyway
+      D->>C: add(productId)
+    end
+  end
+  C-->>U: snackbar with remaining headroom / overage
+```
+
+### 24h Cooling Off (`HoldButton`)
+
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Filling: pointer down
+  Filling --> Draining: released early
+  Draining --> Idle: fill drained
+  Filling --> Held: 1.1 s elapsed (medium haptic)
+  Held --> Released: "tap to end"
+  Held --> Decided: Decision Node → let go / still want it
+  Released --> [*]
+  Decided --> [*]
+```
+
+Screen-reader users trigger the hold through the button's semantic tap; a timed press isn't an accessible gesture.
 
 ## Budget semantics
 
-- **Settled** = purchases already made this month. **Committed** = settled + cart.
-- The Decision View's "Leaves ₹X in your monthly envelope" is `limit − settled − price` (the item on its own); a second line warns when the current cart would push it over.
-- The Guardian barometer's *Month* view shows committed vs limit; *Cart* view shows cart vs the envelope left after settled spend.
+- **Settled** = purchases this month. **Committed** = settled + cart (the header's `₹3,200 / ₹5,000`).
+- The decision drawer leads with the item alone against the envelope (*"Leaves ₹801 safe buffer"*) and adds a second line when the current cart would push it past the ceiling.
 
-## Navigation
+> [!IMPORTANT]
+> The add flow always checks the **cart-inclusive** figure (`leftAfterWithCart`). The headline is informational; the gate is the honest total.
 
-`MainScaffold` hosts four tabs in a `Stack`. Tabs are built lazily on first visit and then kept alive; inactive tabs fade out, ignore pointers / focus / semantics, and have tickers paused via `TickerMode` (placed *inside* the fade so the outgoing tab can still animate). The Decision View is pushed on the root navigator with a fade-up `PageRouteBuilder` and `Hero` thumbnails.
+## Rendering & performance
 
-## Performance rules
+> [!WARNING]
+> `BackdropFilter` must only appear inside `FrostedChrome`, and `FrostedChrome` must only be used for fixed chrome. A blur inside a scrolling list re-rasterises every frame and is the fastest way to drop below 60/120 fps.
 
-- `BackdropFilter` only on persistent overlays; repeated scroll items use `GlassContainer.card` (no blur).
-- Pinned glass headers skip the blur pass at scroll offset 0.
-- Custom painters (dial, gauge, sparkline, ambient glows) sit behind `RepaintBoundary`s.
+| Rule | Where it's enforced |
+| :--- | :--- |
+| Blur only on fixed chrome (nav island, pinned headers, sheets, drawer, overlay buttons) | `core/widgets/frosted_chrome.dart` |
+| List items are blur-free `TactileCard`s (fill + one stroked path) | `core/widgets/tactile_card.dart` |
+| Pinned headers skip the frost entirely at scroll offset 0 | `core/widgets/chrome_header.dart` |
+| Glows are radial gradients, never `MaskFilter` blurs | `AppDecorations.backlight` |
+| Painters (dial, ring, band, grain) sit behind `RepaintBoundary`s | each painter widget |
+| Canvas grain is generated once and cached; canvas wraps the `Scaffold` so the keyboard never resizes it | `core/widgets/obsidian_canvas.dart` |
+| Tabs built lazily, kept alive, tickers paused when hidden | `features/navigation/main_scaffold.dart` |
 
 ## Data
 
-`MockCatalog` provides 8 products with specs, fit factors (which sum exactly to each fit score), deterministic 30-day price histories whose mean equals the stated average, and two curated compare pairs. Replace it with a repository behind the same `Product` model when a backend lands.
+`MockCatalog` provides 8 products whose fit factors sum exactly to their scores, deterministic 30-day price histories whose mean equals the stated average, local pickup points, and two compare pairs.
+
+Seed state: ceiling ₹5,000, settled ₹2,000, cart ₹1,200 (lamp + cable kit). Adding the Atlas daypack breaches by ₹399; the Guardian's Metro swap saves ₹450 and lands ₹51 under.
 
 ## Testing
 
-`test/widget_test.dart` covers INR formatting, intent parsing / budget filtering, fit-factor integrity, and widget smoke tests that render home, every tab, and the Decision View (layout overflows fail the suite).
+`test/widget_test.dart` covers formatting, intent parsing and budget filtering, fit-factor and catalogue integrity, seed budget arithmetic, the swap engine resolving a breach, and widget tests that render every tab, the decision canvas and the over-budget Guardian flow.
+
+> [!NOTE]
+> Widget tests use Flutter's wide test font, so any `RenderFlex` overflow fails the suite — a deliberate stress test for long labels and large text settings.

@@ -2,84 +2,106 @@
 
 > **Clear Intent. Conscious Commerce.**
 
-Clarion is an intent-driven e-commerce **Decision Support System (DSS)** — *e-commerce that helps you buy better, not buy more.* Instead of infinite feeds and opaque recommendations, users state a goal, see why each product fits (or doesn't), compare only what differs, and stay inside a monthly spending envelope guarded by the app.
+Clarion is an intent-driven e-commerce **decision-support system** — *e-commerce that helps you buy better, not buy more.* Instead of infinite feeds and opaque recommendations, you state a goal, see exactly why each product fits (or doesn't), compare only what differs, and stay inside a monthly envelope that the app guards for you.
+
+[![Flutter](https://img.shields.io/badge/Flutter-3.47-02569B?logo=flutter)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-%E2%89%A53.13-0175C2?logo=dart)](https://dart.dev)
+[![Riverpod](https://img.shields.io/badge/state-Riverpod%203-4F46E5)](https://riverpod.dev)
+[![License: MIT](https://img.shields.io/badge/license-MIT-10B981)](LICENSE)
+
+> [!NOTE]
+> Clarion is a **UI/UX foundation** running on an in-memory mock catalogue. There is no backend, authentication, payment or persistence yet — checkout is simulated. See [Roadmap](#️-roadmap).
 
 ---
 
-## 🎯 Key Feature Pillars
+## 🎯 Feature pillars
 
-| Pillar | What it does in the app |
+| Pillar | What it does |
 | :--- | :--- |
-| 🔍 **Intent-First Search** | Describe a goal (*"College Setup < ₹3k"*). An on-device parser extracts a price ceiling and keywords and re-ranks **Personal Fit Picks**. |
-| 📊 **Explainable Fit Scores** | Every 0–100 score is itemised on the Decision View — matches add points, trade-offs subtract them, and the breakdown sums exactly to the score. |
-| ⚖️ **Differential Compare** | Side-by-side matrix that hides identical specs, marks the winner per criterion, and lets users star priorities that count double. |
-| 🛡️ **Budget Guardian** | A live barometer of settled spend + cart vs. the monthly limit, with one-tap swaps to verified cheaper alternatives when over budget. |
-| ⏳ **Anti-Impulse Guards** | *Hold to Think* 24 h cooldowns, a "Mindful check" sheet before over-budget adds, and price memory that informs without urgency. |
+| 🔍 **Intent-first search** | Describe a goal (*"Daily EDC for College < ₹2,500"*). An on-device parser extracts a price ceiling and keywords, then re-ranks the **Curated Fit Stream**. |
+| 📊 **Explainable fit scores** | Every 0–100 score is a ledger — `+35` Intent Match, `−08` Weight Delta — that sums exactly to the score. |
+| ⚖️ **Differential compare** | Head-to-head that hides identical specs, marks each criterion's winner, and lets you star priorities that count double. |
+| 🛡️ **Budget Guardian** | A live barometer of settled spend + cart against your ceiling, with verified, cheaper swaps (and their spec parity) when you go over. |
+| ⏳ **Anti-impulse friction** | A press-and-hold **24h Cooling Off**, a mindful check before over-ceiling adds, and price memory that informs without urgency. |
 
----
+## 🧭 How a decision flows
+
+```mermaid
+flowchart TD
+  A["Intent Horizon<br/>state a goal"] --> B["Curated Fit Stream<br/>ranked, budget-filtered"]
+  B --> C["Decision canvas<br/>price band · fit ledger · budget impact"]
+  C -->|"Add to Intent Cart"| D{"Within ceiling<br/>incl. cart?"}
+  C -->|"Press & hold"| H["24h Cooling Off"]
+  D -->|"Yes"| E["Smart Cart"]
+  D -->|"No"| M["Mindful check"]
+  M -->|"Cool off"| H
+  M -->|"See alternative"| C
+  M -->|"Add anyway"| E
+  E -->|"Over ceiling"| S["Guardian Swap Engine<br/>saving + spec parity"]
+  S --> E
+  E --> K["Mindful checkout"]
+  H -->|"Let it go"| W["Spending Memory<br/>impulse avoided"]
+  H -->|"Still want it"| E
+  K --> W
+```
 
 ## 📱 Screens
 
-| Tab / Route | File | Highlights |
+| Tab / route | File | Highlights |
 | :--- | :--- | :--- |
-| **Shell** | `features/navigation/main_scaffold.dart` | Floating frosted bottom bar, lazily built keep-alive tabs, cross-fade switching, over-budget cart badge. |
-| **Intent Home** | `features/home/presentation/intent_home_screen.dart` | Live budget badge, intent search + quick prompts, fit-pick carousel with score dials, Guardian nudge, Price Memory alert. |
-| **Decision View** (pushed) | `features/decision/presentation/product_decision_screen.dart` | Gallery with local-pickup badge, 30-day price trend, "Why we recommend this", sticky budget-impact bar with *Add to Intent Cart* / *Hold to Think*. |
-| **Compare** | `features/decision/presentation/compare_matrix_screen.dart` | Head-to-head header, priority picker, weighted verdict, differences-only rows. |
-| **Budget Guardian** | `features/cart/presentation/smart_cart_screen.dart` | Interactive barometer (Month ⇄ Cart), optimisation card, swipe-to-remove with undo, mindful checkout. |
-| **Insights** | `features/profile/presentation/insights_screen.dart` | Envelope rings, editable monthly limit, six-month trend, category breakdown, items cooling off. |
+| **Shell** | `features/navigation/main_scaffold.dart` | Floating frosted island with a magnetic indicator; lazy, kept-alive tabs; over-budget cart badge. |
+| **Intent Horizon** | `features/home/presentation/intent_home_screen.dart` | Wordmark, live `₹3,200 / ₹5,000` metric with backlit ring, profile & signals sheet, Intent Canvas with curated capsules, Fit Stream cards (dial, signed reason + trade-off, pickup tag). |
+| **Decision canvas** *(pushed)* | `features/decision/presentation/product_decision_screen.dart` | Matte product stage, 30-day price band, "Why This Fits You" ledger, friction-by-design drawer: *"Leaves ₹801 safe buffer"*, **Add to Intent Cart** vs **24h Cooling Off**. |
+| **Decision Node** | `features/decision/presentation/decision_node_screen.dart` | Items cooling off (let go / still want it), head-to-head, starred priorities, weighted verdict, differences-only matrix. |
+| **Smart Cart (Guardian)** | `features/cart/presentation/smart_cart_screen.dart` | Multi-segment Spending Barometer with ceiling tick, Guardian Swap Engine, swipe-to-remove with undo, mindful checkout. |
+| **Spending Memory** | `features/memory/presentation/spending_memory_screen.dart` | Backlit envelope ring, editable ceiling, mindful wins, six-month trend, category breakdown. |
 
----
+## 🎨 Design language
 
-## 🛠️ Tech Stack
+*Midnight Obsidian & Ethereal Mint* — a matte `#08090C` canvas with film grain, surfaces that read as stacked vellum with a 1px directional rim light, and four accents that each carry exactly one meaning. Type pairs **Schibsted Grotesk** (reading) with **Geist Mono** (prices, scores, labels), both bundled.
+
+> [!TIP]
+> The full token reference, material tiers and component catalogue are in [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md).
+
+## 🛠️ Tech stack
 
 | Component | Technology |
 | :--- | :--- |
-| **Framework** | [Flutter](https://flutter.dev) 3.x · Material 3 · Dart 3 |
-| **State management** | [`flutter_riverpod`](https://pub.dev/packages/flutter_riverpod) 3.x (`Notifier` / derived `Provider`s) |
-| **Data** | In-memory mock catalogue (`lib/core/data/mock_catalog.dart`) — no backend yet |
-| **Design system** | Custom dark-first glassmorphism tokens — see [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) |
+| Framework | [Flutter](https://flutter.dev) 3.x · Material 3 · Dart 3 |
+| State | [`flutter_riverpod`](https://pub.dev/packages/flutter_riverpod) 3.x — `Notifier`s + derived `Provider`s |
+| Data | In-memory mock catalogue behind `catalogProvider` |
+| Typography | Schibsted Grotesk + Geist Mono (OFL-1.1, bundled) |
 
-> Persistence (e.g. SQLite) and authentication are planned but **not yet implemented**.
-
----
-
-## 🗂️ Project Structure
+## 🗂️ Project structure
 
 ```text
 lib/
 ├── core/
-│   ├── data/          # Mock catalogue & compare pairs
-│   ├── models/        # Product, ProductSpec, FitFactor
-│   ├── theme/         # Colors, typography, spacing, glass, ThemeData
-│   ├── utils/         # INR (Indian grouping) & countdown formatters
-│   └── widgets/       # GlassContainer, GradientButton, FitScoreDial, IntentSearchBar,
-│                      # FrostedBottomBar, PriceTrendChart, GlassSheet, …
+│   ├── data/          # Catalog provider, mock catalogue & compare pairs
+│   ├── models/        # Product, ProductSpec, FitFactor, PickupPoint
+│   ├── theme/         # app_colors · app_typography · app_decorations · app_spacing · app_theme
+│   ├── utils/         # INR (Indian grouping), signed points, countdown formatters
+│   └── widgets/       # TactileCard, FitDial, IntentInput, FloatingNavBar, HoldButton,
+│                      # FrostedChrome, PriceBandChart, ProductArtwork, ObsidianCanvas, …
 ├── features/
-│   ├── budget/application/      # Monthly envelope + BudgetSnapshot
-│   ├── cart/                    # Cart controller, swap suggestions, Smart Cart UI
-│   ├── decision/                # Decision View, Compare Matrix, cooldowns
-│   ├── home/                    # Intent parsing & ranking, home UI
-│   ├── navigation/              # Tab controller & MainScaffold shell
-│   └── profile/presentation/    # Insights screen
-└── main.dart                    # Edge-to-edge setup, ProviderScope, MaterialApp
+│   ├── budget/        # Envelope state, BudgetSnapshot, ceiling sheet
+│   ├── cart/          # Cart controller, swap engine, Smart Cart UI
+│   ├── decision/      # Decision canvas, Decision Node, cooldowns, compare scoring
+│   ├── home/          # Intent parsing & ranking, Intent Horizon UI
+│   ├── memory/        # Spending Memory UI
+│   └── navigation/    # AppTab controller & MainScaffold shell
+└── main.dart          # Edge-to-edge setup, ProviderScope, MaterialApp
 ```
 
-Architecture notes live in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+Architecture, state graph and performance rules: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
----
+## 🚀 Getting started
 
-## 🚀 Getting Started
-
-### Prerequisites
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) (stable channel, Dart ≥ 3.13)
-- Android Studio / VS Code with Flutter & Dart plugins, plus an emulator or device
-
-### Run
+**Prerequisites:** [Flutter SDK](https://docs.flutter.dev/get-started/install) (stable, Dart ≥ 3.13) and an Android emulator/device or Chrome.
 
 ```bash
-git clone https://github.com/your-username/clarion.git
-cd clarion
+git clone https://github.com/KrishKamra/Clarion.git
+cd Clarion
 flutter pub get
 flutter run
 ```
@@ -87,24 +109,42 @@ flutter run
 ### Quality checks
 
 ```bash
-flutter analyze     # static analysis (flutter_lints)
-flutter test        # unit + widget smoke tests
-dart format lib test
+dart format lib test   # formatting
+flutter analyze        # static analysis (flutter_lints) — expected: no issues
+flutter test           # unit + widget tests — fails on any layout overflow
 ```
 
----
+> [!IMPORTANT]
+> Clarion is dark-only and portrait-locked by design. The obsidian canvas is part of the product, not a theme preference.
 
-## 🧪 Demo Scenario (seed data)
+## 🧪 Demo scenario (seed data)
 
-The mock state is tuned so the core flows are visible immediately:
+The mock state is tuned so the headline numbers fall out of real arithmetic:
 
-- **Monthly limit** ₹5,000 · **settled** ₹2,000 · **cart** ₹3,397 → **₹397 over budget**.
-- Budget Guardian suggests swapping *Arcus Q30* (₹1,899) for *Sonique Flow* (₹1,499): **save ₹400 at 94% feature parity**, landing ₹3 under.
-- The *Northpeak Atlas 30L* Decision View shows **"Leaves ₹701 in your monthly envelope"** and a 92% itemised fit score.
-- *Fieldnote EDC Sling* is 15% below its 30-day average (Price Memory alert).
+- **Ceiling** ₹5,000 · **settled** ₹2,000 · **cart** ₹1,200 (desk lamp + cable kit) → header reads **₹3,200 / ₹5,000**.
+- *Northpeak Atlas 30L* (₹2,199) scores **92**: `+35` Intent Match, `+25` Budget Envelope, `+28` Commute Fit, `+12` Build Trust, `−08` Weight Delta. Its drawer reads **"Leaves ₹801 safe buffer"** and notes the cart would take it ₹399 past the ceiling.
+- Add it anyway and the **Guardian Swap Engine** appears: *Terrain Metro 28L* saves **₹450 at 89% spec parity**, landing ₹51 under.
+- *Loom 75 keyboard* is mid-way through a 24h cooling-off period in the Decision Node.
 
----
+> [!WARNING]
+> "Leaves ₹801 safe buffer" measures the item alone against this month's envelope. The cart-inclusive figure is shown on the line beneath it, and it is what the add flow checks.
+
+## 🗺️ Roadmap
+
+- [x] Design system, atomic widgets and all core screens
+- [x] Riverpod state with derived business rules and tests
+- [ ] Local persistence (cart, holds, envelope history)
+- [ ] Authentication and a real catalogue/decision-engine backend
+- [ ] Payments and order history
+- [ ] Notifications when a cooling-off period ends
+
+## 🤝 Contributing
+
+Contributions are welcome — read [`CONTRIBUTING.md`](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md) first.
+
+> [!CAUTION]
+> Found a security issue? Please **don't** open a public issue — follow [`SECURITY.md`](SECURITY.md).
 
 ## 📄 License
 
-Intended to be released under the MIT License. A `LICENSE` file has not been added yet.
+[MIT](LICENSE) © 2026 Krish Kamra. Bundled fonts are licensed separately under the SIL Open Font License 1.1 (see `assets/fonts/`).

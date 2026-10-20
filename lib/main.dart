@@ -8,7 +8,7 @@ import 'features/navigation/main_scaffold.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Draw edge-to-edge so ambient glows and glass bars reach the screen edges.
+  // Draw edge-to-edge so the canvas and the floating island reach the edges.
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -34,10 +34,7 @@ class ClarionApp extends StatelessWidget {
     return MaterialApp(
       title: 'Clarion',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
-      // Clarion is designed dark-first; the light theme is kept ready.
-      themeMode: ThemeMode.dark,
+      theme: AppTheme.dark,
       home: const MainScaffold(),
     );
   }

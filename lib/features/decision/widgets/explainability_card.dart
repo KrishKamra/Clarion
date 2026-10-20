@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 
 import '../../../core/models/product.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_decorations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/widgets/fit_score_dial.dart';
-import '../../../core/widgets/glass_container.dart';
+import '../../../core/utils/formatters.dart';
+import '../../../core/widgets/tactile_card.dart';
 
-/// "Why We Recommend This" – every point of the fit score, itemised.
-///
-/// Ends with a contribution bar so the user can see at a glance how much
-/// of the score each factor earned (or cost).
+/// "Why This Fits You" — the fit score as a ledger. Every signed line is
+/// shown, and the total is printed beneath them, so the number is never
+/// asserted, only derived.
 class ExplainabilityCard extends StatelessWidget {
   const ExplainabilityCard({super.key, required this.product});
 
@@ -18,119 +18,56 @@ class ExplainabilityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GlassContainer.card(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      tint: AppColors.primary,
-      opacity: 0.06,
+    final color = AppColors.forFit(product.fitScore);
+
+    return TactileCard(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              ShaderMask(
-                shaderCallback: AppColors.brandGradient.createShader,
-                child: const Icon(
-                  Icons.psychology_alt_rounded,
-                  color: Colors.white,
-                  size: 22,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Why we recommend this',
-                      style: AppTypography.titleSmall,
-                    ),
-                    Text(
-                      'Every point, accounted for',
-                      style: AppTypography.caption,
-                    ),
-                  ],
-                ),
-              ),
-              FitScoreDial(score: product.fitScore, size: 48, showLabel: false),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          for (final f in product.fitFactors) _FactorRow(factor: f),
+          Text('WHY THIS FITS YOU', style: AppTypography.overline),
+          const SizedBox(height: AppSpacing.xs),
+          Text('Every point, accounted for.', style: AppTypography.bodySmall),
           const SizedBox(height: AppSpacing.md),
-          _ContributionBar(
-            factors: product.fitFactors,
-            score: product.fitScore,
-          ),
+          for (final (i, f) in product.fitFactors.indexed) ...[
+            if (i > 0) const Divider(),
+            _LedgerRow(factor: f),
+          ],
+          const SizedBox(height: AppSpacing.sm),
+          _Total(score: product.fitScore, color: color),
         ],
       ),
     );
   }
 }
 
-class _FactorRow extends StatelessWidget {
-  const _FactorRow({required this.factor});
+class _LedgerRow extends StatelessWidget {
+  const _LedgerRow({required this.factor});
 
   final FitFactor factor;
 
   @override
   Widget build(BuildContext context) {
-    final isTradeoff = factor.kind == FitFactorKind.tradeoff;
-    final color = isTradeoff ? AppColors.fitMid : AppColors.fitHigh;
-    final points = factor.points;
-
+    final color = factor.isTradeoff ? AppColors.amber : AppColors.emeraldGlow;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: color.withValues(alpha: 0.14),
-            ),
-            child: Icon(
-              isTradeoff ? Icons.priority_high_rounded : Icons.check_rounded,
-              size: 14,
-              color: color,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Text.rich(
-              TextSpan(
-                text: '${factor.title}: ',
-                style: AppTypography.label.copyWith(
-                  color: isTradeoff ? AppColors.fitMid : AppColors.textPrimary,
-                ),
-                children: [
-                  TextSpan(
-                    text: factor.detail,
-                    style: AppTypography.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
-                      fontSize: 13.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              borderRadius: AppRadii.pillAll,
-              color: (points < 0 ? AppColors.fitLow : color).withValues(
-                alpha: 0.12,
-              ),
-            ),
+          SizedBox(
+            width: 48,
             child: Text(
-              '${points > 0 ? '+' : '−'}${points.abs()} pts',
-              style: AppTypography.numericSmall.copyWith(
-                fontSize: 11.5,
-                color: points < 0 ? AppColors.fitLow : color,
-              ),
+              Fmt.points(factor.points),
+              style: AppTypography.metric.copyWith(color: color, height: 1.3),
+            ),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(factor.title, style: AppTypography.label),
+                const SizedBox(height: 2),
+                Text(factor.detail, style: AppTypography.bodySmall),
+              ],
             ),
           ),
         ],
@@ -139,91 +76,50 @@ class _FactorRow extends StatelessWidget {
   }
 }
 
-class _ContributionBar extends StatelessWidget {
-  const _ContributionBar({required this.factors, required this.score});
+/// The sum line, backlit in the fit colour — the one place on the card
+/// where colour pools, because it is the conclusion.
+class _Total extends StatelessWidget {
+  const _Total({required this.score, required this.color});
 
-  final List<FitFactor> factors;
   final int score;
-
-  static const _palette = [
-    AppColors.primary,
-    AppColors.secondary,
-    AppColors.accent,
-    AppColors.fitHigh,
-    Color(0xFF38BDF8),
-  ];
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    final positives = factors.where((f) => f.points > 0).toList();
-    final penalty = factors
-        .where((f) => f.points < 0)
-        .fold<int>(0, (sum, f) => sum + f.points.abs());
-    final gross = positives.fold<int>(0, (s, f) => s + f.points);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ClipRRect(
-          borderRadius: AppRadii.pillAll,
-          child: SizedBox(
-            height: 8,
-            child: Row(
-              children: [
-                for (var i = 0; i < positives.length; i++)
-                  Expanded(
-                    flex: positives[i].points,
-                    child: Container(
-                      margin: const EdgeInsets.only(right: 2),
-                      color: _palette[i % _palette.length],
-                    ),
-                  ),
-                if (penalty > 0)
-                  Expanded(
-                    flex: penalty,
-                    child: Container(color: AppColors.fitLow),
-                  ),
-                if (gross + penalty < 100)
-                  Expanded(
-                    flex: 100 - gross - penalty,
-                    child: Container(
-                      color: Colors.white.withValues(alpha: 0.06),
-                    ),
-                  ),
-              ],
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.md,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: AppRadii.mdAll,
+        gradient: AppDecorations.backlight(color, intensity: 0.12),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 36,
+            child: Text(
+              '=',
+              style: AppTypography.metric.copyWith(color: color),
             ),
           ),
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        Row(
-          children: [
-            Expanded(
-              child: Text.rich(
-                TextSpan(
-                  text: '$gross pts earned',
-                  children: [
-                    if (penalty > 0)
-                      TextSpan(
-                        text: '  −  $penalty trade-off',
-                        style: const TextStyle(color: AppColors.fitLow),
-                      ),
-                  ],
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTypography.caption,
-              ),
+          Expanded(
+            child: Text('Personal fit score', style: AppTypography.label),
+          ),
+          Text(
+            '$score',
+            style: AppTypography.metricLarge.copyWith(color: color),
+          ),
+          Text(
+            '/100',
+            style: AppTypography.metricSmall.copyWith(
+              color: AppColors.textTertiary,
             ),
-            const SizedBox(width: AppSpacing.sm),
-            Text(
-              '= $score% match',
-              style: AppTypography.numericSmall.copyWith(
-                color: AppColors.forFitScore(score),
-              ),
-            ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 }

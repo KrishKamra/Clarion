@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// "Hold to Think" – products the user parked for a 24 h cooling-off period.
+/// 24h Cooling Off – products the user parked to decide on once the urge passes.
 ///
 /// Maps product id → moment the hold expires.
 class CooldownController extends Notifier<Map<String, DateTime>> {

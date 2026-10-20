@@ -1,30 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/data/mock_catalog.dart';
+import '../../../core/data/catalog.dart';
 import '../../../core/models/product.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/formatters.dart';
-import '../../../core/widgets/ambient_background.dart';
-import '../../../core/widgets/fit_score_dial.dart';
-import '../../../core/widgets/glass_container.dart';
-import '../../../core/widgets/glass_sheet.dart';
-import '../../../core/widgets/product_thumbnail.dart';
+import '../../../core/widgets/fit_dial.dart';
+import '../../../core/widgets/obsidian_canvas.dart';
+import '../../../core/widgets/product_artwork.dart';
+import '../../../core/widgets/round_icon_button.dart';
 import '../../../core/widgets/section_header.dart';
+import '../../../core/widgets/tactile_card.dart';
 import '../../navigation/navigation_controller.dart';
 import '../application/compare_controller.dart';
-import '../widgets/decision_action_bar.dart';
+import '../widgets/decision_drawer.dart';
 import '../widgets/explainability_card.dart';
-import '../widgets/price_history_card.dart';
-import '../widgets/product_gallery.dart';
-import '../widgets/spec_grid.dart';
+import '../widgets/matte_stage.dart';
+import '../widgets/price_band_card.dart';
+import '../widgets/spec_list.dart';
 
-/// Decision Support View – an explainable replacement for a classic PDP.
+/// The explainable decision canvas that replaces a classic product page.
 ///
-/// Instead of persuading, it lays out the evidence: price memory, an
-/// itemised fit score with trade-offs, and the purchase's budget impact.
+/// No urgency, no upsell: the product on a matte stage, its price in
+/// context, every point of its fit score, and — in the drawer — what it
+/// would do to the month.
 class ProductDecisionScreen extends ConsumerWidget {
   const ProductDecisionScreen({
     super.key,
@@ -35,7 +36,7 @@ class ProductDecisionScreen extends ConsumerWidget {
   final String productId;
   final Object? heroTag;
 
-  /// Pushes the decision view with a soft fade-up transition.
+  /// Pushes the decision canvas with a short fade-and-rise.
   static Future<void> open(
     BuildContext context,
     String productId, {
@@ -43,21 +44,21 @@ class ProductDecisionScreen extends ConsumerWidget {
     bool replace = false,
   }) {
     final route = PageRouteBuilder<void>(
-      transitionDuration: const Duration(milliseconds: 420),
-      reverseTransitionDuration: const Duration(milliseconds: 320),
+      transitionDuration: AppMotion.slow,
+      reverseTransitionDuration: AppMotion.medium,
       pageBuilder: (_, _, _) =>
           ProductDecisionScreen(productId: productId, heroTag: heroTag),
       transitionsBuilder: (_, animation, _, child) {
         final curved = CurvedAnimation(
           parent: animation,
-          curve: AppMotion.emphasized,
+          curve: AppMotion.standard,
           reverseCurve: Curves.easeInCubic,
         );
         return FadeTransition(
           opacity: curved,
           child: SlideTransition(
             position: Tween(
-              begin: const Offset(0, 0.04),
+              begin: const Offset(0, 0.03),
               end: Offset.zero,
             ).animate(curved),
             child: child,
@@ -71,26 +72,25 @@ class ProductDecisionScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final product = MockCatalog.byId(productId);
-    final topInset = MediaQuery.paddingOf(context).top;
-    final hasPair = MockCatalog.comparePairs.any(
-      (p) => p.leftId == product.id || p.rightId == product.id,
-    );
+    final catalog = ref.watch(catalogProvider);
+    final product = catalog.byId(productId);
+    final pair = catalog.pairFor(product.id);
+    final insets = MediaQuery.paddingOf(context);
 
     void openCompare() {
       ref.read(compareProvider.notifier).focusProduct(product.id);
-      ref.read(navigationProvider.notifier).select(AppTab.compare);
+      ref.read(navigationProvider.notifier).select(AppTab.decisions);
       Navigator.of(context).popUntil((r) => r.isFirst);
     }
 
-    return Scaffold(
-      extendBody: true,
-      backgroundColor: AppColors.backgroundDeep,
-      bottomNavigationBar: DecisionActionBar(product: product),
-      body: AmbientBackground(
-        primaryGlow: product.palette.first,
-        secondaryGlow: product.palette.last,
-        child: Stack(
+    return ObsidianCanvas(
+      glow: product.tone,
+      glowIntensity: 0.08,
+      child: Scaffold(
+        extendBody: true,
+        backgroundColor: Colors.transparent,
+        bottomNavigationBar: DecisionDrawer(product: product),
+        body: Stack(
           children: [
             CustomScrollView(
               physics: const BouncingScrollPhysics(
@@ -100,63 +100,64 @@ class ProductDecisionScreen extends ConsumerWidget {
                 SliverPadding(
                   padding: EdgeInsets.fromLTRB(
                     AppSpacing.lg,
-                    topInset + AppSpacing.sm,
+                    insets.top + AppSpacing.sm,
                     AppSpacing.lg,
                     0,
                   ),
                   sliver: SliverToBoxAdapter(
-                    child: ProductGallery(product: product, heroTag: heroTag),
+                    child: MatteStage(product: product, heroTag: heroTag),
                   ),
                 ),
                 SliverPadding(
                   padding: AppSpacing.screenPadding.copyWith(
-                    top: AppSpacing.xl,
+                    top: AppSpacing.xxl,
                   ),
                   sliver: SliverList.list(
                     children: [
                       _TitleBlock(product: product),
-                      const SizedBox(height: AppSpacing.xl),
-                      ExplainabilityCard(product: product),
-                      const SizedBox(height: AppSpacing.lg),
-                      PriceHistoryCard(product: product),
                       const SizedBox(height: AppSpacing.xxl),
-                      const SectionHeader(title: 'Key specs'),
+                      ExplainabilityCard(product: product),
                       const SizedBox(height: AppSpacing.md),
-                      SpecGrid(specs: product.specs),
-                      if (hasPair) ...[
-                        const SizedBox(height: AppSpacing.xxl),
-                        _AlternativeCard(
+                      PriceBandCard(product: product),
+                      const SizedBox(height: AppSpacing.section),
+                      const SectionHeader(label: 'Specifications'),
+                      const SizedBox(height: AppSpacing.xs),
+                      SpecList(specs: product.specs),
+                      if (pair != null) ...[
+                        const SizedBox(height: AppSpacing.section),
+                        const SectionHeader(label: 'Also considered'),
+                        const SizedBox(height: AppSpacing.md),
+                        _AlternativeRow(
                           product: product,
+                          other: catalog.byId(pair.other(product.id)),
                           onCompare: openCompare,
                         ),
                       ],
-                      // Clearance for the sticky decision bar.
-                      SizedBox(
-                        height: 190 + MediaQuery.paddingOf(context).bottom,
-                      ),
+                      // Clearance for the decision drawer.
+                      SizedBox(height: 200 + insets.bottom),
                     ],
                   ),
                 ),
               ],
             ),
             Positioned(
-              top: topInset + AppSpacing.lg,
-              left: AppSpacing.xxl,
-              right: AppSpacing.xxl,
+              top: insets.top + AppSpacing.lg,
+              left: AppSpacing.xxl + AppSpacing.xs,
+              right: AppSpacing.xxl + AppSpacing.xs,
               child: Row(
                 children: [
-                  GlassIconButton(
+                  RoundIconButton(
                     icon: Icons.arrow_back_rounded,
-                    tooltip: 'Back',
-                    blur: true,
+                    semanticLabel: 'Back',
+                    frosted: true,
                     onPressed: () => Navigator.of(context).maybePop(),
                   ),
                   const Spacer(),
-                  if (hasPair)
-                    GlassIconButton(
-                      icon: Icons.balance_rounded,
-                      tooltip: 'Compare',
-                      blur: true,
+                  if (pair != null)
+                    RoundIconButton(
+                      icon: Icons.hub_outlined,
+                      semanticLabel: 'Compare in Decision Node',
+                      frosted: true,
                       onPressed: openCompare,
                     ),
                 ],
@@ -187,119 +188,97 @@ class _TitleBlock extends StatelessWidget {
             children: [
               Text(
                 '${product.brand} · ${product.category}'.toUpperCase(),
-                style: AppTypography.overline.copyWith(color: AppColors.accent),
+                style: AppTypography.overline,
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(product.title, style: AppTypography.headline),
               const SizedBox(height: AppSpacing.sm),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.star_rounded,
-                    size: 16,
-                    color: AppColors.fitMid,
-                  ),
-                  const SizedBox(width: 3),
-                  Text('${product.rating}', style: AppTypography.numericSmall),
-                  Flexible(
-                    child: Text(
-                      '  ·  ${product.reviewCount} verified reviews',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTypography.caption,
-                    ),
-                  ),
-                ],
+              Text(
+                '${product.rating}★  ·  ${product.reviewCount} verified owners',
+                style: AppTypography.metricSmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
-              const SizedBox(height: AppSpacing.md),
-              Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: AppSpacing.sm,
-                runSpacing: AppSpacing.xs,
+              const SizedBox(height: AppSpacing.lg),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
                 children: [
-                  Text(
-                    Fmt.inr(product.price),
-                    style: AppTypography.numericLarge,
-                  ),
-                  if (pct.abs() >= 1)
-                    TagPill(
-                      label: pct > 0
-                          ? '−${Fmt.percent(pct)} vs 30-day avg'
-                          : '+${Fmt.percent(-pct)} vs 30-day avg',
-                      color: pct > 0 ? AppColors.fitHigh : AppColors.fitMid,
-                      icon: pct > 0
-                          ? Icons.trending_down_rounded
-                          : Icons.trending_up_rounded,
-                      dense: true,
+                  Text(Fmt.inr(product.price), style: AppTypography.metricXL),
+                  if (pct.abs() >= 1) ...[
+                    const SizedBox(width: AppSpacing.md),
+                    Flexible(
+                      child: Text(
+                        '${pct > 0 ? '−' : '+'}${Fmt.percent(pct.abs())} vs 30d avg',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.metricSmall.copyWith(
+                          color: pct > 0
+                              ? AppColors.emeraldGlow
+                              : AppColors.amber,
+                        ),
+                      ),
                     ),
+                  ],
                 ],
               ),
             ],
           ),
         ),
         const SizedBox(width: AppSpacing.md),
-        FitScoreDial(score: product.fitScore, size: 84),
+        FitDial(score: product.fitScore, size: 88),
       ],
     );
   }
 }
 
-class _AlternativeCard extends StatelessWidget {
-  const _AlternativeCard({required this.product, required this.onCompare});
+class _AlternativeRow extends StatelessWidget {
+  const _AlternativeRow({
+    required this.product,
+    required this.other,
+    required this.onCompare,
+  });
 
   final Product product;
+  final Product other;
   final VoidCallback onCompare;
 
   @override
   Widget build(BuildContext context) {
-    final pair = MockCatalog.comparePairs.firstWhere(
-      (p) => p.leftId == product.id || p.rightId == product.id,
-    );
-    final other = MockCatalog.byId(
-      pair.leftId == product.id ? pair.rightId : pair.leftId,
-    );
     final diff = other.price - product.price;
 
-    return GlassContainer.card(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+    return TactileCard(
       onTap: onCompare,
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: Row(
         children: [
-          ProductThumbnail(product: other, size: 52),
+          ProductArtwork(product: other, size: 52),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('ALSO CONSIDERED', style: AppTypography.overline),
-                const SizedBox(height: 3),
                 Text(
                   '${other.brand} ${other.title}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTypography.label,
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 3),
                 Text(
-                  '${other.fitScore}% match · ${diff < 0 ? '${Fmt.inr(-diff)} cheaper' : '${Fmt.inr(diff)} more'}',
-                  style: AppTypography.caption.copyWith(
+                  '${other.fitScore} fit · ${diff < 0 ? '${Fmt.inr(-diff)} less' : '${Fmt.inr(diff)} more'}',
+                  style: AppTypography.metricSmall.copyWith(
                     color: diff < 0
-                        ? AppColors.fitHigh
+                        ? AppColors.emeraldGlow
                         : AppColors.textSecondary,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: AppSpacing.sm),
           Text(
             'Compare',
-            style: AppTypography.label.copyWith(color: AppColors.accent),
-          ),
-          const Icon(
-            Icons.chevron_right_rounded,
-            size: 18,
-            color: AppColors.accent,
+            style: AppTypography.label.copyWith(color: AppColors.irisGlow),
           ),
         ],
       ),

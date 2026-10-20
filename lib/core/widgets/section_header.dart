@@ -5,118 +5,98 @@ import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import 'pressable.dart';
 
-/// Title + optional caption + trailing action for content sections.
+/// Editorial section rule: a mono label, a hairline running to the edge,
+/// and an optional quiet action. Separates content without boxing it.
 class SectionHeader extends StatelessWidget {
   const SectionHeader({
     super.key,
-    required this.title,
-    this.subtitle,
+    required this.label,
+    this.caption,
     this.actionLabel,
     this.onAction,
-    this.leading,
   });
 
-  final String title;
-  final String? subtitle;
+  final String label;
+  final String? caption;
   final String? actionLabel;
   final VoidCallback? onAction;
-  final Widget? leading;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (leading != null) ...[
-          leading!,
-          const SizedBox(width: AppSpacing.sm),
-        ],
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: AppTypography.title.copyWith(fontSize: 18)),
-              if (subtitle != null) ...[
-                const SizedBox(height: 2),
-                Text(subtitle!, style: AppTypography.bodySmall),
-              ],
-            ],
-          ),
-        ),
-        if (actionLabel != null)
-          Pressable(
-            onTap: onAction,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
+        Row(
+          children: [
+            Text(label.toUpperCase(), style: AppTypography.overline),
+            const SizedBox(width: AppSpacing.md),
+            const Expanded(child: Divider()),
+            if (actionLabel != null) ...[
+              const SizedBox(width: AppSpacing.md),
+              Pressable(
+                onTap: onAction,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                  child: Text(
                     actionLabel!,
                     style: AppTypography.label.copyWith(
-                      color: AppColors.accent,
+                      color: AppColors.irisGlow,
+                      fontSize: 13,
                     ),
                   ),
-                  const Icon(
-                    Icons.chevron_right_rounded,
-                    size: 18,
-                    color: AppColors.accent,
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
+            ],
+          ],
+        ),
+        if (caption != null) ...[
+          const SizedBox(height: AppSpacing.sm),
+          Text(caption!, style: AppTypography.caption),
+        ],
       ],
     );
   }
 }
 
-/// Compact rounded label, e.g. "1.8 km away" or "−15% vs avg".
-class TagPill extends StatelessWidget {
-  const TagPill({
+/// Compact metadata label, e.g. "Pickup · 1.8 km" or "−9% vs 30-day".
+class MetaTag extends StatelessWidget {
+  const MetaTag({
     super.key,
     required this.label,
     this.icon,
-    this.color = AppColors.accent,
-    this.filled = false,
-    this.dense = false,
+    this.color = AppColors.textSecondary,
   });
 
   final String label;
   final IconData? icon;
   final Color color;
-  final bool filled;
-  final bool dense;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: dense ? 7 : AppSpacing.sm + 2,
-        vertical: dense ? 3 : 5,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        borderRadius: AppRadii.pillAll,
-        color: color.withValues(alpha: filled ? 0.9 : 0.12),
-        border: Border.all(color: color.withValues(alpha: filled ? 0 : 0.35)),
+        borderRadius: AppRadii.xsAll,
+        color: color.withValues(alpha: 0.08),
+        border: Border.all(color: color.withValues(alpha: 0.16)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(
-              icon,
-              size: dense ? 11 : 13,
-              color: filled ? Colors.white : color,
-            ),
-            const SizedBox(width: 4),
+            Icon(icon, size: 12, color: color),
+            const SizedBox(width: 5),
           ],
-          Text(
-            label,
-            style: AppTypography.caption.copyWith(
-              fontSize: dense ? 10.5 : 11.5,
-              fontWeight: FontWeight.w700,
-              color: filled ? Colors.white : color,
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.metricSmall.copyWith(
+                fontSize: 11,
+                color: color,
+                letterSpacing: -0.1,
+              ),
             ),
           ),
         ],

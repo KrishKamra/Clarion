@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/data/mock_catalog.dart';
+import '../../../core/data/catalog.dart';
 import '../../../core/models/product.dart';
 
-/// A parsed shopping intent, e.g. "College setup < ₹3k".
+/// A parsed shopping intent, e.g. "Daily EDC for College < ₹2,500".
 ///
 /// A deliberately small, on-device heuristic: it pulls out a price ceiling and
 /// keyword set; the real decision engine would replace this.
@@ -55,6 +55,8 @@ class IntentQuery {
     'get',
     'max',
     'upto',
+    'seeking',
+    'accomplish',
   };
 
   final String raw;
@@ -93,9 +95,9 @@ final intentProvider = NotifierProvider<IntentController, IntentQuery?>(
   IntentController.new,
 );
 
-/// "Personal Fit Picks" for the current intent.
+/// The Curated Fit Stream for the current intent.
 final fitPicksProvider = Provider<List<Product>>((ref) {
   final intent = ref.watch(intentProvider);
-  final ranked = MockCatalog.rankedByFit;
+  final ranked = ref.watch(catalogProvider).rankedByFit;
   return intent == null ? ranked : intent.rank(ranked);
 });

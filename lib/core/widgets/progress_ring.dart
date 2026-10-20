@@ -2,20 +2,22 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors.dart';
+import '../theme/app_decorations.dart';
 import '../theme/app_spacing.dart';
 
 /// Minimal animated circular progress ring.
 ///
-/// Values above 1.0 render a full ring – callers convey overflow through
-/// [color] (e.g. coral when over budget).
+/// Values above 1.0 render a full ring — callers convey overflow through
+/// [color]. Set [backlit] to pool a little light behind it.
 class ProgressRing extends StatelessWidget {
   const ProgressRing({
     super.key,
     required this.value,
     required this.color,
     this.size = 22,
-    this.strokeWidth = 3,
-    this.trackColor,
+    this.strokeWidth = 2.5,
+    this.backlit = false,
     this.child,
   });
 
@@ -23,27 +25,36 @@ class ProgressRing extends StatelessWidget {
   final Color color;
   final double size;
   final double strokeWidth;
-  final Color? trackColor;
+  final bool backlit;
   final Widget? child;
 
   @override
   Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
+    Widget ring = TweenAnimationBuilder<double>(
       tween: Tween(end: value.clamp(0.0, 1.0)),
-      duration: AppMotion.slow,
+      duration: AppMotion.reveal,
       curve: AppMotion.standard,
       builder: (context, v, child) => CustomPaint(
         size: Size.square(size),
-        painter: _RingPainter(
-          value: v,
-          color: color,
-          strokeWidth: strokeWidth,
-          trackColor: trackColor ?? Colors.white.withValues(alpha: 0.1),
-        ),
-        child: SizedBox.square(dimension: size, child: child),
+        painter: _RingPainter(value: v, color: color, strokeWidth: strokeWidth),
+        child: child,
       ),
-      child: child == null ? null : Center(child: child),
+      child: SizedBox.square(
+        dimension: size,
+        child: child == null ? null : Center(child: child),
+      ),
     );
+
+    if (backlit) {
+      ring = DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: AppDecorations.backlight(color, intensity: 0.22),
+        ),
+        child: ring,
+      );
+    }
+    return RepaintBoundary(child: ring);
   }
 }
 
@@ -52,13 +63,11 @@ class _RingPainter extends CustomPainter {
     required this.value,
     required this.color,
     required this.strokeWidth,
-    required this.trackColor,
   });
 
   final double value;
   final Color color;
   final double strokeWidth;
-  final Color trackColor;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -69,7 +78,7 @@ class _RingPainter extends CustomPainter {
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
 
-    canvas.drawCircle(center, radius, paint..color = trackColor);
+    canvas.drawCircle(center, radius, paint..color = AppColors.hairline);
     if (value <= 0) return;
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
@@ -84,6 +93,5 @@ class _RingPainter extends CustomPainter {
   bool shouldRepaint(_RingPainter old) =>
       old.value != value ||
       old.color != color ||
-      old.strokeWidth != strokeWidth ||
-      old.trackColor != trackColor;
+      old.strokeWidth != strokeWidth;
 }

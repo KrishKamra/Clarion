@@ -113,6 +113,9 @@ class BudgetSnapshot {
 
   /// What would remain if [price] were bought on top of settled spend only.
   double leftAfter(double price) => envelopeBeforeCart - price;
+
+  /// What would remain if [price] joined everything already in the cart.
+  double leftAfterWithCart(double price) => headroom - price;
 }
 
 final budgetSnapshotProvider = Provider<BudgetSnapshot>((ref) {

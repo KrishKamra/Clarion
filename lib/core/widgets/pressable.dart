@@ -3,17 +3,18 @@ import 'package:flutter/services.dart';
 
 import '../theme/app_spacing.dart';
 
-/// Wraps any widget with a tactile press-down scale and light haptic tick.
+/// Tactile press behaviour shared by every custom control: a short settle
+/// downward in scale and a light haptic tick on commit.
 ///
-/// Cheaper and calmer than an ink ripple on glass surfaces, and gives
-/// custom cards / buttons a consistent physical feel.
+/// Calmer than an ink ripple on dark surfaces, and it makes cards, capsules
+/// and buttons feel like one physical family.
 class Pressable extends StatefulWidget {
   const Pressable({
     super.key,
     required this.child,
     this.onTap,
     this.onLongPress,
-    this.scale = 0.97,
+    this.scale = 0.98,
     this.haptic = true,
     this.semanticLabel,
   });
@@ -49,10 +50,12 @@ class _PressableState extends State<Pressable> {
         onTapDown: (_) => _set(true),
         onTapUp: (_) => _set(false),
         onTapCancel: () => _set(false),
-        onTap: () {
-          if (widget.haptic) HapticFeedback.selectionClick();
-          widget.onTap?.call();
-        },
+        onTap: widget.onTap == null
+            ? null
+            : () {
+                if (widget.haptic) HapticFeedback.lightImpact();
+                widget.onTap!();
+              },
         onLongPress: widget.onLongPress == null
             ? null
             : () {

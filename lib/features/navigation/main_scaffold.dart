@@ -3,22 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
-import '../../core/widgets/ambient_background.dart';
-import '../../core/widgets/frosted_bottom_bar.dart';
+import '../../core/widgets/floating_nav_bar.dart';
+import '../../core/widgets/obsidian_canvas.dart';
 import '../budget/application/budget_controller.dart';
 import '../cart/application/cart_controller.dart';
 import '../cart/presentation/smart_cart_screen.dart';
-import '../decision/presentation/compare_matrix_screen.dart';
+import '../decision/presentation/decision_node_screen.dart';
 import '../home/presentation/intent_home_screen.dart';
-import '../profile/presentation/insights_screen.dart';
+import '../memory/presentation/spending_memory_screen.dart';
 import 'navigation_controller.dart';
 
-/// Persistent navigation shell.
+/// Persistent shell hosting the four primary tabs under the floating island.
 ///
-/// Tabs are built lazily on first visit and then kept alive, so scroll
-/// positions and in-progress state survive tab switches. Switching
-/// cross-fades with a slight depth scale while inactive tabs have their
-/// tickers paused and pointer input blocked.
+/// Tabs are built lazily on first visit and kept alive, so scroll position
+/// and in-progress state survive switches. Inactive tabs are faded out,
+/// ignore input and have their tickers paused.
 class MainScaffold extends ConsumerWidget {
   const MainScaffold({super.key});
 
@@ -30,53 +29,56 @@ class MainScaffold extends ConsumerWidget {
       budgetSnapshotProvider.select((b) => b.isOver),
     );
 
-    return PopScope(
-      canPop: tab == AppTab.home,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) ref.read(navigationProvider.notifier).select(AppTab.home);
-      },
-      child: Scaffold(
-        extendBody: true,
-        backgroundColor: AppColors.backgroundDeep,
-        body: AmbientBackground(
-          child: _TabHost(
+    // The canvas sits outside the Scaffold so the keyboard never resizes it.
+    return ObsidianCanvas(
+      child: PopScope(
+        canPop: tab == AppTab.horizon,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) {
+            ref.read(navigationProvider.notifier).select(AppTab.horizon);
+          }
+        },
+        child: Scaffold(
+          extendBody: true,
+          backgroundColor: Colors.transparent,
+          body: _TabHost(
             index: tab.index,
             builders: const [
               IntentHomeScreen.new,
-              CompareMatrixScreen.new,
+              DecisionNodeScreen.new,
               SmartCartScreen.new,
-              InsightsScreen.new,
+              SpendingMemoryScreen.new,
             ],
           ),
-        ),
-        bottomNavigationBar: FrostedBottomBar(
-          currentIndex: tab.index,
-          onTap: (i) =>
-              ref.read(navigationProvider.notifier).select(AppTab.values[i]),
-          items: [
-            const FrostedBarItem(
-              icon: Icons.explore_outlined,
-              activeIcon: Icons.explore_rounded,
-              label: 'Intent',
-            ),
-            const FrostedBarItem(
-              icon: Icons.balance_outlined,
-              activeIcon: Icons.balance_rounded,
-              label: 'Compare',
-            ),
-            FrostedBarItem(
-              icon: Icons.shield_outlined,
-              activeIcon: Icons.shield_rounded,
-              label: 'Guardian',
-              badge: cartCount,
-              badgeColor: overBudget ? AppColors.fitLow : AppColors.primary,
-            ),
-            const FrostedBarItem(
-              icon: Icons.insights_outlined,
-              activeIcon: Icons.insights_rounded,
-              label: 'Insights',
-            ),
-          ],
+          bottomNavigationBar: FloatingNavBar(
+            currentIndex: tab.index,
+            onSelected: (i) =>
+                ref.read(navigationProvider.notifier).select(AppTab.values[i]),
+            destinations: [
+              const NavDestination(
+                icon: Icons.blur_on_outlined,
+                activeIcon: Icons.blur_on_rounded,
+                label: 'Horizon',
+              ),
+              const NavDestination(
+                icon: Icons.hub_outlined,
+                activeIcon: Icons.hub_rounded,
+                label: 'Decide',
+              ),
+              NavDestination(
+                icon: Icons.shield_outlined,
+                activeIcon: Icons.shield_rounded,
+                label: 'Guardian',
+                badge: cartCount,
+                badgeColor: overBudget ? AppColors.rose : AppColors.iris,
+              ),
+              const NavDestination(
+                icon: Icons.donut_large_outlined,
+                activeIcon: Icons.donut_large_rounded,
+                label: 'Memory',
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -137,8 +139,8 @@ class _TabPage extends StatelessWidget {
             opacity: active ? 1 : 0,
             duration: AppMotion.medium,
             curve: AppMotion.standard,
-            child: AnimatedScale(
-              scale: active ? 1 : 0.985,
+            child: AnimatedSlide(
+              offset: active ? Offset.zero : const Offset(0, 0.008),
               duration: AppMotion.medium,
               curve: AppMotion.standard,
               child: TickerMode(enabled: active, child: child),

@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 /// Whether a larger value of a spec is better for the user.
 enum SpecPolarity { higherIsBetter, lowerIsBetter, neutral }
 
-/// A single comparable product attribute, e.g. "Weight: 1.2 kg".
+/// A single comparable product attribute, e.g. "Weight: 1.1 kg".
 @immutable
 class ProductSpec {
   const ProductSpec({
@@ -20,7 +20,7 @@ class ProductSpec {
   final String key;
   final String label;
 
-  /// Human readable value, e.g. `30 L`.
+  /// Human-readable value, e.g. `30 L`.
   final String display;
 
   /// Numeric value for winner calculation; `null` for qualitative specs.
@@ -28,17 +28,13 @@ class ProductSpec {
   final SpecPolarity polarity;
 }
 
-/// Polarity of an explainability factor.
-enum FitFactorKind { match, tradeoff }
-
-/// One line of the "Why we recommend this" explanation.
+/// One signed line of the "Why This Fits You" explanation.
 @immutable
 class FitFactor {
   const FitFactor({
     required this.title,
     required this.detail,
     required this.points,
-    this.kind = FitFactorKind.match,
   });
 
   final String title;
@@ -46,7 +42,8 @@ class FitFactor {
 
   /// Contribution to the fit score; negative for trade-offs.
   final int points;
-  final FitFactorKind kind;
+
+  bool get isTradeoff => points < 0;
 }
 
 /// A product as evaluated by Clarion's decision-support engine.
@@ -60,16 +57,15 @@ class Product {
     required this.price,
     required this.averagePrice30d,
     required this.fitScore,
-    required this.fitTagline,
     required this.icon,
-    required this.palette,
+    required this.tone,
     required this.rating,
     required this.reviewCount,
     required this.specs,
     required this.fitFactors,
     required this.priceHistory,
     required this.intentTags,
-    this.storeDistanceKm,
+    this.pickup,
     this.alternativeId,
     this.alternativeParity,
   });
@@ -84,14 +80,11 @@ class Product {
   /// 0–100 match against the user's active intent.
   final int fitScore;
 
-  /// One-line explainability summary shown on cards.
-  final String fitTagline;
-
-  /// Visual stand-in for product photography.
+  /// Glyph standing in for product photography.
   final IconData icon;
 
-  /// Two-stop gradient giving each product a distinct identity.
-  final List<Color> palette;
+  /// A single muted hue that tints the product's matte stage light.
+  final Color tone;
 
   final double rating;
   final int reviewCount;
@@ -104,22 +97,31 @@ class Product {
   /// Lower-case keywords used by the local intent matcher.
   final Set<String> intentTags;
 
-  /// Distance to the nearest store with stock, if any.
-  final double? storeDistanceKm;
+  /// Nearest store with stock, if any.
+  final PickupPoint? pickup;
 
   /// Cheaper, verified alternative the Budget Guardian may suggest.
   final String? alternativeId;
 
-  /// Feature parity (0–100) of [alternativeId] relative to this product.
+  /// Spec parity (0–100) of [alternativeId] relative to this product.
   final int? alternativeParity;
 
   /// Fraction below (positive) or above (negative) the 30-day average.
   double get discountVsAverage => 1 - price / averagePrice30d;
 
-  bool get isPriceDrop => discountVsAverage >= 0.10;
-
   double get historyMin => priceHistory.reduce(math.min);
   double get historyMax => priceHistory.reduce(math.max);
+
+  /// Where today's price sits inside its 30-day band: 0 = low, 1 = high.
+  double get bandPosition {
+    final span = historyMax - historyMin;
+    return span <= 0 ? 0.5 : (price - historyMin) / span;
+  }
+
+  List<FitFactor> get matches =>
+      fitFactors.where((f) => !f.isTradeoff).toList();
+  List<FitFactor> get tradeoffs =>
+      fitFactors.where((f) => f.isTradeoff).toList();
 
   ProductSpec? spec(String key) {
     for (final s in specs) {
@@ -127,4 +129,15 @@ class Product {
     }
     return null;
   }
+}
+
+/// A local store holding stock for same-day pickup.
+@immutable
+class PickupPoint {
+  const PickupPoint(this.area, this.distanceKm);
+
+  final String area;
+  final double distanceKm;
+
+  String get label => '$area · ${distanceKm.toStringAsFixed(1)} km';
 }

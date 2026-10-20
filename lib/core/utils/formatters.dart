@@ -21,6 +21,13 @@ abstract final class Fmt {
     return '$sign₹${v.round()}';
   }
 
+  /// Signed, zero-padded score contribution: `35` → `+35`, `-8` → `−08`.
+  /// Uses a true minus sign so it aligns with `+` in mono.
+  static String points(int value) {
+    final sign = value < 0 ? '−' : '+';
+    return '$sign${value.abs().toString().padLeft(2, '0')}';
+  }
+
   static String percent(num value, {int decimals = 0}) =>
       '${value.toStringAsFixed(decimals)}%';
 

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/data/catalog.dart';
 import '../../../core/data/mock_catalog.dart';
 import '../../../core/models/product.dart';
 import '../../../core/utils/formatters.dart';
@@ -31,34 +32,35 @@ class CompareRow {
 /// Selected pair index + user-elevated priority criteria.
 @immutable
 class CompareState {
-  const CompareState({required this.pairIndex, required this.priorities});
+  const CompareState({
+    required this.pairIndex,
+    required this.pair,
+    required this.priorities,
+  });
 
   final int pairIndex;
+  final ComparePair pair;
   final Set<String> priorities;
-
-  ComparePair get pair => MockCatalog.comparePairs[pairIndex];
 }
 
 class CompareController extends Notifier<CompareState> {
-  @override
-  CompareState build() => CompareState(
-    pairIndex: 0,
-    priorities: {MockCatalog.comparePairs.first.priorityKeys.first},
-  );
+  List<ComparePair> get _pairs => ref.read(catalogProvider).comparePairs;
 
-  void selectPair(int index) {
-    final pair = MockCatalog.comparePairs[index];
-    state = CompareState(
-      pairIndex: index,
-      priorities: {pair.priorityKeys.first},
-    );
-  }
+  @override
+  CompareState build() => _stateFor(ref.watch(catalogProvider).comparePairs, 0);
+
+  static CompareState _stateFor(List<ComparePair> pairs, int index) =>
+      CompareState(
+        pairIndex: index,
+        pair: pairs[index],
+        priorities: {pairs[index].priorityKeys.first},
+      );
+
+  void selectPair(int index) => state = _stateFor(_pairs, index);
 
   /// Opens the pair containing [productId], if one exists. Returns success.
   bool focusProduct(String productId) {
-    final index = MockCatalog.comparePairs.indexWhere(
-      (p) => p.leftId == productId || p.rightId == productId,
-    );
+    final index = _pairs.indexWhere((p) => p.contains(productId));
     if (index < 0) return false;
     if (index != state.pairIndex) selectPair(index);
     return true;
@@ -67,7 +69,11 @@ class CompareController extends Notifier<CompareState> {
   void togglePriority(String key) {
     final next = {...state.priorities};
     if (!next.remove(key)) next.add(key);
-    state = CompareState(pairIndex: state.pairIndex, priorities: next);
+    state = CompareState(
+      pairIndex: state.pairIndex,
+      pair: state.pair,
+      priorities: next,
+    );
   }
 }
 
@@ -105,8 +111,9 @@ class CompareResult {
 
 final compareResultProvider = Provider<CompareResult>((ref) {
   final state = ref.watch(compareProvider);
-  final left = MockCatalog.byId(state.pair.leftId);
-  final right = MockCatalog.byId(state.pair.rightId);
+  final catalog = ref.watch(catalogProvider);
+  final left = catalog.byId(state.pair.leftId);
+  final right = catalog.byId(state.pair.rightId);
 
   final rows = <CompareRow>[
     _row(

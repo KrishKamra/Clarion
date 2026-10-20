@@ -6,9 +6,8 @@ import '../models/product.dart';
 
 /// Seed data standing in for the decision-engine backend.
 ///
-/// Fit factor points intentionally sum to each product's fit score
-/// (base relevance + matches − trade-offs) so the explainability card is
-/// arithmetically honest.
+/// Fit factor points sum exactly to each product's fit score, so the
+/// "Why This Fits You" breakdown is arithmetically honest.
 abstract final class MockCatalog {
   static final List<Product> products = [
     Product(
@@ -16,15 +15,14 @@ abstract final class MockCatalog {
       brand: 'Northpeak',
       title: 'Atlas 30L Commuter Daypack',
       category: 'Bags',
-      price: 2299,
-      averagePrice30d: 2540,
+      price: 2199,
+      averagePrice30d: 2420,
       fitScore: 92,
-      fitTagline: 'Within ₹2,500 budget • High durability rating',
-      icon: Icons.backpack_rounded,
-      palette: const [Color(0xFF4F46E5), Color(0xFF06B6D4)],
+      icon: Icons.backpack_outlined,
+      tone: const Color(0xFF6366F1),
       rating: 4.6,
       reviewCount: 2184,
-      storeDistanceKm: 1.8,
+      pickup: const PickupPoint('Indiranagar', 1.8),
       alternativeId: 'bp_metro',
       alternativeParity: 89,
       intentTags: const {
@@ -32,7 +30,7 @@ abstract final class MockCatalog {
         'backpack',
         'bag',
         'edc',
-        'minimalist',
+        'daily',
         'laptop',
         'study',
         'setup',
@@ -41,7 +39,7 @@ abstract final class MockCatalog {
       specs: const [
         ProductSpec(
           key: 'capacity',
-          label: 'Capacity',
+          label: 'Volume',
           display: '30 L',
           value: 30,
           polarity: SpecPolarity.higherIsBetter,
@@ -49,8 +47,8 @@ abstract final class MockCatalog {
         ProductSpec(
           key: 'weight',
           label: 'Weight',
-          display: '1.2 kg',
-          value: 1.2,
+          display: '1.1 kg',
+          value: 1.1,
           polarity: SpecPolarity.lowerIsBetter,
         ),
         ProductSpec(
@@ -82,53 +80,51 @@ abstract final class MockCatalog {
       ],
       fitFactors: const [
         FitFactor(
-          title: 'Intent relevance',
-          detail: 'Matches "college setup" and daily commute',
-          points: 28,
-        ),
-        FitFactor(
-          title: 'Fits budget',
-          detail: '₹2,299 vs your ₹2,500 target',
-          points: 25,
-        ),
-        FitFactor(
-          title: 'Spec match',
-          detail: '30L capacity meets college requirement',
+          title: 'Intent Match',
+          detail: '30L volume matches your college setup',
           points: 35,
         ),
         FitFactor(
-          title: 'Durability',
-          detail: '4.6★ across 2,184 verified reviews',
+          title: 'Budget Envelope',
+          detail: '₹2,199 vs. ₹2,500 limit',
+          points: 25,
+        ),
+        FitFactor(
+          title: 'Commute Fit',
+          detail: 'Padded 16" sleeve and IPX4 shell for daily transit',
+          points: 28,
+        ),
+        FitFactor(
+          title: 'Build Trust',
+          detail: '4.6★ across 2,184 verified owners',
           points: 12,
         ),
         FitFactor(
-          title: 'Trade-off',
-          detail: '1.2 kg is slightly above your lightweight preference',
+          title: 'Weight Delta',
+          detail: '1.1kg is slightly above your ultralight filter',
           points: -8,
-          kind: FitFactorKind.tradeoff,
         ),
       ],
-      priceHistory: _history(seed: 11, average: 2540, current: 2299),
+      priceHistory: _history(seed: 11, average: 2420, current: 2199),
     ),
     Product(
       id: 'bp_metro',
       brand: 'Terrain',
       title: 'Metro 28L Everyday Backpack',
       category: 'Bags',
-      price: 1899,
-      averagePrice30d: 1950,
+      price: 1749,
+      averagePrice30d: 1820,
       fitScore: 86,
-      fitTagline: '₹400 cheaper • Lightest in class at 0.95 kg',
       icon: Icons.work_outline_rounded,
-      palette: const [Color(0xFF0EA5E9), Color(0xFF8B5CF6)],
+      tone: const Color(0xFF38BDF8),
       rating: 4.3,
       reviewCount: 964,
-      storeDistanceKm: 3.4,
+      pickup: const PickupPoint('Koramangala', 3.4),
       intentTags: const {
         'college',
         'backpack',
         'bag',
-        'minimalist',
+        'daily',
         'laptop',
         'study',
         'commute',
@@ -136,7 +132,7 @@ abstract final class MockCatalog {
       specs: const [
         ProductSpec(
           key: 'capacity',
-          label: 'Capacity',
+          label: 'Volume',
           display: '28 L',
           value: 28,
           polarity: SpecPolarity.higherIsBetter,
@@ -177,33 +173,32 @@ abstract final class MockCatalog {
       ],
       fitFactors: const [
         FitFactor(
-          title: 'Intent relevance',
-          detail: 'Matches "college setup"',
-          points: 28,
-        ),
-        FitFactor(
-          title: 'Fits budget',
-          detail: '₹1,899 leaves ₹601 under your target',
+          title: 'Intent Match',
+          detail: '28L carries a 15.6" laptop and a day of classes',
           points: 30,
         ),
         FitFactor(
-          title: 'Lightweight',
-          detail: '0.95 kg meets your lightweight preference',
+          title: 'Budget Envelope',
+          detail: '₹1,749 leaves ₹751 under your ₹2,500 limit',
+          points: 30,
+        ),
+        FitFactor(
+          title: 'Ultralight',
+          detail: '0.95 kg clears your ultralight filter',
           points: 22,
         ),
         FitFactor(
-          title: 'Spec match',
-          detail: '28L fits a 15.6" laptop plus books',
-          points: 14,
+          title: 'Build Trust',
+          detail: '4.3★ across 964 verified owners',
+          points: 12,
         ),
         FitFactor(
-          title: 'Trade-off',
-          detail: 'Only 1-year warranty',
+          title: 'Warranty Delta',
+          detail: '1-year cover vs. 2 years on comparable packs',
           points: -8,
-          kind: FitFactorKind.tradeoff,
         ),
       ],
-      priceHistory: _history(seed: 12, average: 1950, current: 1899),
+      priceHistory: _history(seed: 12, average: 1820, current: 1749),
     ),
     Product(
       id: 'hp_q30',
@@ -213,25 +208,26 @@ abstract final class MockCatalog {
       price: 1899,
       averagePrice30d: 2099,
       fitScore: 88,
-      fitTagline: '−35 dB ANC for library focus • 40h battery',
-      icon: Icons.headphones_rounded,
-      palette: const [Color(0xFF7C3AED), Color(0xFFDB2777)],
+      icon: Icons.headphones_outlined,
+      tone: const Color(0xFFA78BFA),
       rating: 4.5,
       reviewCount: 5310,
-      storeDistanceKm: 4.2,
+      pickup: const PickupPoint('MG Road', 4.2),
       alternativeId: 'hp_flow',
       alternativeParity: 94,
       intentTags: const {
         'noise',
+        'cancellation',
         'canceling',
         'cancelling',
         'anc',
-        'study',
+        'active',
+        'deep',
+        'work',
         'focus',
+        'study',
         'headphones',
         'audio',
-        'college',
-        'setup',
       },
       specs: const [
         ProductSpec(
@@ -273,30 +269,29 @@ abstract final class MockCatalog {
       ],
       fitFactors: const [
         FitFactor(
-          title: 'Intent relevance',
-          detail: 'Matches "noise-canceling for study"',
+          title: 'Intent Match',
+          detail: '−35 dB hybrid ANC built for deep-work sessions',
           points: 30,
         ),
         FitFactor(
-          title: 'Spec match',
-          detail: '−35 dB ANC blocks dorm & library noise',
+          title: 'Isolation',
+          detail: 'Blocks open-office and café chatter',
           points: 30,
         ),
         FitFactor(
-          title: 'Battery life',
-          detail: '40 h covers a full study week',
+          title: 'Endurance',
+          detail: '40 h battery covers a full work week',
           points: 20,
         ),
         FitFactor(
-          title: 'Fits budget',
-          detail: '₹1,899 vs your ₹2,000 audio target',
+          title: 'Budget Envelope',
+          detail: '₹1,899 vs. your ₹2,000 audio ceiling',
           points: 12,
         ),
         FitFactor(
-          title: 'Trade-off',
-          detail: '265 g is heavier than the 240 g class average',
+          title: 'Weight Delta',
+          detail: '265 g vs. a 240 g class average',
           points: -4,
-          kind: FitFactorKind.tradeoff,
         ),
       ],
       priceHistory: _history(seed: 21, average: 2099, current: 1899),
@@ -309,22 +304,24 @@ abstract final class MockCatalog {
       price: 1499,
       averagePrice30d: 1649,
       fitScore: 86,
-      fitTagline: 'Verified alternative • 94% feature parity',
-      icon: Icons.headset_rounded,
-      palette: const [Color(0xFF0891B2), Color(0xFF6366F1)],
+      icon: Icons.headset_outlined,
+      tone: const Color(0xFF22D3EE),
       rating: 4.4,
       reviewCount: 3876,
-      storeDistanceKm: 2.6,
+      pickup: const PickupPoint('HSR Layout', 2.6),
       intentTags: const {
         'noise',
+        'cancellation',
         'canceling',
         'cancelling',
         'anc',
-        'study',
+        'active',
+        'deep',
+        'work',
         'focus',
+        'study',
         'headphones',
         'audio',
-        'college',
       },
       specs: const [
         ProductSpec(
@@ -366,30 +363,29 @@ abstract final class MockCatalog {
       ],
       fitFactors: const [
         FitFactor(
-          title: 'Intent relevance',
-          detail: 'Matches "noise-canceling for study"',
+          title: 'Intent Match',
+          detail: 'Active noise cancellation tuned for focus',
           points: 30,
         ),
         FitFactor(
-          title: 'Spec match',
-          detail: '−32 dB ANC is within 3 dB of premium models',
+          title: 'Isolation',
+          detail: '−32 dB is within 3 dB of premium models',
           points: 27,
         ),
         FitFactor(
-          title: 'Battery life',
+          title: 'Endurance',
           detail: '45 h — best in its class',
           points: 22,
         ),
         FitFactor(
-          title: 'Fits budget',
-          detail: '₹1,499 leaves ₹501 under your audio target',
+          title: 'Budget Envelope',
+          detail: '₹1,499 leaves ₹501 under your audio ceiling',
           points: 15,
         ),
         FitFactor(
-          title: 'Trade-off',
-          detail: '150 ms latency is noticeable for video calls',
+          title: 'Latency Delta',
+          detail: '150 ms is noticeable on video calls',
           points: -8,
-          kind: FitFactorKind.tradeoff,
         ),
       ],
       priceHistory: _history(seed: 22, average: 1649, current: 1499),
@@ -402,24 +398,23 @@ abstract final class MockCatalog {
       price: 1249,
       averagePrice30d: 1469,
       fitScore: 90,
-      fitTagline: '15% below 30-day average • 420 g',
       icon: Icons.shopping_bag_outlined,
-      palette: const [Color(0xFF059669), Color(0xFF0EA5E9)],
+      tone: const Color(0xFF34D399),
       rating: 4.7,
       reviewCount: 1422,
-      storeDistanceKm: 1.1,
+      pickup: const PickupPoint('Indiranagar', 1.1),
       intentTags: const {
         'edc',
+        'daily',
         'minimalist',
         'sling',
         'bag',
-        'backpack',
         'commute',
       },
       specs: const [
         ProductSpec(
           key: 'capacity',
-          label: 'Capacity',
+          label: 'Volume',
           display: '6 L',
           value: 6,
           polarity: SpecPolarity.higherIsBetter,
@@ -448,30 +443,29 @@ abstract final class MockCatalog {
       ],
       fitFactors: const [
         FitFactor(
-          title: 'Intent relevance',
-          detail: 'Matches "minimalist EDC"',
+          title: 'Intent Match',
+          detail: 'Built around a daily-carry loadout',
           points: 30,
         ),
         FitFactor(
-          title: 'Spec match',
-          detail: 'Organised pockets for phone, keys, wallet',
+          title: 'Organisation',
+          detail: 'Dedicated pockets for phone, keys, wallet',
           points: 30,
         ),
         FitFactor(
-          title: 'Price memory',
+          title: 'Price Memory',
           detail: '15% below its 30-day average',
           points: 22,
         ),
         FitFactor(
-          title: 'Durability',
-          detail: 'Lifetime warranty, 4.7★',
+          title: 'Build Trust',
+          detail: 'Lifetime warranty · 4.7★',
           points: 12,
         ),
         FitFactor(
-          title: 'Trade-off',
-          detail: 'No laptop sleeve',
+          title: 'Capacity Delta',
+          detail: 'No laptop sleeve for college days',
           points: -4,
-          kind: FitFactorKind.tradeoff,
         ),
       ],
       priceHistory: _history(seed: 31, average: 1469, current: 1249),
@@ -481,15 +475,14 @@ abstract final class MockCatalog {
       brand: 'Lumen & Co',
       title: 'Halo Eye-Care Desk Lamp',
       category: 'Study',
-      price: 899,
-      averagePrice30d: 949,
+      price: 850,
+      averagePrice30d: 899,
       fitScore: 84,
-      fitTagline: 'Flicker-free • Warm mode for late study',
-      icon: Icons.light_rounded,
-      palette: const [Color(0xFFF59E0B), Color(0xFFEF4444)],
+      icon: Icons.light_outlined,
+      tone: const Color(0xFFFBBF24),
       rating: 4.4,
       reviewCount: 2780,
-      storeDistanceKm: 0.9,
+      pickup: const PickupPoint('Domlur', 0.9),
       intentTags: const {'study', 'desk', 'lamp', 'light', 'college', 'setup'},
       specs: const [
         ProductSpec(
@@ -517,41 +510,39 @@ abstract final class MockCatalog {
       ],
       fitFactors: const [
         FitFactor(
-          title: 'Intent relevance',
-          detail: 'Matches "college setup"',
+          title: 'Intent Match',
+          detail: 'Completes your late-study desk setup',
           points: 30,
         ),
         FitFactor(
-          title: 'Eye care',
+          title: 'Eye Care',
           detail: 'Flicker-free, certified low blue light',
           points: 28,
         ),
-        FitFactor(title: 'Fits budget', detail: 'Under ₹1,000', points: 18),
+        FitFactor(title: 'Budget Envelope', detail: 'Under ₹1,000', points: 18),
         FitFactor(
-          title: 'Spec match',
-          detail: 'Adjustable warmth for late study',
+          title: 'Spec Match',
+          detail: 'Adjustable warmth from 2700 K',
           points: 12,
         ),
         FitFactor(
-          title: 'Trade-off',
+          title: 'Power Delta',
           detail: 'Wired only — needs a wall socket',
           points: -4,
-          kind: FitFactorKind.tradeoff,
         ),
       ],
-      priceHistory: _history(seed: 41, average: 949, current: 899),
+      priceHistory: _history(seed: 41, average: 899, current: 850),
     ),
     Product(
       id: 'org_kova',
       brand: 'Kova',
       title: 'Desk Cable Organiser Kit',
       category: 'Study',
-      price: 599,
-      averagePrice30d: 649,
+      price: 350,
+      averagePrice30d: 399,
       fitScore: 74,
-      fitTagline: 'Tidy setup • Nice-to-have, not essential',
       icon: Icons.cable_rounded,
-      palette: const [Color(0xFF64748B), Color(0xFF6366F1)],
+      tone: const Color(0xFF94A3B8),
       rating: 4.1,
       reviewCount: 611,
       intentTags: const {'desk', 'setup', 'minimalist', 'college'},
@@ -571,29 +562,28 @@ abstract final class MockCatalog {
       ],
       fitFactors: const [
         FitFactor(
-          title: 'Intent relevance',
-          detail: 'Matches "desk setup"',
+          title: 'Intent Match',
+          detail: 'Tidies a minimal desk setup',
           points: 30,
         ),
-        FitFactor(title: 'Fits budget', detail: 'Under ₹600', points: 20),
+        FitFactor(title: 'Budget Envelope', detail: 'Under ₹400', points: 20),
         FitFactor(
-          title: 'Spec match',
+          title: 'Spec Match',
           detail: '42 pieces cover a full desk',
           points: 18,
         ),
         FitFactor(
-          title: 'Reviews',
-          detail: '4.1★ across 611 reviews',
+          title: 'Build Trust',
+          detail: '4.1★ across 611 owners',
           points: 12,
         ),
         FitFactor(
-          title: 'Trade-off',
-          detail: 'Low necessity — a common impulse add-on',
+          title: 'Necessity Delta',
+          detail: 'A common impulse add-on',
           points: -6,
-          kind: FitFactorKind.tradeoff,
         ),
       ],
-      priceHistory: _history(seed: 51, average: 649, current: 599),
+      priceHistory: _history(seed: 51, average: 399, current: 350),
     ),
     Product(
       id: 'kb_loom',
@@ -603,12 +593,11 @@ abstract final class MockCatalog {
       price: 2799,
       averagePrice30d: 2999,
       fitScore: 79,
-      fitTagline: 'Silent switches • Over your ₹2,500 target',
-      icon: Icons.keyboard_rounded,
-      palette: const [Color(0xFF334155), Color(0xFF8B5CF6)],
+      icon: Icons.keyboard_outlined,
+      tone: const Color(0xFF818CF8),
       rating: 4.5,
       reviewCount: 1890,
-      intentTags: const {'desk', 'setup', 'study', 'keyboard', 'college'},
+      intentTags: const {'desk', 'setup', 'study', 'keyboard', 'deep', 'work'},
       specs: const [
         ProductSpec(
           key: 'noise',
@@ -634,59 +623,41 @@ abstract final class MockCatalog {
       ],
       fitFactors: const [
         FitFactor(
-          title: 'Intent relevance',
-          detail: 'Matches "study setup"',
+          title: 'Intent Match',
+          detail: 'Fits a deep-work desk setup',
           points: 30,
         ),
         FitFactor(
-          title: 'Quiet typing',
+          title: 'Quiet Typing',
           detail: 'Silent switches suit shared rooms',
           points: 26,
         ),
-        FitFactor(title: 'Battery life', detail: '200 h wireless', points: 15),
+        FitFactor(title: 'Endurance', detail: '200 h wireless', points: 15),
         FitFactor(
-          title: 'Durability',
-          detail: '4.5★ across 1,890 reviews',
+          title: 'Build Trust',
+          detail: '4.5★ across 1,890 owners',
           points: 14,
         ),
         FitFactor(
-          title: 'Trade-off',
-          detail: '₹299 over your ₹2,500 target',
+          title: 'Budget Delta',
+          detail: '₹299 over your ₹2,500 ceiling',
           points: -6,
-          kind: FitFactorKind.tradeoff,
         ),
       ],
       priceHistory: _history(seed: 61, average: 2999, current: 2799),
     ),
   ];
 
-  static final Map<String, Product> _byId = {for (final p in products) p.id: p};
-
-  static Product byId(String id) {
-    final product = _byId[id];
-    if (product == null) throw ArgumentError.value(id, 'id', 'Unknown product');
-    return product;
-  }
-
-  /// Products ranked by fit, best first.
-  static List<Product> get rankedByFit =>
-      [...products]..sort((a, b) => b.fitScore.compareTo(a.fitScore));
-
-  /// The strongest price-memory signal in the catalogue.
-  static Product get priceMemoryPick => products.reduce(
-    (a, b) => a.discountVsAverage >= b.discountVsAverage ? a : b,
-  );
-
   /// Pre-curated head-to-head comparisons.
   static const List<ComparePair> comparePairs = [
     ComparePair(
-      label: 'Study headphones',
+      label: 'Deep-work audio',
       leftId: 'hp_q30',
       rightId: 'hp_flow',
       priorityKeys: ['price', 'weight', 'battery'],
     ),
     ComparePair(
-      label: 'College backpacks',
+      label: 'College daypacks',
       leftId: 'bp_atlas',
       rightId: 'bp_metro',
       priorityKeys: ['price', 'weight', 'capacity'],
@@ -713,7 +684,7 @@ abstract final class MockCatalog {
   }
 }
 
-/// Two products pitted against each other in the compare matrix.
+/// Two products pitted against each other in the Decision Node.
 @immutable
 class ComparePair {
   const ComparePair({
@@ -729,4 +700,9 @@ class ComparePair {
 
   /// Spec keys the user can elevate as priorities (`price` is virtual).
   final List<String> priorityKeys;
+
+  bool contains(String productId) =>
+      leftId == productId || rightId == productId;
+
+  String other(String productId) => productId == leftId ? rightId : leftId;
 }

@@ -6,21 +6,22 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/formatters.dart';
-import '../../../core/widgets/glass_container.dart';
-import '../../../core/widgets/glass_sheet.dart';
-import '../../../core/widgets/glass_sliver_header.dart';
-import '../../../core/widgets/gradient_button.dart';
+import '../../../core/widgets/chrome_header.dart';
+import '../../../core/widgets/clarion_button.dart';
+import '../../../core/widgets/clarion_sheet.dart';
 import '../../../core/widgets/section_header.dart';
+import '../../../core/widgets/tactile_card.dart';
 import '../../budget/application/budget_controller.dart';
 import '../../decision/application/compare_controller.dart';
 import '../../decision/presentation/product_decision_screen.dart';
 import '../../navigation/navigation_controller.dart';
 import '../application/cart_controller.dart';
-import 'widgets/budget_barometer.dart';
-import 'widgets/budget_optimization_card.dart';
 import 'widgets/cart_item_tile.dart';
+import 'widgets/guardian_swap_card.dart';
+import 'widgets/spending_barometer.dart';
 
-/// Budget Guardian: the cart, judged against the monthly envelope.
+/// Smart Cart — the Budget Guardian. The cart, always read against the
+/// monthly ceiling.
 class SmartCartScreen extends ConsumerStatefulWidget {
   const SmartCartScreen({super.key});
 
@@ -40,10 +41,9 @@ class _SmartCartScreenState extends ConsumerState<SmartCartScreen> {
   }
 
   void _swap(SwapSuggestion s) {
-    HapticFeedback.mediumImpact();
     _cart.swap(s.from.id, s.to.id);
     _snack(
-      'Swapped to ${s.to.brand}. Saved ${Fmt.inr(s.savings)}.',
+      'Swapped to ${s.to.brand}. ${Fmt.inr(s.savings)} back in your envelope.',
       action: SnackBarAction(
         label: 'Undo',
         onPressed: () => _cart.swap(s.to.id, s.from.id),
@@ -65,33 +65,34 @@ class _SmartCartScreenState extends ConsumerState<SmartCartScreen> {
 
   void _compare(SwapSuggestion s) {
     ref.read(compareProvider.notifier).focusProduct(s.from.id);
-    ref.read(navigationProvider.notifier).select(AppTab.compare);
+    ref.read(navigationProvider.notifier).select(AppTab.decisions);
   }
 
   Future<void> _checkout(BudgetSnapshot budget) async {
     if (budget.isOver) {
-      final proceed = await showGlassSheet<bool>(
+      final proceed = await showClarionSheet<bool>(
         context: context,
-        title: 'Over budget by ${Fmt.inr(budget.overBy)}',
+        eyebrow: 'Mindful checkout',
+        title: '${Fmt.inr(budget.overBy)} past your ceiling',
         builder: (context) => Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Checking out now takes you past your ${Fmt.inr(budget.limit)} monthly limit. '
-              'You can still go ahead — Clarion just wants it to be a choice, not a reflex.',
-              style: AppTypography.bodySmall.copyWith(fontSize: 14),
+              'Checking out now takes you past your ${Fmt.inr(budget.limit)} '
+              'monthly ceiling. You can still go ahead — Clarion just wants '
+              'it to be a choice, not a reflex.',
+              style: AppTypography.bodySmall,
             ),
-            const SizedBox(height: AppSpacing.xl),
-            GradientButton(
+            const SizedBox(height: AppSpacing.xxl),
+            ClarionButton(
               label: 'Review swaps first',
-              icon: Icons.auto_awesome_rounded,
               onPressed: () => Navigator.of(context).pop(false),
             ),
             const SizedBox(height: AppSpacing.sm),
-            GradientButton(
+            ClarionButton(
               label: 'Proceed anyway',
-              variant: GradientButtonVariant.glass,
+              tone: ButtonTone.secondary,
               onPressed: () => Navigator.of(context).pop(true),
             ),
           ],
@@ -101,19 +102,20 @@ class _SmartCartScreenState extends ConsumerState<SmartCartScreen> {
     }
 
     setState(() => _checkingOut = true);
-    await Future<void>.delayed(const Duration(milliseconds: 900));
+    await Future<void>.delayed(const Duration(milliseconds: 800));
     if (!mounted) return;
 
-    final total = ref.read(cartTotalProvider);
-    ref.read(budgetProvider.notifier).recordPurchase(total);
+    ref
+        .read(budgetProvider.notifier)
+        .recordPurchase(ref.read(cartTotalProvider));
     _cart.clear();
-    HapticFeedback.heavyImpact();
+    HapticFeedback.mediumImpact();
     setState(() => _checkingOut = false);
 
     final after = ref.read(budgetSnapshotProvider);
     _snack(
       after.isOver
-          ? 'Order placed. You\'re ${Fmt.inr(after.overBy)} over this month.'
+          ? 'Order placed. ${Fmt.inr(after.overBy)} past this month’s ceiling.'
           : 'Order placed. ${Fmt.inr(after.headroom)} left this month.',
     );
   }
@@ -125,111 +127,92 @@ class _SmartCartScreenState extends ConsumerState<SmartCartScreen> {
     final swaps = ref.watch(swapSuggestionsProvider);
     final count = ref.watch(cartCountProvider);
 
-    SwapSuggestion? swapFor(String id) {
-      for (final s in swaps) {
-        if (s.from.id == id) return s;
-      }
-      return null;
-    }
-
     return CustomScrollView(
       physics: const BouncingScrollPhysics(
         parent: AlwaysScrollableScrollPhysics(),
       ),
       slivers: [
-        GlassSliverHeader(
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Budget Guardian', style: AppTypography.title),
-                    Text(
-                      count == 0
-                          ? 'Intent Cart is empty'
-                          : '$count ${count == 1 ? 'item' : 'items'} in your Intent Cart',
-                      style: AppTypography.caption,
-                    ),
-                  ],
-                ),
+        ChromeSliverHeader(
+          child: ScreenTitle(
+            eyebrow: 'Budget guardian',
+            title: 'Smart Cart',
+            trailing: Text(
+              '$count ${count == 1 ? 'item' : 'items'}',
+              style: AppTypography.metricSmall.copyWith(
+                color: AppColors.textSecondary,
               ),
-              const Icon(Icons.shield_rounded, color: AppColors.textTertiary),
-            ],
+            ),
           ),
         ),
         SliverPadding(
-          padding: AppSpacing.screenPadding.copyWith(top: AppSpacing.sm),
-          sliver: SliverToBoxAdapter(child: BudgetBarometer(budget: budget)),
+          padding: AppSpacing.screenPadding.copyWith(top: AppSpacing.lg),
+          sliver: SliverToBoxAdapter(child: SpendingBarometer(budget: budget)),
         ),
         SliverToBoxAdapter(
           child: AnimatedSize(
             duration: AppMotion.slow,
-            curve: AppMotion.emphasized,
+            curve: AppMotion.standard,
             alignment: Alignment.topCenter,
             child: budget.isOver
                 ? Padding(
                     padding: AppSpacing.screenPadding.copyWith(
-                      top: AppSpacing.lg,
+                      top: AppSpacing.md,
                     ),
-                    child: BudgetOptimizationCard(
+                    child: GuardianSwapCard(
                       budget: budget,
-                      suggestion: swaps.isEmpty ? null : swaps.first,
-                      onSwap: () => _swap(swaps.first),
-                      onCompare: () => _compare(swaps.first),
+                      suggestions: swaps,
+                      onSwap: _swap,
+                      onCompare: _compare,
                     ),
                   )
                 : const SizedBox(width: double.infinity),
           ),
         ),
+        SliverPadding(
+          padding: AppSpacing.screenPadding.copyWith(
+            top: AppSpacing.section,
+            bottom: AppSpacing.md,
+          ),
+          sliver: SliverToBoxAdapter(
+            child: SectionHeader(
+              label: 'Intent cart',
+              caption: lines.isEmpty
+                  ? null
+                  : 'Swipe left to remove · tap to revisit the decision',
+            ),
+          ),
+        ),
         if (lines.isEmpty)
           SliverPadding(
-            padding: AppSpacing.screenPadding.copyWith(top: AppSpacing.xxl),
+            padding: AppSpacing.screenPadding,
             sliver: SliverToBoxAdapter(
               child: _EmptyCart(
-                onExplore: () =>
-                    ref.read(navigationProvider.notifier).select(AppTab.home),
+                onExplore: () => ref
+                    .read(navigationProvider.notifier)
+                    .select(AppTab.horizon),
               ),
             ),
           )
         else ...[
           SliverPadding(
-            padding: AppSpacing.screenPadding.copyWith(
-              top: AppSpacing.xxxl,
-              bottom: AppSpacing.md,
-            ),
-            sliver: const SliverToBoxAdapter(
-              child: SectionHeader(
-                title: 'Intent Cart',
-                subtitle: 'Swipe left to remove · tap to revisit the decision',
-              ),
-            ),
-          ),
-          SliverPadding(
             padding: AppSpacing.screenPadding,
             sliver: SliverList.separated(
               itemCount: lines.length,
-              separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
+              separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
               itemBuilder: (context, i) {
                 final line = lines[i];
-                final swap = swapFor(line.productId);
-                return _FadeIn(
+                return CartItemTile(
                   key: ValueKey(line.productId),
-                  child: CartItemTile(
-                    line: line,
-                    swap: swap,
-                    onSwap: swap == null ? null : () => _swap(swap),
-                    onTap: () => ProductDecisionScreen.open(
-                      context,
-                      line.productId,
-                      heroTag: 'cart-${line.productId}',
-                    ),
-                    onRemove: () => _remove(line),
-                    onQuantity: (q) => q <= 0
-                        ? _remove(line)
-                        : _cart.setQuantity(line.productId, q),
+                  line: line,
+                  onTap: () => ProductDecisionScreen.open(
+                    context,
+                    line.productId,
+                    heroTag: 'cart-${line.productId}',
                   ),
+                  onRemove: () => _remove(line),
+                  onQuantity: (q) => q <= 0
+                      ? _remove(line)
+                      : _cart.setQuantity(line.productId, q),
                 );
               },
             ),
@@ -268,57 +251,34 @@ class _Summary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget row(
-      String label,
-      String value, {
-      Color? color,
-      bool strong = false,
-    }) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+    Widget row(String label, String value, {Color? color}) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs + 1),
       child: Row(
         children: [
-          Expanded(
-            child: Text(
-              label,
-              style: strong ? AppTypography.label : AppTypography.bodySmall,
-            ),
-          ),
-          Text(
-            value,
-            style: (strong ? AppTypography.numeric : AppTypography.numericSmall)
-                .copyWith(color: color),
-          ),
+          Expanded(child: Text(label, style: AppTypography.bodySmall)),
+          Text(value, style: AppTypography.metricSmall.copyWith(color: color)),
         ],
       ),
     );
 
-    return GlassContainer.card(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          row('Cart total', Fmt.inr(budget.cart), strong: true),
-          row('Delivery', 'Free · local pickup', color: AppColors.accent),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
-            child: Divider(),
-          ),
-          row(
-            budget.isOver
-                ? 'Over monthly limit by'
-                : 'Left this month after checkout',
-            Fmt.inr(budget.isOver ? budget.overBy : budget.headroom),
-            color: budget.isOver ? AppColors.fitLow : AppColors.fitHigh,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          GradientButton(
-            label: 'Checkout mindfully · ${Fmt.inr(budget.cart)}',
-            icon: Icons.lock_outline_rounded,
-            isLoading: loading,
-            onPressed: onCheckout,
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        row('Cart total', Fmt.inr(budget.cart)),
+        row('Pickup', 'Free · same day', color: AppColors.textSecondary),
+        row(
+          budget.isOver ? 'Past ceiling by' : 'Left after checkout',
+          Fmt.inr(budget.isOver ? budget.overBy : budget.headroom),
+          color: budget.isOver ? AppColors.rose : AppColors.emeraldGlow,
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        ClarionButton(
+          label: 'Checkout mindfully · ${Fmt.inr(budget.cart)}',
+          icon: Icons.lock_outline_rounded,
+          isLoading: loading,
+          onPressed: onCheckout,
+        ),
+      ],
     );
   }
 }
@@ -330,31 +290,13 @@ class _EmptyCart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GlassContainer.card(
+    return TactileCard(
+      material: CardMaterial.vellum,
       padding: const EdgeInsets.all(AppSpacing.xxl),
       child: Column(
         children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.primary.withValues(alpha: 0.3),
-                  AppColors.secondary.withValues(alpha: 0.15),
-                ],
-              ),
-            ),
-            child: const Icon(
-              Icons.spa_rounded,
-              color: AppColors.textPrimary,
-              size: 28,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
           Text(
-            'Nothing here — and that\'s fine',
+            'Nothing here — and that’s fine',
             style: AppTypography.titleSmall,
           ),
           const SizedBox(height: AppSpacing.xs),
@@ -364,38 +306,13 @@ class _EmptyCart extends StatelessWidget {
             style: AppTypography.bodySmall,
           ),
           const SizedBox(height: AppSpacing.xl),
-          GradientButton(
-            label: 'Explore fit picks',
-            icon: Icons.explore_rounded,
-            expand: false,
+          ClarionButton(
+            label: 'Return to the horizon',
+            tone: ButtonTone.secondary,
             onPressed: onExplore,
           ),
         ],
       ),
-    );
-  }
-}
-
-/// Fades and lifts a cart row in when it first appears (e.g. after a swap).
-class _FadeIn extends StatelessWidget {
-  const _FadeIn({super.key, required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: AppMotion.slow,
-      curve: AppMotion.emphasized,
-      builder: (context, t, child) => Opacity(
-        opacity: t,
-        child: Transform.translate(
-          offset: Offset(0, 12 * (1 - t)),
-          child: child,
-        ),
-      ),
-      child: child,
     );
   }
 }
