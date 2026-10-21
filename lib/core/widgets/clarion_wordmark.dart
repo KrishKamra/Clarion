@@ -3,13 +3,16 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
 
-/// Clarion wordmark: a hairline lens with an iris focal point, set beside
-/// the name in the grotesque. Quiet enough to sit in a header all day.
+/// Clarion mark: a hairline lens with an iris focal point. Shown alone as a
+/// monogram, or beside the name in the grotesque.
 class ClarionWordmark extends StatelessWidget {
-  const ClarionWordmark({super.key, this.size = 18});
+  const ClarionWordmark({super.key, this.size = 18, this.showName = true});
 
   /// Height of the mark; the type scales from it.
   final double size;
+
+  /// Set false for the monogram alone.
+  final bool showName;
 
   @override
   Widget build(BuildContext context) {
@@ -20,15 +23,17 @@ class ClarionWordmark extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           CustomPaint(size: Size.square(size), painter: const _LensPainter()),
-          SizedBox(width: size * 0.45),
-          Text(
-            'Clarion',
-            style: AppTypography.title.copyWith(
-              fontSize: size * 0.98,
-              letterSpacing: -0.5,
-              height: 1,
+          if (showName) ...[
+            SizedBox(width: size * 0.45),
+            Text(
+              'Clarion',
+              style: AppTypography.title.copyWith(
+                fontSize: size * 0.98,
+                letterSpacing: -0.5,
+                height: 1,
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );

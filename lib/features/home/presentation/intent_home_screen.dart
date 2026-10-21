@@ -3,29 +3,31 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/chrome_header.dart';
-import '../../../core/widgets/intent_input.dart';
+import '../../../core/widgets/intent_field.dart';
 import '../../../core/widgets/section_header.dart';
-import '../../decision/presentation/product_decision_screen.dart';
+import '../../../data/catalog.dart';
 import '../application/intent_controller.dart';
-import 'widgets/fit_stream_card.dart';
+import 'widgets/fit_stream.dart';
 import 'widgets/horizon_header.dart';
 import 'widgets/intent_summary.dart';
+import 'widgets/price_memory_radar.dart';
 
-/// Intent Horizon: state a goal, then read a calm, ranked stream of products
-/// that fit it — each with its score, its reasons and its compromise.
+/// Intent Horizon: state a goal, read a ranked stream of candidates that
+/// fit it, and glance at what is unusually well-priced right now.
 class IntentHomeScreen extends ConsumerWidget {
   const IntentHomeScreen({super.key});
 
   static const List<String> capsules = [
-    'Daily EDC for College < ₹2,500',
-    'Active Noise Cancellation for Deep Work',
-    'Late-night Study Desk Setup',
+    'College Setup < ₹2.5k',
+    'ANC for Focus',
+    'Durable Commute Pack',
   ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final intent = ref.watch(intentProvider);
     final picks = ref.watch(fitPicksProvider);
+    final radar = ref.watch(catalogProvider.select((c) => c.priceRadar));
     final controller = ref.read(intentProvider.notifier);
 
     return CustomScrollView(
@@ -38,7 +40,7 @@ class IntentHomeScreen extends ConsumerWidget {
         SliverPadding(
           padding: AppSpacing.screenPadding.copyWith(top: AppSpacing.xl),
           sliver: SliverToBoxAdapter(
-            child: IntentInput(
+            child: IntentField(
               capsules: capsules,
               activeIntent: intent?.raw,
               onSubmitted: controller.submit,
@@ -68,43 +70,52 @@ class IntentHomeScreen extends ConsumerWidget {
         SliverPadding(
           padding: AppSpacing.screenPadding.copyWith(
             top: AppSpacing.section,
-            bottom: AppSpacing.lg,
+            bottom: AppSpacing.md,
           ),
           sliver: SliverToBoxAdapter(
             child: SectionHeader(
-              label: 'Curated fit stream',
+              eyebrow: 'Ranked for you',
+              title: 'Personal Fit Stream',
               caption: intent == null
-                  ? 'Ranked by personal fit to your goals and envelope.'
-                  : 'Ranked for “${intent.raw}”.',
+                  ? 'By fit to your goals and envelope.'
+                  : 'For “${intent.raw}”.',
             ),
           ),
         ),
-        if (picks.isEmpty)
+        SliverToBoxAdapter(
+          child: AnimatedSwitcher(
+            duration: AppMotion.slow,
+            switchInCurve: AppMotion.standard,
+            child: FitStream(
+              key: ValueKey(intent?.raw),
+              products: picks,
+              budget: intent?.budget,
+            ),
+          ),
+        ),
+        if (radar.isNotEmpty) ...[
+          SliverPadding(
+            padding: AppSpacing.screenPadding.copyWith(
+              top: AppSpacing.section,
+              bottom: AppSpacing.md,
+            ),
+            sliver: const SliverToBoxAdapter(
+              child: SectionHeader(
+                eyebrow: 'Price memory',
+                title: 'Radar',
+                caption:
+                    'Below their 30-day average. No rush — Clarion '
+                    'keeps watching.',
+              ),
+            ),
+          ),
           SliverPadding(
             padding: AppSpacing.screenPadding,
             sliver: SliverToBoxAdapter(
-              child: FitStreamEmpty(budget: intent?.budget),
-            ),
-          )
-        else
-          SliverPadding(
-            padding: AppSpacing.screenPadding,
-            sliver: SliverList.separated(
-              itemCount: picks.length,
-              separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
-              itemBuilder: (context, i) {
-                final p = picks[i];
-                final tag = 'stream-${p.id}';
-                return FitStreamCard(
-                  key: ValueKey(p.id),
-                  product: p,
-                  heroTag: tag,
-                  onTap: () =>
-                      ProductDecisionScreen.open(context, p.id, heroTag: tag),
-                );
-              },
+              child: PriceMemoryRadar(products: radar),
             ),
           ),
+        ],
         SliverToBoxAdapter(
           child: SizedBox(
             height: AppSpacing.navBarClearance(context) + AppSpacing.lg,

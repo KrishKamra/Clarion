@@ -56,7 +56,7 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
         if (scrolled)
           const FrostedChrome(
             sigma: 20,
-            fill: Color(0xC708090C), // canvas @ 78 %
+            fill: Color(0xC707080B), // canvas @ 78 %
             rim: false,
             child: DecoratedBox(
               decoration: BoxDecoration(

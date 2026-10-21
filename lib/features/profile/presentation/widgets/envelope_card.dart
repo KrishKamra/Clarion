@@ -7,7 +7,7 @@ import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/pressable.dart';
 import '../../../../core/widgets/progress_ring.dart';
 import '../../../../core/widgets/tactile_card.dart';
-import '../../../budget/application/budget_controller.dart';
+import '../../../cart/application/budget_controller.dart';
 
 /// The month's envelope: a backlit ring (outer = committed incl. cart,
 /// inner = settled) beside the ceiling and its parts.

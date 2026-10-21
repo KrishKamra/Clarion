@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/data/catalog.dart';
-import '../../../core/models/product.dart';
+import '../../../data/catalog.dart';
+import '../../../data/models/product_model.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/formatters.dart';
-import '../../../core/widgets/fit_dial.dart';
+import '../../../core/widgets/fit_score_gauge.dart';
 import '../../../core/widgets/obsidian_canvas.dart';
 import '../../../core/widgets/product_artwork.dart';
 import '../../../core/widgets/round_icon_button.dart';
@@ -79,7 +79,7 @@ class ProductDecisionScreen extends ConsumerWidget {
 
     void openCompare() {
       ref.read(compareProvider.notifier).focusProduct(product.id);
-      ref.read(navigationProvider.notifier).select(AppTab.decisions);
+      ref.read(navigationProvider.notifier).select(AppTab.compare);
       Navigator.of(context).popUntil((r) => r.isFirst);
     }
 
@@ -120,12 +120,12 @@ class ProductDecisionScreen extends ConsumerWidget {
                       const SizedBox(height: AppSpacing.md),
                       PriceBandCard(product: product),
                       const SizedBox(height: AppSpacing.section),
-                      const SectionHeader(label: 'Specifications'),
+                      const SectionHeader(title: 'Specifications'),
                       const SizedBox(height: AppSpacing.xs),
                       SpecList(specs: product.specs),
                       if (pair != null) ...[
                         const SizedBox(height: AppSpacing.section),
-                        const SectionHeader(label: 'Also considered'),
+                        const SectionHeader(title: 'Also considered'),
                         const SizedBox(height: AppSpacing.md),
                         _AlternativeRow(
                           product: product,
@@ -155,8 +155,8 @@ class ProductDecisionScreen extends ConsumerWidget {
                   const Spacer(),
                   if (pair != null)
                     RoundIconButton(
-                      icon: Icons.hub_outlined,
-                      semanticLabel: 'Compare in Decision Node',
+                      icon: Icons.compare_arrows_rounded,
+                      semanticLabel: 'Open in Compare Matrix',
                       frosted: true,
                       onPressed: openCompare,
                     ),
@@ -226,7 +226,7 @@ class _TitleBlock extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.md),
-        FitDial(score: product.fitScore, size: 88),
+        FitScoreGauge(score: product.fitScore, size: 88),
       ],
     );
   }

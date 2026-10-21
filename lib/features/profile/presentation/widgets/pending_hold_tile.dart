@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/data/catalog.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
-import '../../../core/utils/formatters.dart';
-import '../../../core/widgets/clarion_button.dart';
-import '../../../core/widgets/product_artwork.dart';
-import '../../../core/widgets/tactile_card.dart';
-import '../../budget/application/budget_controller.dart';
-import '../../cart/application/cart_controller.dart';
-import '../application/cooldown_controller.dart';
-import '../presentation/product_decision_screen.dart';
+import '../../../../data/catalog.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
+import '../../../../core/utils/formatters.dart';
+import '../../../../core/widgets/clarion_button.dart';
+import '../../../../core/widgets/product_artwork.dart';
+import '../../../../core/widgets/tactile_card.dart';
+import '../../../cart/application/budget_controller.dart';
+import '../../../cart/application/cart_controller.dart';
+import '../../../decision/application/cooldown_controller.dart';
+import '../../../decision/presentation/product_decision_screen.dart';
 
 /// An item parked in its 24h cooling-off period, with the two honest
 /// outcomes: let it go, or keep it.
@@ -72,7 +72,7 @@ class PendingHoldTile extends ConsumerWidget {
                         value: elapsed.clamp(0.0, 1.0),
                         minHeight: 3,
                         backgroundColor: AppColors.hairline,
-                        color: AppColors.amber,
+                        color: AppColors.rose,
                       ),
                     ),
                   ],

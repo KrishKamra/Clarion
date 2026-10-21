@@ -7,7 +7,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/tactile_card.dart';
-import '../../../budget/application/budget_controller.dart';
+import '../../../cart/application/budget_controller.dart';
 
 /// Six months of settled spend as slim columns against the ceiling rule.
 /// Months that broke the ceiling are marked in rose; the current month is

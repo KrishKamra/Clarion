@@ -7,7 +7,7 @@ import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/clarion_button.dart';
 import '../../../../core/widgets/product_artwork.dart';
 import '../../../../core/widgets/tactile_card.dart';
-import '../../../budget/application/budget_controller.dart';
+import '../../../cart/application/budget_controller.dart';
 import '../../application/cart_controller.dart';
 
 /// Guardian Swap Engine: appears only when the cart breaches the ceiling,
@@ -41,7 +41,7 @@ class GuardianSwapCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            'Your cart is ${Fmt.inr(budget.overBy)} past the ceiling',
+            '${Fmt.inr(budget.overBy)} over monthly limit.',
             style: AppTypography.title,
           ),
           const SizedBox(height: AppSpacing.xs),
@@ -49,8 +49,7 @@ class GuardianSwapCard extends StatelessWidget {
             suggestions.isEmpty
                 ? 'No verified equivalents for these items. Consider a 24h '
                       'cooling-off period for the least essential one.'
-                : 'Equivalent picks with matching specs bring you back '
-                      'within your envelope.',
+                : 'Swap option available.',
             style: AppTypography.bodySmall,
           ),
           for (final s in suggestions.take(2)) ...[
@@ -139,12 +138,28 @@ class _Suggestion extends StatelessWidget {
           ],
         ),
         const SizedBox(height: AppSpacing.md),
+        Text.rich(
+          TextSpan(
+            children: [
+              const TextSpan(text: 'Swap '),
+              _strong('${s.from.title} (${Fmt.inr(s.from.price)})'),
+              const TextSpan(text: ' with '),
+              _strong('${s.to.title} (${Fmt.inr(s.to.price)})'),
+              TextSpan(
+                text:
+                    ' to regain ${Fmt.inr(s.savings)} with ${s.parity}% spec parity.',
+              ),
+            ],
+          ),
+          style: AppTypography.bodySmall,
+        ),
+        const SizedBox(height: AppSpacing.md),
         Row(
           children: [
             Expanded(
               flex: 3,
               child: ClarionButton(
-                label: 'Swap · save ${Fmt.inr(s.savings)}',
+                label: 'Swap · regain ${Fmt.inr(s.savings)}',
                 tone: ButtonTone.positive,
                 height: 46,
                 onPressed: onSwap,
@@ -188,3 +203,11 @@ class _Figure extends StatelessWidget {
     );
   }
 }
+
+TextSpan _strong(String text) => TextSpan(
+  text: text,
+  style: const TextStyle(
+    color: AppColors.textPrimary,
+    fontWeight: FontWeight.w500,
+  ),
+);

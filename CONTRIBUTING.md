@@ -65,7 +65,7 @@ These are non-negotiable; they're what keeps the interface quiet. Full reference
 > - **Glow is a gradient.** Use `AppDecorations.backlight`, never `MaskFilter.blur` or coloured drop shadows.
 > - **Numbers are mono.** Prices, scores, deltas and counts use the `metric*` styles.
 > - **One meaning per accent.** Iris = act, emerald = fits, amber = trade-off, rose = friction.
-> - **Motion stays in 200–280 ms** on cubic curves. No elastic or bouncy curves.
+> - **Motion stays in 220–280 ms** on cubic curves. No elastic or bouncy curves.
 
 > [!CAUTION]
 > Clarion's voice is part of the product. Don't add urgency patterns — countdown deals, "only N left", pre-checked upsells, or confirm-shaming copy. Friction should protect the user, never pressure them.

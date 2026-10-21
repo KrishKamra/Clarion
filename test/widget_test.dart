@@ -1,9 +1,11 @@
-import 'package:clarion/core/data/catalog.dart';
-import 'package:clarion/core/data/mock_catalog.dart';
 import 'package:clarion/core/utils/formatters.dart';
-import 'package:clarion/core/widgets/floating_nav_bar.dart';
-import 'package:clarion/features/budget/application/budget_controller.dart';
+import 'package:clarion/core/widgets/floating_nav_capsule.dart';
+import 'package:clarion/data/catalog.dart';
+import 'package:clarion/data/mock_catalog.dart';
+import 'package:clarion/data/models/cart_item_model.dart';
+import 'package:clarion/features/cart/application/budget_controller.dart';
 import 'package:clarion/features/cart/application/cart_controller.dart';
+import 'package:clarion/features/decision/application/cooldown_controller.dart';
 import 'package:clarion/features/home/application/intent_controller.dart';
 import 'package:clarion/main.dart';
 import 'package:flutter/material.dart';
@@ -18,33 +20,64 @@ void main() {
       expect(Fmt.inr(-400), '-₹400');
     });
 
-    test('formats signed, zero-padded fit points', () {
+    test('formats signed, zero-padded weights and short dates', () {
       expect(Fmt.points(35), '+35');
       expect(Fmt.points(-8), '−08');
+      expect(Fmt.shortDate(DateTime(2026, 10, 7)), 'Oct 07');
     });
   });
 
   group('IntentQuery', () {
-    test('parses a rupee ceiling and keywords', () {
-      final q = IntentQuery.parse('Daily EDC for College < ₹2,500');
+    test('parses a compact rupee ceiling and keywords', () {
+      final q = IntentQuery.parse('College Setup < ₹2.5k');
       expect(q.budget, 2500);
-      expect(q.keywords, containsAll(['daily', 'edc', 'college']));
+      expect(q.keywords, containsAll(['college', 'setup']));
     });
 
     test('ranks only products within budget', () {
-      final q = IntentQuery.parse('Active Noise Cancellation under 1600');
+      final q = IntentQuery.parse('ANC for Focus under 1600');
       final ranked = q.rank(MockCatalog.products);
       expect(ranked, isNotEmpty);
       expect(ranked.every((p) => p.price <= 1600), isTrue);
-      expect(ranked.first.id, 'hp_flow');
+      expect(ranked.first.id, 'hp_core');
     });
   });
 
-  test('fit factors sum to each fit score', () {
-    for (final p in MockCatalog.products) {
-      final sum = p.fitFactors.fold<int>(0, (s, f) => s + f.points);
-      expect(sum, p.fitScore, reason: p.id);
-    }
+  group('Catalogue integrity', () {
+    final catalog = Catalog(MockCatalog.products, MockCatalog.comparePairs);
+
+    test('trade-off weights sum to each fit score', () {
+      for (final p in catalog.products) {
+        final sum = p.tradeOffs.fold<int>(0, (s, t) => s + t.weight);
+        expect(sum, p.fitScore, reason: p.id);
+      }
+    });
+
+    test('price histories span 30 days and end at today\'s price', () {
+      for (final p in catalog.products) {
+        expect(p.priceHistory, hasLength(30), reason: p.id);
+        expect(p.priceHistory.last.price, p.price, reason: p.id);
+        final mean = p.priceHistory.fold<double>(0, (s, x) => s + x.price) / 30;
+        expect(mean, closeTo(p.averagePrice30d, 0.01), reason: p.id);
+      }
+    });
+
+    test('alternatives and compare pairs resolve', () {
+      for (final p in catalog.products) {
+        if (p.alternativeId != null) catalog.byId(p.alternativeId!);
+      }
+      for (final pair in catalog.comparePairs) {
+        catalog
+          ..byId(pair.leftId)
+          ..byId(pair.rightId);
+      }
+    });
+
+    test('price radar lists deep discounts, deepest first', () {
+      final radar = catalog.priceRadar;
+      expect(radar.map((p) => p.id), ['hp_pro', 'sling_field']);
+      expect(radar.first.averagePrice30d, 2350);
+    });
   });
 
   group('Budget Guardian', () {
@@ -57,109 +90,163 @@ void main() {
       expect(b.leftAfter(2199), 801);
     });
 
-    test('swap engine brings an over-budget cart back within the ceiling', () {
+    test('swap engine regains ₹400 by swapping Pro for Core Edition', () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
-      container.read(cartProvider.notifier).add('bp_atlas');
-      expect(container.read(budgetSnapshotProvider).overBy, 399);
+      container.read(cartProvider.notifier).add('hp_pro');
+      expect(container.read(budgetSnapshotProvider).overBy, 99);
 
-      final swap = container.read(swapSuggestionsProvider).first;
-      expect(swap.to.id, 'bp_metro');
+      final swap = container.read(swapSuggestionsProvider).single;
+      expect(swap.to.id, 'hp_core');
+      expect(swap.savings, 400);
+      expect(swap.parity, 94);
+
       container.read(cartProvider.notifier).swap(swap.from.id, swap.to.id);
       expect(container.read(budgetSnapshotProvider).isOver, isFalse);
-      expect(container.read(budgetSnapshotProvider).headroom, 51);
+    });
+
+    test('intent priority cycles and survives a swap', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final cart = container.read(cartProvider.notifier)..add('hp_pro');
+      cart.cyclePriority('hp_pro');
+      cart.swap('hp_pro', 'hp_core');
+      final item = container.read(cartProvider).last;
+      expect(item.productId, 'hp_core');
+      expect(item.priority, IntentPriority.niceToHave);
     });
   });
 
-  test('catalogue resolves every alternative and compare pair', () {
-    final catalog = Catalog(MockCatalog.products, MockCatalog.comparePairs);
-    for (final p in catalog.products) {
-      if (p.alternativeId != null) catalog.byId(p.alternativeId!);
-    }
-    for (final pair in catalog.comparePairs) {
-      catalog
-        ..byId(pair.leftId)
-        ..byId(pair.rightId);
-    }
-  });
+  Future<void> pumpApp(
+    WidgetTester tester, {
+    ProviderContainer? container,
+  }) async {
+    await tester.binding.setSurfaceSize(const Size(412, 915));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    const app = ClarionApp();
+    await tester.pumpWidget(
+      container == null
+          ? const ProviderScope(child: app)
+          : UncontrolledProviderScope(container: container, child: app),
+    );
+    await tester.pump(const Duration(seconds: 2));
+  }
 
-  testWidgets('horizon renders header metric, intent canvas and stream', (
+  Future<void> openTab(WidgetTester tester, String label) async {
+    await tester.tap(
+      find.descendant(
+        of: find.byType(FloatingNavCapsule),
+        matching: find.bySemanticsLabel(label),
+      ),
+    );
+    await tester.pump(const Duration(seconds: 2));
+  }
+
+  testWidgets('horizon renders header, intent field, stream and radar', (
     tester,
   ) async {
-    await tester.binding.setSurfaceSize(const Size(400, 900));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
-
-    await tester.pumpWidget(const ProviderScope(child: ClarionApp()));
-    await tester.pump(const Duration(seconds: 2));
+    await pumpApp(tester);
 
     expect(find.bySemanticsLabel('Clarion'), findsOneWidget);
     expect(find.text('₹3,200 / ₹5,000', findRichText: true), findsOneWidget);
     expect(find.text('What are you seeking to accomplish?'), findsOneWidget);
-    expect(find.text('Daily EDC for College < ₹2,500'), findsOneWidget);
-    expect(find.text('CURATED FIT STREAM'), findsOneWidget);
-  });
+    expect(find.text('College Setup < ₹2.5k'), findsOneWidget);
+    expect(find.text('Personal Fit Stream'), findsOneWidget);
+    expect(find.text('94%', findRichText: true), findsWidgets);
 
-  testWidgets('guardian swap engine renders when the cart breaches', (
-    tester,
-  ) async {
-    await tester.binding.setSurfaceSize(const Size(412, 915));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
-
-    final container = ProviderContainer();
-    addTearDown(container.dispose);
-    container.read(cartProvider.notifier).add('bp_atlas');
-
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: const ClarionApp(),
-      ),
+    await tester.drag(
+      find.byType(CustomScrollView).first,
+      const Offset(0, -600),
     );
     await tester.pump(const Duration(seconds: 1));
-    await tester.tap(
-      find.descendant(
-        of: find.byType(FloatingNavBar),
-        matching: find.bySemanticsLabel('Guardian'),
-      ),
-    );
-    await tester.pump(const Duration(seconds: 2));
-
-    expect(find.text('GUARDIAN SWAP ENGINE'), findsOneWidget);
-    await tester.tap(find.text('Swap · save ₹450'));
-    await tester.pump(const Duration(seconds: 2));
-    expect(container.read(budgetSnapshotProvider).isOver, isFalse);
-    expect(find.text('GUARDIAN SWAP ENGINE'), findsNothing);
+    expect(find.text('Radar'), findsOneWidget);
   });
 
   testWidgets('every tab and the decision canvas render cleanly', (
     tester,
   ) async {
-    await tester.binding.setSurfaceSize(const Size(412, 915));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
-
-    await tester.pumpWidget(const ProviderScope(child: ClarionApp()));
-    await tester.pump(const Duration(seconds: 2));
-
-    for (final tab in ['Decide', 'Guardian', 'Memory', 'Horizon']) {
-      await tester.tap(
-        find.descendant(
-          of: find.byType(FloatingNavBar),
-          matching: find.bySemanticsLabel(tab),
-        ),
-      );
-      await tester.pump(const Duration(seconds: 2));
+    await pumpApp(tester);
+    for (final tab in ['Compare', 'Guardian', 'Profile', 'Horizon']) {
+      await openTab(tester, tab);
     }
 
     await tester.tap(find.text('Atlas 30L Commuter Daypack').first);
     await tester.pump();
     await tester.pump(const Duration(seconds: 2));
-    expect(find.text('WHY THIS FITS YOU'), findsOneWidget);
+    expect(find.text('Why We Recommend This'), findsOneWidget);
     expect(find.text('+35'), findsOneWidget);
     expect(find.text('−08'), findsOneWidget);
     expect(
-      find.text('Leaves ₹801 safe buffer', findRichText: true),
+      find.text(
+        'Leaves ₹801 safe buffer in your monthly limit',
+        findRichText: true,
+      ),
       findsOneWidget,
     );
     expect(find.text('24h Cooling Off'), findsOneWidget);
+  });
+
+  testWidgets('holding the cooling-off button parks the product', (
+    tester,
+  ) async {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    await pumpApp(tester, container: container);
+
+    await tester.tap(find.text('Atlas 30L Commuter Daypack').first);
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 2));
+
+    final hold = await tester.startGesture(
+      tester.getCenter(find.text('24h Cooling Off')),
+    );
+    await tester.pump(); // first frame starts the hold ticker
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(container.read(cooldownProvider).containsKey('bp_atlas'), isFalse);
+    await tester.pump(const Duration(milliseconds: 800));
+    await hold.up();
+    await tester.pump(const Duration(seconds: 1));
+    expect(container.read(cooldownProvider).containsKey('bp_atlas'), isTrue);
+  });
+
+  testWidgets('specifications open on demand', (tester) async {
+    await pumpApp(tester);
+    await tester.tap(find.text('Atlas 30L Commuter Daypack').first);
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 2));
+
+    final reveal = find.text('Show all 7 specifications');
+    final canvas = find.byType(CustomScrollView).last;
+    await tester.scrollUntilVisible(
+      reveal,
+      300,
+      scrollable: find
+          .descendant(of: canvas, matching: find.byType(Scrollable))
+          .first,
+    );
+    // Lift it clear of the decision bar before tapping.
+    await tester.drag(canvas, const Offset(0, -260));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('Harness'), findsNothing);
+    await tester.tap(reveal);
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('Harness'), findsOneWidget);
+  });
+
+  testWidgets('guardian swap engine resolves a breach in one tap', (
+    tester,
+  ) async {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    container.read(cartProvider.notifier).add('hp_pro');
+    await pumpApp(tester, container: container);
+    await openTab(tester, 'Guardian');
+
+    expect(find.text('₹99 over monthly limit.'), findsOneWidget);
+    expect(find.text('Swap option available.'), findsOneWidget);
+    await tester.tap(find.text('Swap · regain ₹400'));
+    await tester.pump(const Duration(seconds: 2));
+    expect(container.read(budgetSnapshotProvider).isOver, isFalse);
+    expect(find.text('Swap option available.'), findsNothing);
   });
 }

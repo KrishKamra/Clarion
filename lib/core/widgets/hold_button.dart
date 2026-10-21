@@ -5,28 +5,30 @@ import '../theme/app_colors.dart';
 import '../theme/app_decorations.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
+import 'progress_ring.dart';
 
 /// Friction-by-design: an action that only commits after a deliberate,
 /// sustained press.
 ///
-/// A warm fill sweeps across the button while held; letting go early drains
-/// it back. Screen-reader users get the action directly via the semantic
-/// tap, since a timed hold is not an accessible gesture.
+/// While held, a warm fill sweeps across the button and a micro-progress
+/// ring with a live mono timer counts down to commit. Letting go early
+/// drains it back. Screen-reader users get the action directly via the
+/// semantic tap, since a timed hold is not an accessible gesture.
 class HoldButton extends StatefulWidget {
   const HoldButton({
     super.key,
     required this.label,
     required this.onConfirmed,
-    this.holdingLabel = 'Keep holding…',
-    this.subtitle,
-    this.color = AppColors.amber,
-    this.duration = const Duration(milliseconds: 1100),
+    this.hint = 'Hold to delay',
+    this.color = AppColors.rose,
+    this.duration = const Duration(milliseconds: 1200),
     this.height = 52,
   });
 
   final String label;
-  final String holdingLabel;
-  final String? subtitle;
+
+  /// Second line at rest; replaced by the countdown while held.
+  final String hint;
   final VoidCallback? onConfirmed;
   final Color color;
   final Duration duration;
@@ -66,14 +68,13 @@ class _HoldButtonState extends State<HoldButton>
   }
 
   void _cancel() {
-    if (_progress.isAnimating && _progress.status == AnimationStatus.forward) {
-      _progress.reverse();
-    }
+    if (_progress.status == AnimationStatus.forward) _progress.reverse();
   }
 
   @override
   Widget build(BuildContext context) {
     const radius = AppRadii.mdAll;
+    final seconds = widget.duration.inMilliseconds / 1000;
 
     return Semantics(
       button: true,
@@ -97,6 +98,7 @@ class _HoldButtonState extends State<HoldButton>
                 builder: (context, _) {
                   final t = _progress.value;
                   final holding = t > 0;
+                  final remaining = (seconds * (1 - t)).clamp(0, seconds);
                   return Container(
                     height: widget.height,
                     color: AppColors.vellumActive,
@@ -106,21 +108,19 @@ class _HoldButtonState extends State<HoldButton>
                           widthFactor: t,
                           heightFactor: 1,
                           child: ColoredBox(
-                            color: widget.color.withValues(alpha: 0.22),
+                            color: widget.color.withValues(alpha: 0.2),
                           ),
                         ),
                         Center(
-                          child: Transform.scale(
-                            scale: 1 - 0.03 * t,
-                            child: _Label(
-                              label: holding
-                                  ? widget.holdingLabel
-                                  : widget.label,
-                              subtitle: widget.subtitle,
-                              color: holding
-                                  ? widget.color
-                                  : AppColors.textPrimary,
-                            ),
+                          child: _Face(
+                            label: widget.label,
+                            detail: holding
+                                ? 'Keep holding · ${remaining.toStringAsFixed(1)}s'
+                                : widget.hint,
+                            progress: t,
+                            color: holding
+                                ? widget.color
+                                : AppColors.textPrimary,
                           ),
                         ),
                       ],
@@ -136,11 +136,17 @@ class _HoldButtonState extends State<HoldButton>
   }
 }
 
-class _Label extends StatelessWidget {
-  const _Label({required this.label, required this.color, this.subtitle});
+class _Face extends StatelessWidget {
+  const _Face({
+    required this.label,
+    required this.detail,
+    required this.progress,
+    required this.color,
+  });
 
   final String label;
-  final String? subtitle;
+  final String detail;
+  final double progress;
   final Color color;
 
   @override
@@ -150,7 +156,15 @@ class _Label extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.hourglass_empty_rounded, size: 17, color: color),
+          progress > 0
+              ? ProgressRing(
+                  value: progress,
+                  color: color,
+                  size: 16,
+                  strokeWidth: 2,
+                  animate: false,
+                )
+              : Icon(Icons.hourglass_empty_rounded, size: 16, color: color),
           const SizedBox(width: AppSpacing.sm),
           Flexible(
             child: Column(
@@ -167,16 +181,15 @@ class _Label extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                if (subtitle != null)
-                  Text(
-                    subtitle!,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTypography.metricSmall.copyWith(
-                      fontSize: 10.5,
-                      color: AppColors.textSecondary,
-                    ),
+                Text(
+                  detail,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.metricSmall.copyWith(
+                    fontSize: 10.5,
+                    color: AppColors.textSecondary,
                   ),
+                ),
               ],
             ),
           ),

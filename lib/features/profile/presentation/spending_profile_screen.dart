@@ -8,20 +8,24 @@ import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/chrome_header.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../core/widgets/tactile_card.dart';
-import '../../budget/application/budget_controller.dart';
-import '../../budget/presentation/ceiling_sheet.dart';
+import '../../cart/application/budget_controller.dart';
+import '../../decision/application/cooldown_controller.dart';
+import 'widgets/ceiling_sheet.dart';
 import 'widgets/envelope_card.dart';
+import 'widgets/pending_hold_tile.dart';
 import 'widgets/spend_history.dart';
 
-/// Spending Memory: the envelope over time — what was committed, what was
-/// resisted, and where the month actually went.
-class SpendingMemoryScreen extends ConsumerWidget {
-  const SpendingMemoryScreen({super.key});
+/// Spending Profile: the envelope over time — what is committed, what is
+/// cooling off, what was resisted, and where the month actually went.
+class SpendingProfileScreen extends ConsumerWidget {
+  const SpendingProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final budget = ref.watch(budgetProvider);
     final snapshot = ref.watch(budgetSnapshotProvider);
+    final holds = ref.watch(cooldownProvider);
+    ref.watch(clockProvider); // refresh countdowns
 
     return CustomScrollView(
       physics: const BouncingScrollPhysics(
@@ -29,7 +33,7 @@ class SpendingMemoryScreen extends ConsumerWidget {
       ),
       slivers: [
         const ChromeSliverHeader(
-          child: ScreenTitle(eyebrow: 'Spending memory', title: 'This month'),
+          child: ScreenTitle(eyebrow: 'Spending profile', title: 'This month'),
         ),
         SliverPadding(
           padding: AppSpacing.screenPadding.copyWith(top: AppSpacing.lg),
@@ -58,9 +62,23 @@ class SpendingMemoryScreen extends ConsumerWidget {
                   ),
                 ],
               ),
+              if (holds.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.section),
+                const SectionHeader(
+                  eyebrow: 'Anti-impulse',
+                  title: 'Cooling off',
+                  caption: 'Parked for 24h. Decide once the urge has passed.',
+                ),
+                const SizedBox(height: AppSpacing.md),
+                for (final entry in holds.entries) ...[
+                  PendingHoldTile(productId: entry.key, until: entry.value),
+                  const SizedBox(height: AppSpacing.md),
+                ],
+              ],
               const SizedBox(height: AppSpacing.section),
               const SectionHeader(
-                label: 'Six-month trend',
+                eyebrow: 'History',
+                title: 'Six-month trend',
                 caption: 'Settled spend against your ceiling.',
               ),
               const SizedBox(height: AppSpacing.md),
@@ -69,7 +87,7 @@ class SpendingMemoryScreen extends ConsumerWidget {
                 limit: budget.monthlyLimit,
               ),
               const SizedBox(height: AppSpacing.section),
-              const SectionHeader(label: 'Where it went'),
+              const SectionHeader(eyebrow: 'Breakdown', title: 'Where it went'),
               const SizedBox(height: AppSpacing.xs),
               CategoryBreakdown(budget: budget),
               SizedBox(height: AppSpacing.navBarClearance(context)),

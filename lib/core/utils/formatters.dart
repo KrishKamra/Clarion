@@ -28,6 +28,25 @@ abstract final class Fmt {
     return '$sign${value.abs().toString().padLeft(2, '0')}';
   }
 
+  static const List<String> _months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+
+  /// `DateTime(2026, 10, 7)` → `Oct 07`.
+  static String shortDate(DateTime d) =>
+      '${_months[d.month - 1]} ${d.day.toString().padLeft(2, '0')}';
+
   static String percent(num value, {int decimals = 0}) =>
       '${value.toStringAsFixed(decimals)}%';
 

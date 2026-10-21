@@ -1,30 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/data/catalog.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/chrome_header.dart';
 import '../../../core/widgets/clarion_button.dart';
-import '../../../core/widgets/intent_input.dart';
+import '../../../core/widgets/dynamic_pill.dart';
 import '../../../core/widgets/section_header.dart';
+import '../../../data/catalog.dart';
 import '../application/compare_controller.dart';
-import '../application/cooldown_controller.dart';
 import '../widgets/compare_matrix.dart';
-import '../widgets/head_to_head.dart';
-import '../widgets/pending_hold_tile.dart';
+import '../widgets/sticky_compare_header.dart';
 import '../widgets/verdict_card.dart';
 import 'product_decision_screen.dart';
 
-/// Decision Node: everything still undecided — items cooling off, and
-/// head-to-head comparisons that show only what differs.
-class DecisionNodeScreen extends ConsumerStatefulWidget {
-  const DecisionNodeScreen({super.key});
+/// Compare Matrix: a differential, side-by-side spec comparator.
+///
+/// The candidates stay pinned above the rows, only criteria that differ
+/// are shown, and each row's winner is lit according to the priorities the
+/// user stars — so the verdict is theirs, not the catalogue's.
+class CompareMatrixScreen extends ConsumerStatefulWidget {
+  const CompareMatrixScreen({super.key});
 
   @override
-  ConsumerState<DecisionNodeScreen> createState() => _DecisionNodeState();
+  ConsumerState<CompareMatrixScreen> createState() =>
+      _CompareMatrixScreenState();
 }
 
-class _DecisionNodeState extends ConsumerState<DecisionNodeScreen> {
+class _CompareMatrixScreenState extends ConsumerState<CompareMatrixScreen> {
   bool _showIdentical = false;
 
   @override
@@ -32,9 +35,12 @@ class _DecisionNodeState extends ConsumerState<DecisionNodeScreen> {
     final pairs = ref.watch(catalogProvider).comparePairs;
     final state = ref.watch(compareProvider);
     final result = ref.watch(compareResultProvider);
-    final holds = ref.watch(cooldownProvider);
-    ref.watch(clockProvider);
     final controller = ref.read(compareProvider.notifier);
+    final leader = switch (result.overall) {
+      CompareWinner.left => result.left,
+      CompareWinner.right => result.right,
+      _ => null,
+    };
 
     String labelFor(String key) {
       for (final row in result.rows) {
@@ -55,28 +61,7 @@ class _DecisionNodeState extends ConsumerState<DecisionNodeScreen> {
       ),
       slivers: [
         const ChromeSliverHeader(
-          child: ScreenTitle(eyebrow: 'Decision node', title: 'Weigh it out'),
-        ),
-        if (holds.isNotEmpty) ...[
-          section(
-            const SectionHeader(
-              label: 'Cooling off',
-              caption: 'Parked for 24h. Decide once the urge has passed.',
-            ),
-            top: AppSpacing.lg,
-          ),
-          for (final entry in holds.entries)
-            section(
-              PendingHoldTile(productId: entry.key, until: entry.value),
-              top: AppSpacing.md,
-            ),
-        ],
-        section(
-          const SectionHeader(
-            label: 'Head to head',
-            caption: 'Only the differences. Star what matters to you.',
-          ),
-          top: holds.isEmpty ? AppSpacing.lg : AppSpacing.section,
+          child: ScreenTitle(eyebrow: 'Differential', title: 'Compare Matrix'),
         ),
         section(
           Wrap(
@@ -84,8 +69,10 @@ class _DecisionNodeState extends ConsumerState<DecisionNodeScreen> {
             runSpacing: AppSpacing.sm,
             children: [
               for (final (i, pair) in pairs.indexed)
-                IntentCapsule(
+                DynamicPill(
                   label: pair.label,
+                  size: PillSize.regular,
+                  color: AppColors.irisGlow,
                   selected: i == state.pairIndex,
                   onTap: () {
                     setState(() => _showIdentical = false);
@@ -96,12 +83,20 @@ class _DecisionNodeState extends ConsumerState<DecisionNodeScreen> {
           ),
           top: AppSpacing.md,
         ),
+        const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+        StickyCompareHeader(
+          key: ValueKey(state.pairIndex),
+          left: result.left,
+          right: result.right,
+          leader: leader,
+        ),
         section(
-          AnimatedSwitcher(
-            duration: AppMotion.medium,
-            child: HeadToHead(key: ValueKey(state.pairIndex), result: result),
+          SectionHeader(
+            eyebrow: 'Your priorities',
+            title: 'What matters most?',
+            caption: 'Starred criteria count double toward the verdict.',
           ),
-          top: AppSpacing.lg,
+          top: AppSpacing.xl,
         ),
         section(
           PriorityPicker(
@@ -110,14 +105,16 @@ class _DecisionNodeState extends ConsumerState<DecisionNodeScreen> {
             labelFor: labelFor,
             onToggle: controller.togglePriority,
           ),
-          top: AppSpacing.xl,
+          top: AppSpacing.md,
         ),
         section(VerdictCard(result: result), top: AppSpacing.lg),
         section(
           SectionHeader(
-            label: 'What differs',
+            eyebrow: 'Differences only',
+            title: 'Spec matrix',
             caption:
-                '${result.differences.length} of ${result.rows.length} criteria',
+                '${result.differences.length} of ${result.rows.length} '
+                'criteria differ',
           ),
         ),
         section(
@@ -141,7 +138,7 @@ class _DecisionNodeState extends ConsumerState<DecisionNodeScreen> {
                 Expanded(
                   child: ClarionButton(
                     label: 'Review ${p.brand}',
-                    tone: _leads(result, i)
+                    tone: leader == p
                         ? ButtonTone.primary
                         : ButtonTone.secondary,
                     onPressed: () => ProductDecisionScreen.open(context, p.id),
@@ -160,8 +157,4 @@ class _DecisionNodeState extends ConsumerState<DecisionNodeScreen> {
       ],
     );
   }
-
-  static bool _leads(CompareResult r, int side) =>
-      (side == 0 && r.overall == CompareWinner.left) ||
-      (side == 1 && r.overall == CompareWinner.right);
 }

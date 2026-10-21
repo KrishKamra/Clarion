@@ -4,7 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/formatters.dart';
-import '../../../core/widgets/intent_input.dart';
+import '../../../core/widgets/dynamic_pill.dart';
 import '../../../core/widgets/tactile_card.dart';
 import '../application/compare_controller.dart';
 
@@ -33,17 +33,17 @@ class PriorityPicker extends StatelessWidget {
           runSpacing: AppSpacing.sm,
           children: [
             for (final k in keys)
-              IntentCapsule(
-                label: '${selected.contains(k) ? '★' : '☆'}  ${labelFor(k)}',
+              DynamicPill(
+                label: labelFor(k),
+                icon: selected.contains(k)
+                    ? Icons.star_rounded
+                    : Icons.star_outline_rounded,
+                size: PillSize.regular,
+                color: AppColors.amber,
                 selected: selected.contains(k),
                 onTap: () => onToggle(k),
               ),
           ],
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        Text(
-          'Starred criteria count double toward the verdict.',
-          style: AppTypography.caption,
         ),
       ],
     );
@@ -72,6 +72,7 @@ class VerdictCard extends StatelessWidget {
     final rightLeads = result.overall == CompareWinner.right;
 
     return TactileCard(
+      material: CardMaterial.floating,
       tint: winner == null ? AppColors.amber : AppColors.emerald,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

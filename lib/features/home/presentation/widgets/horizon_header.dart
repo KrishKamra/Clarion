@@ -9,19 +9,19 @@ import '../../../../core/widgets/clarion_wordmark.dart';
 import '../../../../core/widgets/pressable.dart';
 import '../../../../core/widgets/progress_ring.dart';
 import '../../../../core/widgets/round_icon_button.dart';
-import '../../../budget/application/budget_controller.dart';
+import '../../../cart/application/budget_controller.dart';
 import '../../../navigation/navigation_controller.dart';
-import 'profile_sheet.dart';
 
-/// Quiet header: wordmark, the live budget metric and profile access.
-class HorizonHeader extends StatelessWidget {
+/// Quiet header: monogram, the live monthly budget indicator and the
+/// profile node.
+class HorizonHeader extends ConsumerWidget {
   const HorizonHeader({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Row(
       children: [
-        const ClarionWordmark(),
+        const ClarionWordmark(size: 22, showName: false),
         const SizedBox(width: AppSpacing.md),
         const Expanded(
           child: Align(alignment: Alignment.centerRight, child: BudgetMetric()),
@@ -29,17 +29,18 @@ class HorizonHeader extends StatelessWidget {
         const SizedBox(width: AppSpacing.md),
         RoundIconButton(
           icon: Icons.person_outline_rounded,
-          semanticLabel: 'Profile',
+          semanticLabel: 'Spending profile',
           size: 36,
-          onPressed: () => showProfileSheet(context),
+          onPressed: () =>
+              ref.read(navigationProvider.notifier).select(AppTab.profile),
         ),
       ],
     );
   }
 }
 
-/// Committed spend (settled + cart) against the monthly ceiling, with a
-/// small backlit ring. Tapping opens the Guardian.
+/// Committed spend (settled + cart) against the monthly ceiling, beside a
+/// backlit miniature gauge. Tapping opens the Guardian.
 class BudgetMetric extends ConsumerWidget {
   const BudgetMetric({super.key});
 
@@ -64,27 +65,20 @@ class BudgetMetric extends ConsumerWidget {
           ),
           const SizedBox(width: AppSpacing.sm),
           Flexible(
-            child: FittedBox(fit: BoxFit.scaleDown, child: _metricText(b)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  static Widget _metricText(BudgetSnapshot b) {
-    return Text.rich(
-      TextSpan(
-        text: Fmt.inr(b.committed),
-        style: AppTypography.metricSmall.copyWith(
-          fontSize: 12.5,
-          color: AppColors.textPrimary,
-        ),
-        children: [
-          TextSpan(
-            text: ' / ${Fmt.inr(b.limit)}',
-            style: AppTypography.metricSmall.copyWith(
-              fontSize: 12.5,
-              color: AppColors.textTertiary,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text.rich(
+                TextSpan(
+                  text: Fmt.inr(b.committed),
+                  children: [
+                    TextSpan(
+                      text: ' / ${Fmt.inr(b.limit)}',
+                      style: const TextStyle(color: AppColors.textTertiary),
+                    ),
+                  ],
+                ),
+                style: AppTypography.metricSmall.copyWith(fontSize: 12.5),
+              ),
             ),
           ),
         ],

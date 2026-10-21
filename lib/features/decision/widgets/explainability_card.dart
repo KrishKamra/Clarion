@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/models/product.dart';
+import '../../../data/models/product_model.dart';
+import '../../../data/models/trade_off_item.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_decorations.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -8,7 +9,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/tactile_card.dart';
 
-/// "Why This Fits You" — the fit score as a ledger. Every signed line is
+/// "Why We Recommend This" — the fit score as a ledger. Every signed line is
 /// shown, and the total is printed beneath them, so the number is never
 /// asserted, only derived.
 class ExplainabilityCard extends StatelessWidget {
@@ -20,17 +21,21 @@ class ExplainabilityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = AppColors.forFit(product.fitScore);
 
+    // The one floating surface on the canvas: this is the decision node.
     return TactileCard(
+      material: CardMaterial.floating,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('WHY THIS FITS YOU', style: AppTypography.overline),
+          Text('HEURISTIC FIT BREAKDOWN', style: AppTypography.overline),
           const SizedBox(height: AppSpacing.xs),
+          Text('Why We Recommend This', style: AppTypography.title),
+          const SizedBox(height: 2),
           Text('Every point, accounted for.', style: AppTypography.bodySmall),
           const SizedBox(height: AppSpacing.md),
-          for (final (i, f) in product.fitFactors.indexed) ...[
+          for (final (i, f) in product.tradeOffs.indexed) ...[
             if (i > 0) const Divider(),
-            _LedgerRow(factor: f),
+            _LedgerRow(item: f),
           ],
           const SizedBox(height: AppSpacing.sm),
           _Total(score: product.fitScore, color: color),
@@ -41,13 +46,13 @@ class ExplainabilityCard extends StatelessWidget {
 }
 
 class _LedgerRow extends StatelessWidget {
-  const _LedgerRow({required this.factor});
+  const _LedgerRow({required this.item});
 
-  final FitFactor factor;
+  final TradeOffItem item;
 
   @override
   Widget build(BuildContext context) {
-    final color = factor.isTradeoff ? AppColors.amber : AppColors.emeraldGlow;
+    final color = item.isPositive ? AppColors.emeraldGlow : AppColors.amber;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
       child: Row(
@@ -56,7 +61,7 @@ class _LedgerRow extends StatelessWidget {
           SizedBox(
             width: 48,
             child: Text(
-              Fmt.points(factor.points),
+              Fmt.points(item.weight),
               style: AppTypography.metric.copyWith(color: color, height: 1.3),
             ),
           ),
@@ -64,9 +69,9 @@ class _LedgerRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(factor.title, style: AppTypography.label),
+                Text(item.title, style: AppTypography.label),
                 const SizedBox(height: 2),
-                Text(factor.detail, style: AppTypography.bodySmall),
+                Text(item.detail, style: AppTypography.bodySmall),
               ],
             ),
           ),

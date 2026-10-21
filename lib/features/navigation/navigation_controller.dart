@@ -5,18 +5,18 @@ enum AppTab {
   /// Intent Horizon — state a goal, see what fits.
   horizon,
 
-  /// Decision Node — pending holds and head-to-head comparisons.
-  decisions,
+  /// Compare Matrix — differential, priority-weighted head-to-heads.
+  compare,
 
   /// Smart Cart — the Budget Guardian.
   cart,
 
-  /// Spending Memory — the envelope over time.
-  memory,
+  /// Spending Profile — the envelope, cooling-off queue and history.
+  profile,
 }
 
 /// Active tab of the persistent shell. Exposed as state so any screen
-/// (e.g. the decision drawer's "View cart") can redirect the shell.
+/// (e.g. the decision bar's "View cart") can redirect the shell.
 class NavigationController extends Notifier<AppTab> {
   @override
   AppTab build() => AppTab.horizon;

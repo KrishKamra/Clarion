@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/data/catalog.dart';
-import '../../../core/models/product.dart';
+import '../../../data/catalog.dart';
+import '../../../data/models/product_model.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_decorations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/clarion_button.dart';
 import '../../../core/widgets/frosted_chrome.dart';
 import '../../../core/widgets/hold_button.dart';
-import '../../budget/application/budget_controller.dart';
+import '../../../core/widgets/pressable.dart';
+import '../../cart/application/budget_controller.dart';
 import '../../cart/application/cart_controller.dart';
 import '../../navigation/navigation_controller.dart';
 import '../application/cooldown_controller.dart';
@@ -139,17 +141,9 @@ class _DecisionDrawerState extends ConsumerState<DecisionDrawer> {
                   child: holdUntil == null
                       ? HoldButton(
                           label: '24h Cooling Off',
-                          subtitle: 'Press and hold',
                           onConfirmed: inCart ? null : _coolOff,
                         )
-                      : ClarionButton(
-                          label: 'Cooling off',
-                          subtitle:
-                              '${Fmt.countdown(holdUntil.difference(DateTime.now()))} · tap to end',
-                          icon: Icons.hourglass_bottom_rounded,
-                          tone: ButtonTone.secondary,
-                          onPressed: _release,
-                        ),
+                      : _CoolingOffStatus(until: holdUntil, onEnd: _release),
                 ),
                 const SizedBox(width: AppSpacing.sm + 2),
                 Expanded(
@@ -200,7 +194,7 @@ class _BudgetImpact extends StatelessWidget {
       final fits = alone >= 0;
       lead = fits ? 'Leaves ' : 'Exceeds your envelope by ';
       amount = alone.abs();
-      tail = fits ? ' safe buffer' : '';
+      tail = fits ? ' safe buffer in your monthly limit' : '';
       color = !fits
           ? AppColors.rose
           : alone < budget.limit * 0.1
@@ -240,6 +234,80 @@ class _BudgetImpact extends StatelessWidget {
           Text(note, style: AppTypography.caption.copyWith(color: noteColor)),
         ],
       ],
+    );
+  }
+}
+
+/// The cooling-off period in progress: a live countdown over a thin rose
+/// timeline of the 24 hours. Tapping ends it early.
+class _CoolingOffStatus extends StatelessWidget {
+  const _CoolingOffStatus({required this.until, required this.onEnd});
+
+  final DateTime until;
+  final VoidCallback onEnd;
+
+  @override
+  Widget build(BuildContext context) {
+    final remaining = until.difference(DateTime.now());
+    final elapsed =
+        (1 - remaining.inSeconds / CooldownController.period.inSeconds).clamp(
+          0.0,
+          1.0,
+        );
+    const radius = AppRadii.mdAll;
+
+    return Pressable(
+      onTap: onEnd,
+      semanticLabel:
+          'Cooling off, ${Fmt.countdown(remaining)} left. Tap to end early.',
+      child: CustomPaint(
+        foregroundPainter: const RimLightPainter(borderRadius: radius),
+        child: ClipRRect(
+          borderRadius: radius,
+          child: Container(
+            height: 52,
+            color: AppColors.rose.withValues(alpha: 0.08),
+            child: Stack(
+              children: [
+                Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Cooling off · ${Fmt.countdown(remaining)}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.metricSmall.copyWith(
+                          color: AppColors.rose,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        'Tap to end early',
+                        style: AppTypography.caption.copyWith(
+                          fontSize: 10.5,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: LinearProgressIndicator(
+                    value: elapsed,
+                    minHeight: 2,
+                    backgroundColor: AppColors.hairline,
+                    color: AppColors.rose,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -4,13 +4,15 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
-import '../../../../core/widgets/fit_dial.dart';
+import '../../../../core/widgets/fit_score_gauge.dart';
 import '../../../../core/widgets/pressable.dart';
 import '../../../../core/widgets/product_artwork.dart';
 import '../../../../core/widgets/tactile_card.dart';
-import '../../application/cart_controller.dart';
+import '../../../../core/widgets/dynamic_pill.dart';
+import '../../../../data/models/cart_item_model.dart';
 
-/// Intent Cart row: swipe to remove, a quantity stepper, and the item's fit.
+/// Intent Cart row: swipe to remove, a quantity stepper, the item's fit, and
+/// its intent priority — tap the pill to re-rank how essential it is.
 class CartItemTile extends StatelessWidget {
   const CartItemTile({
     super.key,
@@ -18,12 +20,14 @@ class CartItemTile extends StatelessWidget {
     required this.onTap,
     required this.onRemove,
     required this.onQuantity,
+    required this.onPriority,
   });
 
-  final CartLine line;
+  final CartItem line;
   final VoidCallback onTap;
   final VoidCallback onRemove;
   final ValueChanged<int> onQuantity;
+  final VoidCallback onPriority;
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +62,13 @@ class CartItemTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.label,
                   ),
+                  const SizedBox(height: AppSpacing.xs + 2),
+                  DynamicPill(
+                    label: line.priority.label,
+                    color: _priorityColor(line.priority),
+                    selected: true,
+                    onTap: onPriority,
+                  ),
                   const SizedBox(height: AppSpacing.sm),
                   Row(
                     children: [
@@ -70,7 +81,7 @@ class CartItemTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: AppSpacing.md),
-            FitDial(score: p.fitScore, size: 36, animate: false),
+            FitScoreGauge(score: p.fitScore, size: 36, animate: false),
           ],
         ),
       ),
@@ -124,3 +135,9 @@ class _Stepper extends StatelessWidget {
     );
   }
 }
+
+Color _priorityColor(IntentPriority p) => switch (p) {
+  IntentPriority.essential => AppColors.emeraldGlow,
+  IntentPriority.important => AppColors.irisGlow,
+  IntentPriority.niceToHave => AppColors.amber,
+};

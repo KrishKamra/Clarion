@@ -5,16 +5,16 @@
 
 ## Layers
 
-Feature-first. Shared, feature-agnostic code lives in `lib/core/`; each feature owns an `application/` layer (Riverpod state) and a `presentation/` or `widgets/` layer (UI).
+Feature-first. Design tokens and atoms live in `lib/core/`, domain models and the catalogue in `lib/data/`; each feature owns an `application/` layer (Riverpod state) and a `presentation/` or `widgets/` layer (UI).
 
 ```mermaid
 flowchart TB
   subgraph Presentation["Presentation · features/*/presentation, widgets"]
     H["Intent Horizon"]
     DC["Decision canvas"]
-    DN["Decision Node"]
+    CM["Compare Matrix"]
     SC["Smart Cart"]
-    SM["Spending Memory"]
+    SP["Spending Profile"]
   end
   subgraph Application["Application · features/*/application"]
     IC["intent"]
@@ -24,28 +24,30 @@ flowchart TB
     CD["cooldowns"]
     NV["navigation"]
   end
-  subgraph Core["Core · lib/core"]
-    CAT["catalogProvider"]
+  subgraph Data["Data · lib/data"]
+    CATP["catalogProvider"]
     MOD["models"]
+  end
+  subgraph Core["Core · lib/core"]
     TH["theme tokens"]
     WG["atomic widgets"]
   end
   Presentation --> Application
   Presentation --> WG
   WG --> TH
-  Application --> CAT
-  CAT --> MOD
+  Application --> CATP
+  CATP --> MOD
 ```
 
 ```text
-core/        theme · widgets · models · data (catalog + mock) · utils
+core/        theme tokens · atomic widgets · formatters
+data/        models (product, cart item, trade-off) · catalog · mock catalogue
 features/
-  navigation/  AppTab + MainScaffold shell (floating island)
-  home/        Intent parsing & ranking → Intent Horizon
-  decision/    Decision canvas, Decision Node, cooldowns, compare scoring
-  cart/        CartController, Guardian Swap Engine → Smart Cart
-  budget/      BudgetController + BudgetSnapshot, ceiling sheet
-  memory/      Spending Memory (envelope, trend, categories)
+  navigation/  AppTab + MainScaffold shell (floating capsule)
+  home/        Intent parsing & ranking → Intent Horizon (fit stream, price radar)
+  decision/    Decision canvas, Compare Matrix, cooldowns, compare scoring
+  cart/        Cart + budget state, Guardian Swap Engine → Smart Cart
+  profile/     Spending Profile (envelope, cooling-off queue, history), ceiling sheet
 ```
 
 ## State (Riverpod 3)
@@ -86,10 +88,10 @@ flowchart LR
 | Provider | Kind | Responsibility |
 | :--- | :--- | :--- |
 | `catalogProvider` | `Provider<Catalog>` | Read-only products and compare pairs. |
-| `navigationProvider` | `Notifier<AppTab>` | Active tab (`horizon`, `decisions`, `cart`, `memory`); any screen can redirect the shell. |
+| `navigationProvider` | `Notifier<AppTab>` | Active tab (`horizon`, `compare`, `cart`, `profile`); any screen can redirect the shell. |
 | `intentProvider` / `fitPicksProvider` | `Notifier` / derived | Parsed intent; ranked, budget-filtered Fit Stream. |
 | `budgetProvider` | `Notifier<BudgetState>` | Ceiling, settled spend by category, mindful-win stats. |
-| `cartProvider`, `cartTotalProvider`, `cartCountProvider` | `Notifier` / derived | Lines hold `Product`s; add / remove / restore / quantity / in-place swap. |
+| `cartProvider`, `cartTotalProvider`, `cartCountProvider` | `Notifier` / derived | `CartItem`s hold a `Product`, quantity and `IntentPriority`; add / remove / restore / quantity / priority / in-place swap. |
 | `budgetSnapshotProvider` | derived | `committed`, `headroom`, `overBy`, `leftAfter`, `leftAfterWithCart`. |
 | `swapSuggestionsProvider` | derived | Cheaper verified equivalents with spec parity, biggest saving first. |
 | `cooldownProvider` / `clockProvider` | `Notifier<Map>` / `StreamProvider` | 24h cooling-off expiries; a 30 s tick for countdowns. |
@@ -135,9 +137,9 @@ stateDiagram-v2
   Idle --> Filling: pointer down
   Filling --> Draining: released early
   Draining --> Idle: fill drained
-  Filling --> Held: 1.1 s elapsed (medium haptic)
+  Filling --> Held: 1.2 s elapsed (medium haptic)
   Held --> Released: "tap to end"
-  Held --> Decided: Decision Node → let go / still want it
+  Held --> Decided: Spending Profile → let go / still want it
   Released --> [*]
   Decided --> [*]
 ```
@@ -169,13 +171,13 @@ Screen-reader users trigger the hold through the button's semantic tap; a timed 
 
 ## Data
 
-`MockCatalog` provides 8 products whose fit factors sum exactly to their scores, deterministic 30-day price histories whose mean equals the stated average, local pickup points, and two compare pairs.
+`MockCatalog` provides 8 products whose trade-off weights sum exactly to their scores, deterministic 30-day price histories whose mean equals the stated average, local pickup points, and two compare pairs. Price history is a list of dated `PricePoint`s so the band can be scrubbed day by day.
 
-Seed state: ceiling ₹5,000, settled ₹2,000, cart ₹1,200 (lamp + cable kit). Adding the Atlas daypack breaches by ₹399; the Guardian's Metro swap saves ₹450 and lands ₹51 under.
+Seed state: ceiling ₹5,000, settled ₹2,000, cart ₹1,200 (lamp + cable kit). Adding the Q30 Pro headphones breaches by ₹99; the Guardian swaps them for the Core Edition, regaining ₹400 at 94% spec parity. The Price Memory Radar flags items at least 10 % **and** ₹150 below their 30-day average.
 
 ## Testing
 
-`test/widget_test.dart` covers formatting, intent parsing and budget filtering, fit-factor and catalogue integrity, seed budget arithmetic, the swap engine resolving a breach, and widget tests that render every tab, the decision canvas and the over-budget Guardian flow.
+`test/widget_test.dart` covers formatting, intent parsing and budget filtering, catalogue integrity (weights, 30-day means, references, radar), seed budget arithmetic, the swap engine and intent priorities, plus widget tests that render every tab and the decision canvas, perform the 24h cooling-off hold, open the spec disclosure, and resolve an over-budget cart in one tap.
 
 > [!NOTE]
 > Widget tests use Flutter's wide test font, so any `RenderFlex` overflow fails the suite — a deliberate stress test for long labels and large text settings.

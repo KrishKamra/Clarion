@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/models/product.dart';
+import '../../../data/models/product_model.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -8,7 +8,7 @@ import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/clarion_button.dart';
 import '../../../core/widgets/clarion_sheet.dart';
 import '../../../core/widgets/pressable.dart';
-import '../../budget/application/budget_controller.dart';
+import '../../cart/application/budget_controller.dart';
 
 enum MindfulChoice { coolOff, alternative, addAnyway }
 

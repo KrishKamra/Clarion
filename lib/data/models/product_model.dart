@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 
+import 'trade_off_item.dart';
+
 /// Whether a larger value of a spec is better for the user.
 enum SpecPolarity { higherIsBetter, lowerIsBetter, neutral }
 
@@ -28,22 +30,24 @@ class ProductSpec {
   final SpecPolarity polarity;
 }
 
-/// One signed line of the "Why This Fits You" explanation.
+/// One day's closing price.
 @immutable
-class FitFactor {
-  const FitFactor({
-    required this.title,
-    required this.detail,
-    required this.points,
-  });
+class PricePoint {
+  const PricePoint(this.date, this.price);
 
-  final String title;
-  final String detail;
+  final DateTime date;
+  final double price;
+}
 
-  /// Contribution to the fit score; negative for trade-offs.
-  final int points;
+/// A local store holding stock for same-day pickup.
+@immutable
+class PickupPoint {
+  const PickupPoint(this.area, this.distanceKm);
 
-  bool get isTradeoff => points < 0;
+  final String area;
+  final double distanceKm;
+
+  String get distanceLabel => '${distanceKm.toStringAsFixed(1)} km';
 }
 
 /// A product as evaluated by Clarion's decision-support engine.
@@ -57,12 +61,13 @@ class Product {
     required this.price,
     required this.averagePrice30d,
     required this.fitScore,
+    required this.rationale,
     required this.icon,
     required this.tone,
     required this.rating,
     required this.reviewCount,
     required this.specs,
-    required this.fitFactors,
+    required this.tradeOffs,
     required this.priceHistory,
     required this.intentTags,
     this.pickup,
@@ -75,24 +80,31 @@ class Product {
   final String title;
   final String category;
   final double price;
+
+  /// 30-day moving average.
   final double averagePrice30d;
 
   /// 0–100 match against the user's active intent.
   final int fitScore;
 
+  /// Single-line explainability summary for cards.
+  final String rationale;
+
   /// Glyph standing in for product photography.
   final IconData icon;
 
-  /// A single muted hue that tints the product's matte stage light.
+  /// A single muted hue that tints the product's stage light.
   final Color tone;
 
   final double rating;
   final int reviewCount;
   final List<ProductSpec> specs;
-  final List<FitFactor> fitFactors;
+
+  /// Signed fit factors; weights sum exactly to [fitScore].
+  final List<TradeOffItem> tradeOffs;
 
   /// Daily prices for the last 30 days, oldest first; last == [price].
-  final List<double> priceHistory;
+  final List<PricePoint> priceHistory;
 
   /// Lower-case keywords used by the local intent matcher.
   final Set<String> intentTags;
@@ -109,8 +121,8 @@ class Product {
   /// Fraction below (positive) or above (negative) the 30-day average.
   double get discountVsAverage => 1 - price / averagePrice30d;
 
-  double get historyMin => priceHistory.reduce(math.min);
-  double get historyMax => priceHistory.reduce(math.max);
+  double get historyMin => priceHistory.map((p) => p.price).reduce(math.min);
+  double get historyMax => priceHistory.map((p) => p.price).reduce(math.max);
 
   /// Where today's price sits inside its 30-day band: 0 = low, 1 = high.
   double get bandPosition {
@@ -118,10 +130,12 @@ class Product {
     return span <= 0 ? 0.5 : (price - historyMin) / span;
   }
 
-  List<FitFactor> get matches =>
-      fitFactors.where((f) => !f.isTradeoff).toList();
-  List<FitFactor> get tradeoffs =>
-      fitFactors.where((f) => f.isTradeoff).toList();
+  List<TradeOffItem> get reasons =>
+      tradeOffs.where((t) => t.isPositive).toList()
+        ..sort((a, b) => b.weight.compareTo(a.weight));
+
+  List<TradeOffItem> get compromises =>
+      tradeOffs.where((t) => !t.isPositive).toList();
 
   ProductSpec? spec(String key) {
     for (final s in specs) {
@@ -129,15 +143,4 @@ class Product {
     }
     return null;
   }
-}
-
-/// A local store holding stock for same-day pickup.
-@immutable
-class PickupPoint {
-  const PickupPoint(this.area, this.distanceKm);
-
-  final String area;
-  final double distanceKm;
-
-  String get label => '$area · ${distanceKm.toStringAsFixed(1)} km';
 }

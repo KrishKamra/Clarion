@@ -7,13 +7,13 @@ import '../theme/app_typography.dart';
 import 'pressable.dart';
 
 enum ButtonTone {
-  /// Solid iris. One per view: the action the screen exists for.
+  /// Iris gradient. One per view: the action the screen exists for.
   primary,
 
   /// Vellum with a rim light. Secondary and "slow down" actions.
   secondary,
 
-  /// Solid emerald. Confirms a value-positive action (a swap that saves).
+  /// Emerald gradient. Confirms a value-positive action (a swap that saves).
   positive,
 }
 
@@ -45,10 +45,21 @@ class ClarionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const radius = AppRadii.mdAll;
+    // Solid tones get a tactile diagonal fill: lit from the top-left like
+    // every other surface, so the button reads as pressed metal, not paint.
     final (fill, ink) = switch (tone) {
-      ButtonTone.primary => (AppColors.iris, AppColors.onAccent),
-      ButtonTone.positive => (AppColors.emerald, AppColors.canvas),
-      ButtonTone.secondary => (AppColors.vellumActive, AppColors.textPrimary),
+      ButtonTone.primary => (
+        const [AppColors.irisGlow, AppColors.iris],
+        AppColors.onAccent,
+      ),
+      ButtonTone.positive => (
+        const [AppColors.emeraldGlow, AppColors.emerald],
+        AppColors.canvas,
+      ),
+      ButtonTone.secondary => (
+        const [AppColors.vellumActive, AppColors.vellumActive],
+        AppColors.textPrimary,
+      ),
     };
 
     final content = AnimatedSwitcher(
@@ -88,7 +99,14 @@ class ClarionButton extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
               alignment: Alignment.center,
-              decoration: BoxDecoration(color: fill, borderRadius: radius),
+              decoration: BoxDecoration(
+                borderRadius: radius,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: fill,
+                ),
+              ),
               child: content,
             ),
           ),

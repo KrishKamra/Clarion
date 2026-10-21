@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/models/product.dart';
+import '../../../data/models/product_model.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -80,11 +80,11 @@ class _PickupPlate extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'In stock · Pickup today',
+                'Pickup in ${pickup.distanceLabel}',
                 style: AppTypography.label.copyWith(fontSize: 12.5),
               ),
               Text(
-                pickup.label,
+                '${pickup.area} · in stock today',
                 style: AppTypography.metricSmall.copyWith(
                   fontSize: 10.5,
                   color: AppColors.textSecondary,

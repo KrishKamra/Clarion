@@ -1,20 +1,23 @@
 import 'package:flutter/painting.dart';
 
-/// Clarion colour tokens — "Midnight Obsidian & Ethereal Mint".
+/// Clarion colour tokens — "Obsidian Titanium & Botanical Emerald".
 ///
 /// A matte, near-neutral black canvas (no blue cast) with surfaces that read
 /// as stacked sheets of vellum. Colour is spent sparingly: each accent carries
 /// one meaning, so it can direct attention without decoration.
 abstract final class AppColors {
   // ── Canvas & surfaces ─────────────────────────────────────────────────────
-  /// Obsidian Deep: the app canvas.
-  static const Color canvas = Color(0xFF08090C);
+  /// Base Void: the app canvas — pure obsidian slate, no blue cast.
+  static const Color canvas = Color(0xFF07080B);
 
-  /// Raised cards and solid chrome.
-  static const Color surface = Color(0xFF0F1117);
+  /// Card tier 1: matte content surfaces.
+  static const Color surface = Color(0xFF0E1017);
 
-  /// Sheets, snackbars, tooltips: one step above [surface].
-  static const Color surfaceHigh = Color(0xFF151821);
+  /// Card tier 2: highlighted or floating surfaces, sheets, snackbars.
+  static const Color surfaceHigh = Color(0xFF141824);
+
+  /// The 0.5px edge stroke on tier-2 surfaces: white at 8 %.
+  static const Color edge = Color(0x14FFFFFF);
 
   /// Frosted vellum fill: white at 3 %.
   static const Color vellum = Color(0x08FFFFFF);
@@ -40,10 +43,10 @@ abstract final class AppColors {
   static const Color emerald = Color(0xFF10B981);
   static const Color emeraldGlow = Color(0xFF34D399);
 
-  /// Warm amber: trade-offs, approaching the ceiling, cooling off.
+  /// Burnished amber: trade-offs, constraint caution, approaching the ceiling.
   static const Color amber = Color(0xFFF59E0B);
 
-  /// Muted rose: anti-impulse friction, over budget.
+  /// Muted rose: anti-impulse friction — cooling off, over the ceiling.
   static const Color rose = Color(0xFFF43F5E);
 
   // ── Text ──────────────────────────────────────────────────────────────────

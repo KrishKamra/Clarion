@@ -4,6 +4,18 @@ All notable changes to Clarion are documented here. Format based on [Keep a Chan
 
 ## [Unreleased]
 
+### Changed — "Obsidian Titanium" brief
+- **Structure** now follows the brief: domain models in `lib/data/models/` (`product_model`, `cart_item_model`, `trade_off_item`), catalogue in `lib/data/`; atoms renamed to `fit_score_gauge`, `intent_field`, `floating_nav_capsule`; new `dynamic_pill` replaces `MetaTag` and `IntentCapsule`.
+- **Tabs** are now Intent Horizon, Compare Matrix, Smart Cart (Guardian) and Spending Profile; the cooling-off queue moved to Spending Profile.
+- **Tokens**: `#07080B` canvas; matte (`#0E1017`) and floating (`#141824`, 0.5px edge, specular sheen) card tiers; diagonal 15 % → 2 % rim light; rose now marks cooling off; 14px body at 1.45; 18px section headers; 220–280 ms motion.
+- **Intent Horizon**: monogram header, curated pills (`College Setup < ₹2.5k`, `ANC for Focus`, `Durable Commute Pack`), horizontal Personal Fit Stream with `94% Fit` gauges and the top two weighted factors, and a new **Price Memory Radar**.
+- **Decision canvas**: "Pickup in 1.8 km" badge, **scrubbable** 30-day price band, "Why We Recommend This" ledger on the floating tier, specs behind progressive disclosure, hold button with micro-progress timer and a live 24h cooling-off status.
+- **Compare Matrix**: sticky A-vs-B header that collapses into a frosted bar as rows scroll.
+- **Smart Cart**: interactive zoned Spending Barometer (Safe → Caution → Over, touch to inspect each item) and the brief's swap copy — Q30 Pro → Core Edition regains ₹400 at 94% parity; cart items carry an `IntentPriority`.
+- **Data**: Atlas scores 94; headphones become Pro/Core Edition; price history is dated `PricePoint`s; radar requires ≥ 10 % and ≥ ₹150 off.
+- Primary buttons use a restrained iris gradient fill; selection haptics on pills, tabs, scrubbing and holds.
+- Tests expanded to 16, including the hold gesture, spec disclosure and price radar.
+
 ### Added
 - `LICENSE` (MIT; bundled fonts remain OFL-1.1), `SECURITY.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1) and `CONTRIBUTING.md`.
 - Mermaid diagrams (decision flow, layers, provider graph, add-to-cart sequence, hold state machine, material selection) and GitHub callouts across the docs.

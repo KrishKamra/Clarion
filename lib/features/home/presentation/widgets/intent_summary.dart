@@ -5,7 +5,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/pressable.dart';
-import '../../../../core/widgets/section_header.dart';
+import '../../../../core/widgets/dynamic_pill.dart';
 import '../../application/intent_controller.dart';
 
 /// Shows how Clarion read the intent — ceiling, keywords, match count — so
@@ -38,12 +38,13 @@ class IntentSummary extends StatelessWidget {
                 runSpacing: 6,
                 children: [
                   if (intent.budget != null)
-                    MetaTag(
+                    DynamicPill(
                       label: '≤ ${Fmt.inr(intent.budget!)}',
                       color: AppColors.emeraldGlow,
                     ),
-                  for (final k in intent.keywords.take(4)) MetaTag(label: k),
-                  MetaTag(
+                  for (final k in intent.keywords.take(4))
+                    DynamicPill(label: k),
+                  DynamicPill(
                     label: '$matches ${matches == 1 ? 'match' : 'matches'}',
                     color: AppColors.irisGlow,
                   ),

@@ -5,16 +5,17 @@ import '../theme/app_colors.dart';
 import '../theme/app_decorations.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
+import 'dynamic_pill.dart';
 import 'pressable.dart';
 
-/// The Intent Canvas: a quiet writing surface where the user states a goal,
-/// followed by curated intent capsules.
+/// IntentField: a serene, conversational surface where the user states a
+/// goal, followed by curated contextual intent pills.
 ///
 /// Deliberately not a search bar — no magnifier, no border box. The prompt
 /// is set in display type, and focus is shown by an iris filament drawing
 /// itself along the base of the field.
-class IntentInput extends StatefulWidget {
-  const IntentInput({
+class IntentField extends StatefulWidget {
+  const IntentField({
     super.key,
     required this.onSubmitted,
     this.onCleared,
@@ -25,6 +26,8 @@ class IntentInput extends StatefulWidget {
 
   final ValueChanged<String> onSubmitted;
   final VoidCallback? onCleared;
+
+  /// Curated suggestions shown as pills beneath the field.
   final List<String> capsules;
 
   /// The applied intent; its capsule (if any) renders selected, and clearing
@@ -33,10 +36,10 @@ class IntentInput extends StatefulWidget {
   final String hint;
 
   @override
-  State<IntentInput> createState() => _IntentInputState();
+  State<IntentField> createState() => _IntentFieldState();
 }
 
-class _IntentInputState extends State<IntentInput> {
+class _IntentFieldState extends State<IntentField> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focus = FocusNode();
 
@@ -48,7 +51,7 @@ class _IntentInputState extends State<IntentInput> {
   }
 
   @override
-  void didUpdateWidget(IntentInput old) {
+  void didUpdateWidget(IntentField old) {
     super.didUpdateWidget(old);
     if (old.activeIntent != null && widget.activeIntent == null) {
       _controller.clear();
@@ -64,10 +67,10 @@ class _IntentInputState extends State<IntentInput> {
 
   void _refresh() => setState(() {});
 
-  void _submit([String? value]) {
+  void _submit([String? value, bool haptic = true]) {
     final text = (value ?? _controller.text).trim();
     if (text.isEmpty) return;
-    HapticFeedback.lightImpact();
+    if (haptic) HapticFeedback.lightImpact();
     _focus.unfocus();
     widget.onSubmitted(text);
   }
@@ -86,7 +89,8 @@ class _IntentInputState extends State<IntentInput> {
       text: capsule,
       selection: TextSelection.collapsed(offset: capsule.length),
     );
-    _submit(capsule);
+    // The pill already ticked with a selection haptic.
+    _submit(capsule, false);
   }
 
   @override
@@ -164,8 +168,10 @@ class _IntentInputState extends State<IntentInput> {
             runSpacing: AppSpacing.sm,
             children: [
               for (final capsule in widget.capsules)
-                IntentCapsule(
+                DynamicPill(
                   label: capsule,
+                  size: PillSize.regular,
+                  color: AppColors.irisGlow,
                   selected: widget.activeIntent == capsule,
                   onTap: () => _toggleCapsule(capsule),
                 ),
@@ -288,55 +294,6 @@ class _SubmitButton extends StatelessWidget {
           Icons.arrow_forward_rounded,
           size: 18,
           color: enabled ? AppColors.onAccent : AppColors.textTertiary,
-        ),
-      ),
-    );
-  }
-}
-
-/// A curated, tappable intent suggestion.
-class IntentCapsule extends StatelessWidget {
-  const IntentCapsule({
-    super.key,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Pressable(
-      onTap: onTap,
-      haptic: false, // the submit path already ticks
-      scale: 0.96,
-      child: AnimatedContainer(
-        duration: AppMotion.medium,
-        curve: AppMotion.standard,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md + 2,
-          vertical: AppSpacing.sm + 1,
-        ),
-        decoration: BoxDecoration(
-          borderRadius: AppRadii.pillAll,
-          color: selected
-              ? AppColors.iris.withValues(alpha: 0.16)
-              : AppColors.vellum,
-          border: Border.all(
-            color: selected
-                ? AppColors.irisGlow.withValues(alpha: 0.55)
-                : AppColors.hairline,
-          ),
-        ),
-        child: Text(
-          label,
-          style: AppTypography.label.copyWith(
-            fontSize: 13,
-            color: selected ? AppColors.textPrimary : AppColors.textSecondary,
-          ),
         ),
       ),
     );

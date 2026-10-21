@@ -5,10 +5,20 @@ import '../theme/app_spacing.dart';
 import 'pressable.dart';
 
 /// Which material a [TactileCard] is made of. See [AppDecorations].
-enum CardMaterial { raised, vellum }
+enum CardMaterial {
+  /// Tier 1 — the default for content in lists.
+  matte,
 
-/// The base surface for content: a blur-free card with a directional rim
-/// light, safe to repeat any number of times inside a scroll view.
+  /// Tier 2 — the one card on a screen that should lift (a highlighted
+  /// decision node, a floating summary).
+  floating,
+
+  /// Translucent — inputs, empty states, quiet panels.
+  vellum,
+}
+
+/// The base surface for content: a blur-free card with a specular rim,
+/// safe to repeat any number of times inside a fast-scrolling list.
 ///
 /// Pass [tint] to give one card a contextual wash of colour (a budget alert,
 /// a winning verdict); leave it null everywhere else.
@@ -16,7 +26,7 @@ class TactileCard extends StatelessWidget {
   const TactileCard({
     super.key,
     required this.child,
-    this.material = CardMaterial.raised,
+    this.material = CardMaterial.matte,
     this.padding = const EdgeInsets.all(AppSpacing.lg),
     this.radius = AppRadii.lg,
     this.tint,
@@ -36,7 +46,11 @@ class TactileCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final borderRadius = BorderRadius.circular(radius);
     final decoration = switch (material) {
-      CardMaterial.raised => AppDecorations.raised(
+      CardMaterial.matte => AppDecorations.matte(
+        borderRadius: borderRadius,
+        tint: tint,
+      ),
+      CardMaterial.floating => AppDecorations.floating(
         borderRadius: borderRadius,
         tint: tint,
       ),
@@ -49,9 +63,9 @@ class TactileCard extends StatelessWidget {
     Widget card = CustomPaint(
       foregroundPainter: RimLightPainter(
         borderRadius: borderRadius,
-        gradient: material == CardMaterial.raised
-            ? AppDecorations.rimLight
-            : AppDecorations.rimLightSoft,
+        gradient: material == CardMaterial.vellum
+            ? AppDecorations.rimLightSoft
+            : AppDecorations.rimLight,
       ),
       child: DecoratedBox(
         decoration: decoration,

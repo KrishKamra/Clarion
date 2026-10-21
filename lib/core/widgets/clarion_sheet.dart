@@ -17,7 +17,7 @@ Future<T?> showClarionSheet<T>({
     isScrollControlled: true,
     useSafeArea: true,
     backgroundColor: Colors.transparent,
-    barrierColor: const Color(0x9908090C),
+    barrierColor: const Color(0x9907080B),
     builder: (context) =>
         ClarionSheet(eyebrow: eyebrow, title: title, child: builder(context)),
   );
@@ -47,7 +47,7 @@ class ClarionSheet extends StatelessWidget {
         top: Radius.circular(AppRadii.xl),
       ),
       sigma: 28,
-      fill: const Color(0xE6151821), // surfaceHigh @ 90 %
+      fill: const Color(0xE6141824), // surfaceHigh @ 90 %
       child: Padding(
         padding: EdgeInsets.fromLTRB(
           AppSpacing.gutter,

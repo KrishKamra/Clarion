@@ -11,7 +11,8 @@ import '../../../core/widgets/clarion_button.dart';
 import '../../../core/widgets/clarion_sheet.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../core/widgets/tactile_card.dart';
-import '../../budget/application/budget_controller.dart';
+import '../../../data/models/cart_item_model.dart';
+import '../application/budget_controller.dart';
 import '../../decision/application/compare_controller.dart';
 import '../../decision/presentation/product_decision_screen.dart';
 import '../../navigation/navigation_controller.dart';
@@ -51,7 +52,7 @@ class _SmartCartScreenState extends ConsumerState<SmartCartScreen> {
     );
   }
 
-  void _remove(CartLine line) {
+  void _remove(CartItem line) {
     final removed = _cart.remove(line.productId);
     if (removed == null) return;
     _snack(
@@ -65,7 +66,7 @@ class _SmartCartScreenState extends ConsumerState<SmartCartScreen> {
 
   void _compare(SwapSuggestion s) {
     ref.read(compareProvider.notifier).focusProduct(s.from.id);
-    ref.read(navigationProvider.notifier).select(AppTab.decisions);
+    ref.read(navigationProvider.notifier).select(AppTab.compare);
   }
 
   Future<void> _checkout(BudgetSnapshot budget) async {
@@ -146,7 +147,9 @@ class _SmartCartScreenState extends ConsumerState<SmartCartScreen> {
         ),
         SliverPadding(
           padding: AppSpacing.screenPadding.copyWith(top: AppSpacing.lg),
-          sliver: SliverToBoxAdapter(child: SpendingBarometer(budget: budget)),
+          sliver: SliverToBoxAdapter(
+            child: SpendingBarometer(budget: budget, items: lines),
+          ),
         ),
         SliverToBoxAdapter(
           child: AnimatedSize(
@@ -175,7 +178,7 @@ class _SmartCartScreenState extends ConsumerState<SmartCartScreen> {
           ),
           sliver: SliverToBoxAdapter(
             child: SectionHeader(
-              label: 'Intent cart',
+              title: 'Intent cart',
               caption: lines.isEmpty
                   ? null
                   : 'Swipe left to remove · tap to revisit the decision',
@@ -213,6 +216,7 @@ class _SmartCartScreenState extends ConsumerState<SmartCartScreen> {
                   onQuantity: (q) => q <= 0
                       ? _remove(line)
                       : _cart.setQuantity(line.productId, q),
+                  onPriority: () => _cart.cyclePriority(line.productId),
                 );
               },
             ),

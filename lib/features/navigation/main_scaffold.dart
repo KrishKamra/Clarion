@@ -3,17 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
-import '../../core/widgets/floating_nav_bar.dart';
+import '../../core/widgets/floating_nav_capsule.dart';
 import '../../core/widgets/obsidian_canvas.dart';
-import '../budget/application/budget_controller.dart';
+import '../cart/application/budget_controller.dart';
 import '../cart/application/cart_controller.dart';
 import '../cart/presentation/smart_cart_screen.dart';
-import '../decision/presentation/decision_node_screen.dart';
+import '../decision/application/cooldown_controller.dart';
+import '../decision/presentation/compare_matrix_screen.dart';
 import '../home/presentation/intent_home_screen.dart';
-import '../memory/presentation/spending_memory_screen.dart';
+import '../profile/presentation/spending_profile_screen.dart';
 import 'navigation_controller.dart';
 
-/// Persistent shell hosting the four primary tabs under the floating island.
+/// Spatial shell hosting the four primary tabs under the floating capsule.
 ///
 /// Tabs are built lazily on first visit and kept alive, so scroll position
 /// and in-progress state survive switches. Inactive tabs are faded out,
@@ -28,6 +29,7 @@ class MainScaffold extends ConsumerWidget {
     final overBudget = ref.watch(
       budgetSnapshotProvider.select((b) => b.isOver),
     );
+    final coolingOff = ref.watch(cooldownProvider.select((m) => m.isNotEmpty));
 
     // The canvas sits outside the Scaffold so the keyboard never resizes it.
     return ObsidianCanvas(
@@ -45,12 +47,12 @@ class MainScaffold extends ConsumerWidget {
             index: tab.index,
             builders: const [
               IntentHomeScreen.new,
-              DecisionNodeScreen.new,
+              CompareMatrixScreen.new,
               SmartCartScreen.new,
-              SpendingMemoryScreen.new,
+              SpendingProfileScreen.new,
             ],
           ),
-          bottomNavigationBar: FloatingNavBar(
+          bottomNavigationBar: FloatingNavCapsule(
             currentIndex: tab.index,
             onSelected: (i) =>
                 ref.read(navigationProvider.notifier).select(AppTab.values[i]),
@@ -61,9 +63,9 @@ class MainScaffold extends ConsumerWidget {
                 label: 'Horizon',
               ),
               const NavDestination(
-                icon: Icons.hub_outlined,
-                activeIcon: Icons.hub_rounded,
-                label: 'Decide',
+                icon: Icons.compare_arrows_outlined,
+                activeIcon: Icons.compare_arrows_rounded,
+                label: 'Compare',
               ),
               NavDestination(
                 icon: Icons.shield_outlined,
@@ -72,10 +74,11 @@ class MainScaffold extends ConsumerWidget {
                 badge: cartCount,
                 badgeColor: overBudget ? AppColors.rose : AppColors.iris,
               ),
-              const NavDestination(
+              NavDestination(
                 icon: Icons.donut_large_outlined,
                 activeIcon: Icons.donut_large_rounded,
-                label: 'Memory',
+                label: 'Profile',
+                dot: coolingOff ? AppColors.rose : null,
               ),
             ],
           ),

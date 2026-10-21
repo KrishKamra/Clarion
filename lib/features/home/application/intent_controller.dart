@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/data/catalog.dart';
-import '../../../core/models/product.dart';
+import '../../../data/catalog.dart';
+import '../../../data/models/product_model.dart';
 
 /// A parsed shopping intent, e.g. "Daily EDC for College < ₹2,500".
 ///

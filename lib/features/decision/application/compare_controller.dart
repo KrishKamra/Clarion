@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/data/catalog.dart';
-import '../../../core/data/mock_catalog.dart';
-import '../../../core/models/product.dart';
+import '../../../data/catalog.dart';
+import '../../../data/mock_catalog.dart';
+import '../../../data/models/product_model.dart';
 import '../../../core/utils/formatters.dart';
 
 /// Which side of a comparison wins a criterion.

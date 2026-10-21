@@ -6,14 +6,14 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 
-/// Personal Fit Score gauge: a 300° instrument arc, open at the base, with
-/// the score set in mono at its centre.
+/// FitScoreGauge: a minimal 300° instrument arc, open at the base, with the
+/// 0–100% personal fit set in mono at its centre.
 ///
 /// The arc and the figure animate together on first build; because the
 /// numerals are fixed-width the count-up never nudges the layout. Larger
 /// dials get a faint backlight in their fit colour and a tick ring.
-class FitDial extends StatelessWidget {
-  const FitDial({
+class FitScoreGauge extends StatelessWidget {
+  const FitScoreGauge({
     super.key,
     required this.score,
     this.size = 56,
@@ -54,8 +54,19 @@ class FitDial extends StatelessWidget {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  Text(
-                    '${value.round()}',
+                  Text.rich(
+                    TextSpan(
+                      text: '${value.round()}',
+                      children: [
+                        TextSpan(
+                          text: '%',
+                          style: TextStyle(
+                            fontSize: size * 0.14,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
                     style: AppTypography.metric.copyWith(
                       fontSize: size * 0.3,
                       letterSpacing: -size * 0.015,

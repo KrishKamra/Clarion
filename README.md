@@ -18,7 +18,7 @@ Clarion is an intent-driven e-commerce **decision-support system** — *e-commer
 
 | Pillar | What it does |
 | :--- | :--- |
-| 🔍 **Intent-first search** | Describe a goal (*"Daily EDC for College < ₹2,500"*). An on-device parser extracts a price ceiling and keywords, then re-ranks the **Curated Fit Stream**. |
+| 🔍 **Intent-first search** | Describe a goal (*"College Setup < ₹2.5k"*). An on-device parser extracts a price ceiling and keywords, then re-ranks the **Personal Fit Stream**. |
 | 📊 **Explainable fit scores** | Every 0–100 score is a ledger — `+35` Intent Match, `−08` Weight Delta — that sums exactly to the score. |
 | ⚖️ **Differential compare** | Head-to-head that hides identical specs, marks each criterion's winner, and lets you star priorities that count double. |
 | 🛡️ **Budget Guardian** | A live barometer of settled spend + cart against your ceiling, with verified, cheaper swaps (and their spec parity) when you go over. |
@@ -28,7 +28,7 @@ Clarion is an intent-driven e-commerce **decision-support system** — *e-commer
 
 ```mermaid
 flowchart TD
-  A["Intent Horizon<br/>state a goal"] --> B["Curated Fit Stream<br/>ranked, budget-filtered"]
+  A["Intent Horizon<br/>state a goal"] --> B["Personal Fit Stream<br/>ranked, budget-filtered"]
   B --> C["Decision canvas<br/>price band · fit ledger · budget impact"]
   C -->|"Add to Intent Cart"| D{"Within ceiling<br/>incl. cart?"}
   C -->|"Press & hold"| H["24h Cooling Off"]
@@ -40,7 +40,7 @@ flowchart TD
   E -->|"Over ceiling"| S["Guardian Swap Engine<br/>saving + spec parity"]
   S --> E
   E --> K["Mindful checkout"]
-  H -->|"Let it go"| W["Spending Memory<br/>impulse avoided"]
+  H -->|"Let it go"| W["Spending Profile<br/>impulse avoided"]
   H -->|"Still want it"| E
   K --> W
 ```
@@ -49,16 +49,16 @@ flowchart TD
 
 | Tab / route | File | Highlights |
 | :--- | :--- | :--- |
-| **Shell** | `features/navigation/main_scaffold.dart` | Floating frosted island with a magnetic indicator; lazy, kept-alive tabs; over-budget cart badge. |
-| **Intent Horizon** | `features/home/presentation/intent_home_screen.dart` | Wordmark, live `₹3,200 / ₹5,000` metric with backlit ring, profile & signals sheet, Intent Canvas with curated capsules, Fit Stream cards (dial, signed reason + trade-off, pickup tag). |
-| **Decision canvas** *(pushed)* | `features/decision/presentation/product_decision_screen.dart` | Matte product stage, 30-day price band, "Why This Fits You" ledger, friction-by-design drawer: *"Leaves ₹801 safe buffer"*, **Add to Intent Cart** vs **24h Cooling Off**. |
-| **Decision Node** | `features/decision/presentation/decision_node_screen.dart` | Items cooling off (let go / still want it), head-to-head, starred priorities, weighted verdict, differences-only matrix. |
-| **Smart Cart (Guardian)** | `features/cart/presentation/smart_cart_screen.dart` | Multi-segment Spending Barometer with ceiling tick, Guardian Swap Engine, swipe-to-remove with undo, mindful checkout. |
-| **Spending Memory** | `features/memory/presentation/spending_memory_screen.dart` | Backlit envelope ring, editable ceiling, mindful wins, six-month trend, category breakdown. |
+| **Shell** | `features/navigation/main_scaffold.dart` | Frosted spatial capsule with a magnetic, haloed active pill; cart badge tinted by budget state; status dot while something is cooling off. |
+| **Intent Horizon** | `features/home/presentation/intent_home_screen.dart` | Monogram, live `₹3,200 / ₹5,000` indicator with miniature gauge, profile node, conversational intent field with curated pills, horizontal **Personal Fit Stream** (gauge, rationale, top two weighted factors), **Price Memory Radar**. |
+| **Decision canvas** *(pushed)* | `features/decision/presentation/product_decision_screen.dart` | Media stage with "Pickup in 1.8 km", scrubbable 30-day price band, "Why We Recommend This" ledger (`+35` / `+25` / `−08` … `= 94`), specs behind progressive disclosure, sticky bar: *"Leaves ₹801 safe buffer in your monthly limit"*, **Add to Intent Cart** vs press-and-hold **24h Cooling Off** with micro-progress timer. |
+| **Compare Matrix** | `features/decision/presentation/compare_matrix_screen.dart` | Sticky A-vs-B header that collapses as you scroll, starred priorities (Price · Weight · Battery), weighted verdict, differences-only spec rows with per-row winners. |
+| **Smart Cart (Guardian)** | `features/cart/presentation/smart_cart_screen.dart` | Interactive Spending Barometer (Safe → Caution → Over zones, touch a segment to see what it adds), Guardian Swap Engine, intent-priority pills, swipe-to-remove with undo, mindful checkout. |
+| **Spending Profile** | `features/profile/presentation/spending_profile_screen.dart` | Backlit envelope ring, editable ceiling, cooling-off queue, mindful wins, six-month trend, category breakdown. |
 
 ## 🎨 Design language
 
-*Midnight Obsidian & Ethereal Mint* — a matte `#08090C` canvas with film grain, surfaces that read as stacked vellum with a 1px directional rim light, and four accents that each carry exactly one meaning. Type pairs **Schibsted Grotesk** (reading) with **Geist Mono** (prices, scores, labels), both bundled.
+*Obsidian Titanium & Botanical Emerald* — a matte `#07080B` canvas with film grain, two surface tiers lit by a directional specular rim, and four accents that each carry exactly one meaning. Type pairs **Schibsted Grotesk** (reading) with **Geist Mono** (prices, scores, labels), both bundled.
 
 > [!TIP]
 > The full token reference, material tiers and component catalogue are in [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md).
@@ -77,18 +77,19 @@ flowchart TD
 ```text
 lib/
 ├── core/
-│   ├── data/          # Catalog provider, mock catalogue & compare pairs
-│   ├── models/        # Product, ProductSpec, FitFactor, PickupPoint
 │   ├── theme/         # app_colors · app_typography · app_decorations · app_spacing · app_theme
-│   ├── utils/         # INR (Indian grouping), signed points, countdown formatters
-│   └── widgets/       # TactileCard, FitDial, IntentInput, FloatingNavBar, HoldButton,
-│                      # FrostedChrome, PriceBandChart, ProductArtwork, ObsidianCanvas, …
+│   ├── utils/         # INR (Indian grouping), signed weights, dates, countdowns
+│   └── widgets/       # tactile_card · fit_score_gauge · intent_field · dynamic_pill ·
+│                      # floating_nav_capsule · hold_button · price_band_chart · frosted_chrome …
+├── data/
+│   ├── models/        # product_model · cart_item_model · trade_off_item
+│   ├── catalog.dart   # Read-only Catalog + catalogProvider (the backend seam)
+│   └── mock_catalog.dart
 ├── features/
-│   ├── budget/        # Envelope state, BudgetSnapshot, ceiling sheet
-│   ├── cart/          # Cart controller, swap engine, Smart Cart UI
-│   ├── decision/      # Decision canvas, Decision Node, cooldowns, compare scoring
-│   ├── home/          # Intent parsing & ranking, Intent Horizon UI
-│   ├── memory/        # Spending Memory UI
+│   ├── home/          # Intent parsing & ranking · Intent Horizon (fit stream, price radar)
+│   ├── decision/      # Decision canvas · Compare Matrix · cooldowns · compare scoring
+│   ├── cart/          # Cart + budget state, Guardian Swap Engine · Smart Cart
+│   ├── profile/       # Spending Profile (envelope, cooling-off queue, history)
 │   └── navigation/    # AppTab controller & MainScaffold shell
 └── main.dart          # Edge-to-edge setup, ProviderScope, MaterialApp
 ```
@@ -122,9 +123,10 @@ flutter test           # unit + widget tests — fails on any layout overflow
 The mock state is tuned so the headline numbers fall out of real arithmetic:
 
 - **Ceiling** ₹5,000 · **settled** ₹2,000 · **cart** ₹1,200 (desk lamp + cable kit) → header reads **₹3,200 / ₹5,000**.
-- *Northpeak Atlas 30L* (₹2,199) scores **92**: `+35` Intent Match, `+25` Budget Envelope, `+28` Commute Fit, `+12` Build Trust, `−08` Weight Delta. Its drawer reads **"Leaves ₹801 safe buffer"** and notes the cart would take it ₹399 past the ceiling.
-- Add it anyway and the **Guardian Swap Engine** appears: *Terrain Metro 28L* saves **₹450 at 89% spec parity**, landing ₹51 under.
-- *Loom 75 keyboard* is mid-way through a 24h cooling-off period in the Decision Node.
+- *Northpeak Atlas 30L* (₹2,199) scores **94% Fit**: `+35` Intent Alignment, `+25` Budget Envelope, `+30` Commute Ergonomics, `+12` Build Trust, `−08` Weight Trade-off. Its bar reads **"Leaves ₹801 safe buffer in your monthly limit"** and notes the cart would take it ₹399 past the ceiling.
+- The **Price Memory Radar** flags *Arcus Q30 Pro* — **₹1,899 vs avg ₹2,350** — and the EDC sling (15% below average).
+- Add the Q30 Pro and the Guardian reports **"₹99 over monthly limit. Swap option available."** One tap swaps it for the **Core Edition (₹1,499)** to regain **₹400 at 94% spec parity**.
+- *Loom 75 keyboard* is mid-way through a 24h cooling-off period on the Spending Profile.
 
 > [!WARNING]
 > "Leaves ₹801 safe buffer" measures the item alone against this month's envelope. The cart-inclusive figure is shown on the line beneath it, and it is what the add flow checks.

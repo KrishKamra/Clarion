@@ -48,12 +48,12 @@ abstract final class AppRadii {
   static const BorderRadius pillAll = BorderRadius.all(Radius.circular(pill));
 }
 
-/// Motion tokens. Interface transitions live in the 200–280ms band on cubic
+/// Motion tokens. Interface transitions live in the 220–280ms band on cubic
 /// curves — quick, settled, never rubbery. Only one-off data reveals (a dial
 /// sweeping to its score) run longer.
 abstract final class AppMotion {
-  static const Duration fast = Duration(milliseconds: 200);
-  static const Duration medium = Duration(milliseconds: 240);
+  static const Duration fast = Duration(milliseconds: 220);
+  static const Duration medium = Duration(milliseconds: 250);
   static const Duration slow = Duration(milliseconds: 280);
   static const Duration reveal = Duration(milliseconds: 640);
 

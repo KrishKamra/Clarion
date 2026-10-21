@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../cart/application/cart_controller.dart';
+import 'cart_controller.dart';
 
 /// A month's settled spending within one category.
 @immutable

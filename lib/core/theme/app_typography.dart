@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 
-/// Clarion type system.
+/// Clarion type system — typography as interface architecture.
 ///
 /// Two bundled faces with distinct jobs:
-///  * **Schibsted Grotesk** — an editorial grotesque with sharp terminals for
-///    everything a person reads.
+///  * **Schibsted Grotesk** — a sharp, editorial grotesque for everything a
+///    person reads. Chosen over the default Inter/SF stack so the product
+///    has a voice of its own while keeping UI-grade legibility.
 ///  * **Geist Mono** — fixed-width figures for everything a person compares:
-///    prices, scores, deltas and micro labels. Every glyph has the same
+///    prices, scores, deltas and micro labels. Every glyph shares one
 ///    advance, so animated counters never shift the layout.
 abstract final class AppTypography {
   static const String sans = 'SchibstedGrotesk';
@@ -17,11 +18,11 @@ abstract final class AppTypography {
   static const List<FontFeature> _tabular = [FontFeature.tabularFigures()];
 
   // ── Reading (sans) ────────────────────────────────────────────────────────
-  /// Intent prompts and screen titles (24–28px band).
+  /// Display / intent: authoritative, calm, inviting (24–28px band).
   static const TextStyle display = TextStyle(
     fontFamily: sans,
     fontSize: 28,
-    height: 1.14,
+    height: 1.15,
     fontWeight: FontWeight.w600,
     letterSpacing: -0.6,
     color: AppColors.textPrimary,
@@ -36,6 +37,7 @@ abstract final class AppTypography {
     color: AppColors.textPrimary,
   );
 
+  /// Section headers: the architectural anchor points (17–19px band).
   static const TextStyle title = TextStyle(
     fontFamily: sans,
     fontSize: 18,
@@ -47,28 +49,29 @@ abstract final class AppTypography {
 
   static const TextStyle titleSmall = TextStyle(
     fontFamily: sans,
-    fontSize: 15.5,
+    fontSize: 15,
     height: 1.35,
     fontWeight: FontWeight.w600,
     letterSpacing: -0.15,
     color: AppColors.textPrimary,
   );
 
+  /// Body / trade-offs: crisp editorial clarity.
   static const TextStyle body = TextStyle(
     fontFamily: sans,
-    fontSize: 15,
-    height: 1.5,
+    fontSize: 14,
+    height: 1.45,
     fontWeight: FontWeight.w400,
-    letterSpacing: 0.1,
+    letterSpacing: 0,
     color: AppColors.textPrimary,
   );
 
   static const TextStyle bodySmall = TextStyle(
     fontFamily: sans,
-    fontSize: 13.5,
+    fontSize: 13,
     height: 1.45,
     fontWeight: FontWeight.w400,
-    letterSpacing: 0.1,
+    letterSpacing: 0,
     color: AppColors.textSecondary,
   );
 
@@ -86,12 +89,12 @@ abstract final class AppTypography {
     fontSize: 12,
     height: 1.4,
     fontWeight: FontWeight.w400,
-    letterSpacing: 0.15,
+    letterSpacing: 0.1,
     color: AppColors.textSecondary,
   );
 
   // ── Comparing (mono) ──────────────────────────────────────────────────────
-  /// Uppercase instrument-panel micro label, e.g. section eyebrows.
+  /// Uppercase instrument-panel micro label for eyebrows and timestamps.
   static const TextStyle overline = TextStyle(
     fontFamily: mono,
     fontSize: 10.5,
@@ -105,7 +108,7 @@ abstract final class AppTypography {
     fontFamily: mono,
     fontSize: 34,
     height: 1.05,
-    fontWeight: FontWeight.w500,
+    fontWeight: FontWeight.w600,
     letterSpacing: -1.6,
     color: AppColors.textPrimary,
     fontFeatures: _tabular,
@@ -115,17 +118,18 @@ abstract final class AppTypography {
     fontFamily: mono,
     fontSize: 24,
     height: 1.1,
-    fontWeight: FontWeight.w500,
+    fontWeight: FontWeight.w600,
     letterSpacing: -1,
     color: AppColors.textPrimary,
     fontFeatures: _tabular,
   );
 
+  /// Score & metric digits (12–16px band).
   static const TextStyle metric = TextStyle(
     fontFamily: mono,
     fontSize: 15,
     height: 1.2,
-    fontWeight: FontWeight.w500,
+    fontWeight: FontWeight.w600,
     letterSpacing: -0.4,
     color: AppColors.textPrimary,
     fontFeatures: _tabular,
@@ -148,7 +152,7 @@ abstract final class AppTypography {
     titleLarge: title.copyWith(color: primary),
     titleMedium: titleSmall.copyWith(color: primary),
     bodyLarge: body.copyWith(color: primary),
-    bodyMedium: body.copyWith(fontSize: 14, color: primary),
+    bodyMedium: body.copyWith(color: primary),
     bodySmall: bodySmall.copyWith(color: secondary),
     labelLarge: label.copyWith(color: primary),
     labelMedium: caption.copyWith(color: secondary),

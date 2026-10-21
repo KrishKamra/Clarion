@@ -18,6 +18,7 @@ class ProgressRing extends StatelessWidget {
     this.size = 22,
     this.strokeWidth = 2.5,
     this.backlit = false,
+    this.animate = true,
     this.child,
   });
 
@@ -26,13 +27,16 @@ class ProgressRing extends StatelessWidget {
   final double size;
   final double strokeWidth;
   final bool backlit;
+
+  /// Ease to each new value; disable when the caller drives every frame.
+  final bool animate;
   final Widget? child;
 
   @override
   Widget build(BuildContext context) {
     Widget ring = TweenAnimationBuilder<double>(
       tween: Tween(end: value.clamp(0.0, 1.0)),
-      duration: AppMotion.reveal,
+      duration: animate ? AppMotion.reveal : Duration.zero,
       curve: AppMotion.standard,
       builder: (context, v, child) => CustomPaint(
         size: Size.square(size),

@@ -1,56 +1,42 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/data/catalog.dart';
-import '../../../core/models/product.dart';
+import '../../../data/catalog.dart';
+import '../../../data/models/cart_item_model.dart';
+import '../../../data/models/product_model.dart';
 
-/// One product line in the Intent Cart.
-@immutable
-class CartLine {
-  const CartLine(this.product, {this.quantity = 1});
-
-  final Product product;
-  final int quantity;
-
-  String get productId => product.id;
-  double get subtotal => product.price * quantity;
-
-  CartLine copyWith({Product? product, int? quantity}) =>
-      CartLine(product ?? this.product, quantity: quantity ?? this.quantity);
-}
-
-class CartController extends Notifier<List<CartLine>> {
+class CartController extends Notifier<List<CartItem>> {
   Catalog get _catalog => ref.read(catalogProvider);
 
   @override
-  List<CartLine> build() {
+  List<CartItem> build() {
     final catalog = ref.watch(catalogProvider);
     return [
-      CartLine(catalog.byId('lamp_halo')),
-      CartLine(catalog.byId('org_kova')),
+      CartItem(catalog.byId('lamp_halo'), priority: IntentPriority.essential),
+      CartItem(catalog.byId('org_kova'), priority: IntentPriority.niceToHave),
     ];
   }
 
   bool contains(String productId) =>
-      state.any((line) => line.productId == productId);
+      state.any((item) => item.productId == productId);
 
   void add(String productId) {
     if (contains(productId)) return;
-    state = [...state, CartLine(_catalog.byId(productId))];
+    state = [...state, CartItem(_catalog.byId(productId))];
   }
 
-  /// Removes a line and returns it with its index so callers can undo.
-  (int, CartLine)? remove(String productId) {
-    final index = state.indexWhere((l) => l.productId == productId);
+  /// Removes an item and returns it with its index so callers can undo.
+  (int, CartItem)? remove(String productId) {
+    final index = state.indexWhere((i) => i.productId == productId);
     if (index < 0) return null;
-    final line = state[index];
+    final item = state[index];
     state = [...state]..removeAt(index);
-    return (index, line);
+    return (index, item);
   }
 
-  void restore(int index, CartLine line) {
-    if (contains(line.productId)) return;
-    state = [...state]..insert(index.clamp(0, state.length), line);
+  void restore(int index, CartItem item) {
+    if (contains(item.productId)) return;
+    state = [...state]..insert(index.clamp(0, state.length), item);
   }
 
   void setQuantity(String productId, int quantity) {
@@ -58,40 +44,42 @@ class CartController extends Notifier<List<CartLine>> {
       remove(productId);
       return;
     }
-    state = [
-      for (final l in state)
-        l.productId == productId ? l.copyWith(quantity: quantity) : l,
-    ];
+    _update(productId, (i) => i.copyWith(quantity: quantity));
   }
 
-  /// Replaces [fromId] with [toId] in place, preserving position & quantity.
+  void cyclePriority(String productId) =>
+      _update(productId, (i) => i.copyWith(priority: i.priority.next));
+
+  /// Replaces [fromId] with [toId] in place, keeping position, quantity and
+  /// priority.
   void swap(String fromId, String toId) {
     if (contains(toId)) {
       remove(fromId);
       return;
     }
     final to = _catalog.byId(toId);
-    state = [
-      for (final l in state)
-        l.productId == fromId ? l.copyWith(product: to) : l,
-    ];
+    _update(fromId, (i) => i.copyWith(product: to));
   }
 
   void clear() => state = const [];
+
+  void _update(String productId, CartItem Function(CartItem) change) {
+    state = [for (final i in state) i.productId == productId ? change(i) : i];
+  }
 }
 
-final cartProvider = NotifierProvider<CartController, List<CartLine>>(
+final cartProvider = NotifierProvider<CartController, List<CartItem>>(
   CartController.new,
 );
 
 final cartTotalProvider = Provider<double>((ref) {
   return ref
       .watch(cartProvider)
-      .fold<double>(0, (sum, line) => sum + line.subtotal);
+      .fold<double>(0, (sum, item) => sum + item.subtotal);
 });
 
 final cartCountProvider = Provider<int>((ref) {
-  return ref.watch(cartProvider).fold<int>(0, (sum, l) => sum + l.quantity);
+  return ref.watch(cartProvider).fold<int>(0, (sum, i) => sum + i.quantity);
 });
 
 /// A Guardian Swap Engine recommendation to replace a cart item.
@@ -117,20 +105,20 @@ class SwapSuggestion {
 /// Every swap available for items in the cart, biggest saving first.
 final swapSuggestionsProvider = Provider<List<SwapSuggestion>>((ref) {
   final catalog = ref.watch(catalogProvider);
-  final lines = ref.watch(cartProvider);
-  final inCart = {for (final l in lines) l.productId};
+  final items = ref.watch(cartProvider);
+  final inCart = {for (final i in items) i.productId};
   final suggestions = <SwapSuggestion>[];
-  for (final line in lines) {
-    final altId = line.product.alternativeId;
+  for (final item in items) {
+    final altId = item.product.alternativeId;
     if (altId == null || inCart.contains(altId)) continue;
     final alt = catalog.byId(altId);
-    if (alt.price >= line.product.price) continue;
+    if (alt.price >= item.product.price) continue;
     suggestions.add(
       SwapSuggestion(
-        from: line.product,
+        from: item.product,
         to: alt,
-        parity: line.product.alternativeParity ?? 0,
-        quantity: line.quantity,
+        parity: item.product.alternativeParity ?? 0,
+        quantity: item.quantity,
       ),
     );
   }

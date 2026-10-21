@@ -1,14 +1,16 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/app_decorations.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import 'frosted_chrome.dart';
 import 'pressable.dart';
 
-/// One destination in the [FloatingNavBar].
+/// One destination in the [FloatingNavCapsule].
 @immutable
 class NavDestination {
   const NavDestination({
@@ -16,7 +18,8 @@ class NavDestination {
     required this.activeIcon,
     required this.label,
     this.badge = 0,
-    this.badgeColor = AppColors.irisGlow,
+    this.badgeColor = AppColors.iris,
+    this.dot,
   });
 
   final IconData icon;
@@ -26,15 +29,19 @@ class NavDestination {
   /// Count bubble; hidden at zero.
   final int badge;
   final Color badgeColor;
+
+  /// Unobtrusive status dot (e.g. a cooling-off item awaiting a decision);
+  /// hidden when null.
+  final Color? dot;
 }
 
-/// The floating glass island that hosts primary navigation.
+/// The translucent spatial capsule that hosts primary navigation.
 ///
-/// A frosted capsule (fixed chrome, so the backdrop blur is affordable)
-/// with a magnetic indicator: as it travels between tabs it stretches
-/// toward its destination and settles back to size on arrival.
-class FloatingNavBar extends StatelessWidget {
-  const FloatingNavBar({
+/// Frosted glass — affordable here because the capsule is fixed chrome.
+/// The active pill is magnetic: in flight it stretches toward its target
+/// and settles back to size on arrival, with a soft iris halo beneath.
+class FloatingNavCapsule extends StatelessWidget {
+  const FloatingNavCapsule({
     super.key,
     required this.destinations,
     required this.currentIndex,
@@ -70,7 +77,7 @@ class FloatingNavBar extends StatelessWidget {
                 final slot = constraints.maxWidth / destinations.length;
                 return Stack(
                   children: [
-                    _MagneticIndicator(index: currentIndex, slot: slot),
+                    _MagneticPill(index: currentIndex, slot: slot),
                     Row(
                       children: [
                         for (var i = 0; i < destinations.length; i++)
@@ -79,7 +86,9 @@ class FloatingNavBar extends StatelessWidget {
                               destination: destinations[i],
                               selected: i == currentIndex,
                               onTap: () {
-                                if (i != currentIndex) onSelected(i);
+                                if (i == currentIndex) return;
+                                HapticFeedback.selectionClick();
+                                onSelected(i);
                               },
                             ),
                           ),
@@ -96,8 +105,8 @@ class FloatingNavBar extends StatelessWidget {
   }
 }
 
-class _MagneticIndicator extends StatelessWidget {
-  const _MagneticIndicator({required this.index, required this.slot});
+class _MagneticPill extends StatelessWidget {
+  const _MagneticPill({required this.index, required this.slot});
 
   final int index;
   final double slot;
@@ -107,8 +116,8 @@ class _MagneticIndicator extends StatelessWidget {
     return TweenAnimationBuilder<double>(
       tween: Tween(end: index.toDouble()),
       duration: AppMotion.slow,
-      curve: AppMotion.emphasized,
-      builder: (context, position, _) {
+      curve: AppMotion.standard,
+      builder: (context, position, child) {
         // Stretch peaks mid-flight between two slots and vanishes at rest.
         final travel = (position - position.roundToDouble()).abs() * 2;
         final stretch = 1 + 0.35 * math.sin(travel * math.pi / 2);
@@ -118,17 +127,22 @@ class _MagneticIndicator extends StatelessWidget {
           width: width,
           top: 0,
           bottom: 0,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: AppRadii.pillAll,
-              color: AppColors.iris.withValues(alpha: 0.18),
-              border: Border.all(
-                color: AppColors.irisGlow.withValues(alpha: 0.32),
-              ),
-            ),
-          ),
+          child: child!,
         );
       },
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: AppRadii.pillAll,
+          gradient: AppDecorations.backlight(
+            AppColors.irisGlow,
+            intensity: 0.3,
+          ),
+          border: Border.all(
+            color: AppColors.irisGlow.withValues(alpha: 0.35),
+            width: 0.75,
+          ),
+        ),
+      ),
     );
   }
 }
@@ -155,6 +169,7 @@ class _NavButton extends StatelessWidget {
       excludeSemantics: true,
       child: Pressable(
         onTap: onTap,
+        haptic: false, // the capsule ticks with a selection haptic
         scale: 0.92,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -174,6 +189,19 @@ class _NavButton extends StatelessWidget {
                     child: _Badge(
                       count: destination.badge,
                       color: destination.badgeColor,
+                    ),
+                  )
+                else if (destination.dot != null)
+                  Positioned(
+                    right: -3,
+                    top: -1,
+                    child: Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: destination.dot,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
               ],

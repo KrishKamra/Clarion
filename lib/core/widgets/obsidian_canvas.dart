@@ -10,7 +10,7 @@ import '../theme/app_colors.dart';
 ///
 /// Three layers, all rasterised once behind a [RepaintBoundary] so they cost
 /// nothing while content scrolls above:
-///  1. the flat #08090C base,
+///  1. the flat #07080B base,
 ///  2. a single, very faint ambient pool of [glow] at the top edge,
 ///  3. a deterministic film grain that keeps large dark areas from banding
 ///     and gives the surface a tactile, printed quality.
