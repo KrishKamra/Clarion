@@ -1,6 +1,10 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/db/db_providers.dart';
+import '../../../core/db/demo_seed.dart';
 import 'cart_controller.dart';
 
 /// A month's settled spending within one category.
@@ -47,22 +51,39 @@ class BudgetState {
   );
 }
 
+/// The monthly envelope. State starts from SQLite (limit, mindful stats and
+/// this month's spend) and every change is written back.
 class BudgetController extends Notifier<BudgetState> {
   @override
-  BudgetState build() => const BudgetState(
-    monthlyLimit: 5000,
-    categories: [
-      CategorySpend('Electronics', 1200),
-      CategorySpend('Books', 450),
-      CategorySpend('Essentials', 350),
-    ],
-    monthlyHistory: [4620, 5340, 4180, 3950, 4410],
-    impulseBuysAvoided: 11,
-    savedViaCooldown: 6240,
-  );
+  BudgetState build() {
+    final stored = ref.watch(initialBudgetProvider);
+    return BudgetState(
+      monthlyLimit: stored.monthlyLimit,
+      categories: [
+        for (final s in stored.spend) CategorySpend(s.label, s.amount),
+      ],
+      // Previous-month totals are still demo data (not yet derived from SQL).
+      monthlyHistory: DemoSeed.monthlyHistory,
+      impulseBuysAvoided: stored.impulseBuysAvoided,
+      savedViaCooldown: stored.savedViaCooldown,
+    );
+  }
+
+  /// The UI updates instantly from memory; the database write happens after.
+  /// A failed write is logged but never crashes the app.
+  void _persist(Future<void>? write) {
+    write?.catchError(
+      (Object error, StackTrace stack) => developer.log(
+        'Could not save budget change',
+        error: error,
+        stackTrace: stack,
+      ),
+    );
+  }
 
   void setMonthlyLimit(double limit) {
     state = state.copyWith(monthlyLimit: limit);
+    _persist(ref.read(budgetRepositoryProvider)?.setMonthlyLimit(limit));
   }
 
   /// Settles a checkout against the envelope under a "Planned" category.
@@ -76,6 +97,7 @@ class BudgetController extends Notifier<BudgetState> {
               c.label == label ? CategorySpend(label, c.amount + amount) : c,
           ];
     state = state.copyWith(categories: updated);
+    _persist(ref.read(budgetRepositoryProvider)?.addSpend(label, amount));
   }
 
   /// Credits a product the user decided against after a cooldown.
@@ -83,6 +105,9 @@ class BudgetController extends Notifier<BudgetState> {
     state = state.copyWith(
       impulseBuysAvoided: state.impulseBuysAvoided + 1,
       savedViaCooldown: state.savedViaCooldown + amount,
+    );
+    _persist(
+      ref.read(budgetRepositoryProvider)?.recordImpulseAvoided(amount),
     );
   }
 }

@@ -1,25 +1,45 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/db/db_providers.dart';
 
 /// 24h Cooling Off – products the user parked to decide on once the urge passes.
 ///
-/// Maps product id → moment the hold expires.
+/// Maps product id → moment the hold expires. State starts from what was saved
+/// in SQLite and every change is written back, so holds survive a restart.
 class CooldownController extends Notifier<Map<String, DateTime>> {
   static const Duration period = Duration(hours: 24);
 
   @override
-  Map<String, DateTime> build() => {
-    // Seeded so the profile screen demonstrates an in-progress hold.
-    'kb_loom': DateTime.now().add(const Duration(hours: 17, minutes: 42)),
-  };
+  Map<String, DateTime> build() => ref.watch(initialCooldownsProvider);
 
   bool isHeld(String productId) => state.containsKey(productId);
 
   void hold(String productId) {
-    state = {...state, productId: DateTime.now().add(period)};
+    final now = DateTime.now();
+    final expiresAt = now.add(period);
+    state = {...state, productId: expiresAt};
+    _persist(
+      ref.read(cooldownRepositoryProvider)?.upsert(productId, now, expiresAt),
+    );
   }
 
   void release(String productId) {
     state = {...state}..remove(productId);
+    _persist(ref.read(cooldownRepositoryProvider)?.remove(productId));
+  }
+
+  /// The UI updates instantly from memory; the database write happens after.
+  /// A failed write is logged but never crashes the app.
+  void _persist(Future<void>? write) {
+    write?.catchError(
+      (Object error, StackTrace stack) => developer.log(
+        'Could not save cooldown change',
+        error: error,
+        stackTrace: stack,
+      ),
+    );
   }
 }
 
