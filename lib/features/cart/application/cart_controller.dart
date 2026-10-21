@@ -1,20 +1,58 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/db/db_providers.dart';
 import '../../../data/catalog.dart';
 import '../../../data/models/cart_item_model.dart';
 import '../../../data/models/product_model.dart';
 
+/// The Intent Cart. State starts from what was saved in SQLite and every
+/// change is written back, so the cart (including each item's priority)
+/// survives a restart.
 class CartController extends Notifier<List<CartItem>> {
   Catalog get _catalog => ref.read(catalogProvider);
 
   @override
   List<CartItem> build() {
     final catalog = ref.watch(catalogProvider);
+    final byId = {for (final p in catalog.products) p.id: p};
+    final priorities = IntentPriority.values.asNameMap();
     return [
-      CartItem(catalog.byId('lamp_halo'), priority: IntentPriority.essential),
-      CartItem(catalog.byId('org_kova'), priority: IntentPriority.niceToHave),
+      for (final saved in ref.watch(initialCartProvider))
+        // Skip anything no longer in the catalogue instead of crashing.
+        if (byId[saved.productId] case final product?)
+          CartItem(
+            product,
+            quantity: saved.quantity,
+            priority: priorities[saved.priority] ?? IntentPriority.important,
+          ),
     ];
+  }
+
+  /// Single place that changes the cart: update memory now, save to SQLite
+  /// after. A failed save is logged but never crashes the app.
+  void _set(List<CartItem> next) {
+    state = next;
+    final repo = ref.read(cartRepositoryProvider);
+    if (repo == null) return;
+    repo
+        .replaceAll([
+          for (final item in next)
+            (
+              productId: item.productId,
+              quantity: item.quantity,
+              priority: item.priority.name,
+            ),
+        ])
+        .catchError(
+          (Object error, StackTrace stack) => developer.log(
+            'Could not save cart',
+            error: error,
+            stackTrace: stack,
+          ),
+        );
   }
 
   bool contains(String productId) =>
@@ -22,7 +60,7 @@ class CartController extends Notifier<List<CartItem>> {
 
   void add(String productId) {
     if (contains(productId)) return;
-    state = [...state, CartItem(_catalog.byId(productId))];
+    _set([...state, CartItem(_catalog.byId(productId))]);
   }
 
   /// Removes an item and returns it with its index so callers can undo.
@@ -30,13 +68,13 @@ class CartController extends Notifier<List<CartItem>> {
     final index = state.indexWhere((i) => i.productId == productId);
     if (index < 0) return null;
     final item = state[index];
-    state = [...state]..removeAt(index);
+    _set([...state]..removeAt(index));
     return (index, item);
   }
 
   void restore(int index, CartItem item) {
     if (contains(item.productId)) return;
-    state = [...state]..insert(index.clamp(0, state.length), item);
+    _set([...state]..insert(index.clamp(0, state.length), item));
   }
 
   void setQuantity(String productId, int quantity) {
@@ -61,10 +99,10 @@ class CartController extends Notifier<List<CartItem>> {
     _update(fromId, (i) => i.copyWith(product: to));
   }
 
-  void clear() => state = const [];
+  void clear() => _set(const []);
 
   void _update(String productId, CartItem Function(CartItem) change) {
-    state = [for (final i in state) i.productId == productId ? change(i) : i];
+    _set([for (final i in state) i.productId == productId ? change(i) : i]);
   }
 }
 
