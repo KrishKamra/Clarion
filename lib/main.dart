@@ -9,7 +9,9 @@ import 'core/db/budget_repository.dart';
 import 'core/db/cart_repository.dart';
 import 'core/db/cooldown_repository.dart';
 import 'core/db/db_providers.dart';
+import 'core/db/price_watch_repository.dart';
 import 'core/theme/app_theme.dart';
+import 'data/mock_catalog.dart';
 import 'features/navigation/main_scaffold.dart';
 
 /// Everything loaded from SQLite before the first frame.
@@ -18,6 +20,7 @@ typedef _SavedState = ({
   Map<String, DateTime> holds,
   List<SavedCartLine> cart,
   StoredBudget budget,
+  Map<String, double?> watchlist,
 });
 
 Future<void> main() async {
@@ -42,11 +45,24 @@ Future<void> main() async {
   _SavedState? saved;
   try {
     final db = await AppDatabase.open();
+    // Price Memory: record today's prices (and back-fill the 30-day history
+    // on first launch) before the watchlist is read.
+    final priceWatch = PriceWatchRepository(db);
+    try {
+      await priceWatch.recordPrices(MockCatalog.products);
+    } catch (error, stack) {
+      developer.log(
+        'Could not record price memory',
+        error: error,
+        stackTrace: stack,
+      );
+    }
     saved = (
       db: db,
       holds: await CooldownRepository(db).loadAll(),
       cart: await CartRepository(db).loadAll(),
       budget: await BudgetRepository(db).load(),
+      watchlist: await priceWatch.loadWatchlist(),
     );
   } catch (error, stack) {
     developer.log(
@@ -65,6 +81,7 @@ Future<void> main() async {
           initialCooldownsProvider.overrideWithValue(state.holds),
           initialCartProvider.overrideWithValue(state.cart),
           initialBudgetProvider.overrideWithValue(state.budget),
+          initialWatchlistProvider.overrideWithValue(state.watchlist),
         ],
       ],
       child: const ClarionApp(),

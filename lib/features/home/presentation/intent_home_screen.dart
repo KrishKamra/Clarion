@@ -6,11 +6,13 @@ import '../../../core/widgets/chrome_header.dart';
 import '../../../core/widgets/intent_field.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../data/catalog.dart';
+import '../../decision/application/watchlist_controller.dart';
 import '../application/intent_controller.dart';
 import 'widgets/fit_stream.dart';
 import 'widgets/horizon_header.dart';
 import 'widgets/intent_summary.dart';
 import 'widgets/price_memory_radar.dart';
+import 'widgets/watchlist_card.dart';
 
 /// Intent Horizon: state a goal, read a ranked stream of candidates that
 /// fit it, and glance at what is unusually well-priced right now.
@@ -29,6 +31,12 @@ class IntentHomeScreen extends ConsumerWidget {
     final picks = ref.watch(fitPicksProvider);
     final radar = ref.watch(catalogProvider.select((c) => c.priceRadar));
     final controller = ref.read(intentProvider.notifier);
+    final catalog = ref.watch(catalogProvider);
+    final watchlist = ref.watch(watchlistProvider);
+    final watched = [
+      for (final entry in watchlist.entries)
+        (catalog.byId(entry.key), entry.value),
+    ];
 
     return CustomScrollView(
       physics: const BouncingScrollPhysics(
@@ -114,6 +122,25 @@ class IntentHomeScreen extends ConsumerWidget {
             sliver: SliverToBoxAdapter(
               child: PriceMemoryRadar(products: radar),
             ),
+          ),
+        ],
+        if (watched.isNotEmpty) ...[
+          SliverPadding(
+            padding: AppSpacing.screenPadding.copyWith(
+              top: AppSpacing.section,
+              bottom: AppSpacing.md,
+            ),
+            sliver: const SliverToBoxAdapter(
+              child: SectionHeader(
+                eyebrow: 'Price memory',
+                title: 'Watching',
+                caption: 'Products you are tracking against a target price.',
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: AppSpacing.screenPadding,
+            sliver: SliverToBoxAdapter(child: WatchlistCard(watched: watched)),
           ),
         ],
         SliverToBoxAdapter(
