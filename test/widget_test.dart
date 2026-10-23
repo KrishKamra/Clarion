@@ -1,4 +1,5 @@
 import 'package:clarion/core/utils/formatters.dart';
+import 'package:clarion/core/widgets/fit_score_gauge.dart';
 import 'package:clarion/core/widgets/floating_nav_capsule.dart';
 import 'package:clarion/data/catalog.dart';
 import 'package:clarion/data/mock_catalog.dart';
@@ -6,7 +7,10 @@ import 'package:clarion/data/models/cart_item_model.dart';
 import 'package:clarion/features/cart/application/budget_controller.dart';
 import 'package:clarion/features/cart/application/cart_controller.dart';
 import 'package:clarion/features/decision/application/cooldown_controller.dart';
+import 'package:clarion/features/decision/application/fit_engine.dart';
+import 'package:clarion/features/decision/presentation/product_decision_screen.dart';
 import 'package:clarion/features/home/application/intent_controller.dart';
+import 'package:clarion/features/navigation/main_scaffold.dart';
 import 'package:clarion/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -132,6 +136,16 @@ void main() {
     await tester.pump(const Duration(seconds: 2));
   }
 
+  /// Opens the Atlas backpack's decision canvas directly. Fit scores are now
+  /// computed, so Atlas is no longer guaranteed to be the first card built in
+  /// the horizontal stream.
+  Future<void> openAtlas(WidgetTester tester) async {
+    ProductDecisionScreen.open(
+      tester.element(find.byType(MainScaffold)),
+      'bp_atlas',
+    );
+  }
+
   Future<void> openTab(WidgetTester tester, String label) async {
     await tester.tap(
       find.descendant(
@@ -152,7 +166,7 @@ void main() {
     expect(find.text('What are you seeking to accomplish?'), findsOneWidget);
     expect(find.text('College Setup < ₹2.5k'), findsOneWidget);
     expect(find.text('Personal Fit Stream'), findsOneWidget);
-    expect(find.text('94%', findRichText: true), findsWidgets);
+    expect(find.byType(FitScoreGauge), findsWidgets);
 
     await tester.drag(
       find.byType(CustomScrollView).first,
@@ -170,12 +184,18 @@ void main() {
       await openTab(tester, tab);
     }
 
-    await tester.tap(find.text('Atlas 30L Commuter Daypack').first);
+    await openAtlas(tester);
     await tester.pump();
     await tester.pump(const Duration(seconds: 2));
     expect(find.text('Why We Recommend This'), findsOneWidget);
-    expect(find.text('+35'), findsOneWidget);
-    expect(find.text('−08'), findsOneWidget);
+    for (final line in [
+      FitEngine.intentTitle,
+      FitEngine.budgetTitle,
+      FitEngine.timingTitle,
+      FitEngine.ratingTitle,
+    ]) {
+      expect(find.text(line), findsOneWidget, reason: line);
+    }
     expect(
       find.text(
         'Leaves ₹801 safe buffer in your monthly limit',
@@ -193,7 +213,7 @@ void main() {
     addTearDown(container.dispose);
     await pumpApp(tester, container: container);
 
-    await tester.tap(find.text('Atlas 30L Commuter Daypack').first);
+    await openAtlas(tester);
     await tester.pump();
     await tester.pump(const Duration(seconds: 2));
 
@@ -211,7 +231,7 @@ void main() {
 
   testWidgets('specifications open on demand', (tester) async {
     await pumpApp(tester);
-    await tester.tap(find.text('Atlas 30L Commuter Daypack').first);
+    await openAtlas(tester);
     await tester.pump();
     await tester.pump(const Duration(seconds: 2));
 

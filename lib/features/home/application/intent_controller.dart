@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/catalog.dart';
 import '../../../data/models/product_model.dart';
+import '../../cart/application/budget_controller.dart';
+import '../../decision/application/fit_engine.dart';
 
 /// A parsed shopping intent, e.g. "Daily EDC for College < ₹2,500".
 ///
@@ -65,7 +67,11 @@ class IntentQuery {
 
   /// Products relevant to this intent: within budget, most keyword overlap
   /// first, then by fit score. Falls back to everything in budget.
-  List<Product> rank(List<Product> catalog) {
+  ///
+  /// [scoreOf] supplies the fit score used to break ties (the live computed
+  /// score); it defaults to the product's built-in score.
+  List<Product> rank(List<Product> catalog, {int Function(Product)? scoreOf}) {
+    final score = scoreOf ?? ((Product p) => p.fitScore);
     final affordable = catalog
         .where((p) => budget == null || p.price <= budget!)
         .toList();
@@ -74,7 +80,7 @@ class IntentQuery {
     final pool = relevant.isEmpty ? affordable : relevant;
     pool.sort((a, b) {
       final byOverlap = overlap(b).compareTo(overlap(a));
-      return byOverlap != 0 ? byOverlap : b.fitScore.compareTo(a.fitScore);
+      return byOverlap != 0 ? byOverlap : score(b).compareTo(score(a));
     });
     return pool;
   }
@@ -95,9 +101,31 @@ final intentProvider = NotifierProvider<IntentController, IntentQuery?>(
   IntentController.new,
 );
 
-/// The Curated Fit Stream for the current intent.
+/// The Heuristic Fit Engine's verdict for one product, recomputed whenever
+/// the stated goal or the monthly budget changes.
+final fitProvider = Provider.family<FitResult, String>((ref, productId) {
+  final product = ref.watch(catalogProvider).byId(productId);
+  final intent = ref.watch(intentProvider);
+  final budget = ref.watch(budgetProvider);
+  return FitEngine.evaluate(
+    product,
+    FitContext(
+      keywords: intent?.keywords ?? const {},
+      intentBudget: intent?.budget,
+      monthlyLimit: budget.monthlyLimit,
+      spentThisMonth: budget.spentThisMonth,
+    ),
+  );
+});
+
+/// The Curated Fit Stream for the current intent, ranked by computed fit.
 final fitPicksProvider = Provider<List<Product>>((ref) {
   final intent = ref.watch(intentProvider);
-  final ranked = ref.watch(catalogProvider).rankedByFit;
-  return intent == null ? ranked : intent.rank(ranked);
+  final all = ref.watch(catalogProvider).products;
+  final scores = {
+    for (final p in all) p.id: ref.watch(fitProvider(p.id)).score,
+  };
+  int scoreOf(Product p) => scores[p.id] ?? p.fitScore;
+  final ranked = [...all]..sort((a, b) => scoreOf(b).compareTo(scoreOf(a)));
+  return intent == null ? ranked : intent.rank(ranked, scoreOf: scoreOf);
 });
