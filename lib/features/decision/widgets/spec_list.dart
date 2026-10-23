@@ -71,7 +71,7 @@ class _SpecListState extends State<SpecList> {
                     turns: _expanded ? 0.5 : 0,
                     duration: AppMotion.medium,
                     curve: AppMotion.standard,
-                    child: const Icon(
+                    child: Icon(
                       Icons.expand_more_rounded,
                       size: 18,
                       color: AppColors.irisGlow,

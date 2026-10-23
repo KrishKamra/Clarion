@@ -54,9 +54,9 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
       fit: StackFit.expand,
       children: [
         if (scrolled)
-          const FrostedChrome(
+          FrostedChrome(
             sigma: 20,
-            fill: Color(0xC707080B), // canvas @ 78 %
+            fill: AppColors.canvas.withValues(alpha: 0.78),
             rim: false,
             child: DecoratedBox(
               decoration: BoxDecoration(

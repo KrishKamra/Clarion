@@ -8,59 +8,86 @@ import 'app_spacing.dart';
 /// Material recipes shared by every Clarion surface.
 ///
 /// Four materials, each with a known cost:
-///  * **Matte** (tier 1) — opaque `#0E1017` with a 3 % ambient wash.
-///  * **Floating** (tier 2) — `#141824` with a 0.5px edge and a specular
+///  * **Matte** (tier 1) — opaque `surface` with a 3 % ambient wash.
+///  * **Floating** (tier 2) — `surfaceHigh` with a 0.5px edge and a specular
 ///    sheen in the top-left corner, for the one surface that should lift.
-///  * **Vellum** — translucent white at 3 % for inputs and quiet panels.
+///  * **Vellum** — translucent fill for inputs and quiet panels.
 ///  * **Frost** — a real backdrop blur, reserved for fixed spatial chrome
 ///    (nav capsule, pinned headers, sheets, the decision bar).
 ///
 /// The first three cost nothing to composite and are safe in fast lists.
 /// All four share the directional rim light painted by [RimLightPainter].
+/// In light mode the rim inverts to a soft ink line that defines the edge,
+/// and opaque cards gain a faint contact shadow in place of the sheen.
 abstract final class AppDecorations {
   /// Backdrop blur for frosted chrome.
   static ui.ImageFilter frost([double sigma = 24]) =>
       ui.ImageFilter.blur(sigmaX: sigma, sigmaY: sigma);
 
   /// Fill beneath frosted chrome so text stays legible over any content.
-  static const Color frostFill = Color(0xB80E1017); // surface @ 72 %
+  static Color get frostFill => AppColors.isDark
+      ? const Color(0xB80E1017) // surface @ 72 %
+      : const Color(0xD9FFFFFF); // surface @ 85 %
 
   /// Directional specular rim: light falls from the top-left, so the edge
   /// is brightest there and all but vanishes at the bottom-right.
-  static const LinearGradient rimLight = LinearGradient(
+  static LinearGradient get rimLight => LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0x26FFFFFF), Color(0x05FFFFFF)], // 15 % → 2 %
+    colors: AppColors.isDark
+        ? const [Color(0x26FFFFFF), Color(0x05FFFFFF)] // 15 % → 2 %
+        : const [Color(0x140F172A), Color(0x1F0F172A)], // 8 % → 12 % ink
   );
 
   /// Softer rim for vellum and flush surfaces.
-  static const LinearGradient rimLightSoft = LinearGradient(
+  static LinearGradient get rimLightSoft => LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0x17FFFFFF), Color(0x03FFFFFF)], // 9 % → 1 %
+    colors: AppColors.isDark
+        ? const [Color(0x17FFFFFF), Color(0x03FFFFFF)] // 9 % → 1 %
+        : const [Color(0x0F0F172A), Color(0x170F172A)], // 6 % → 9 % ink
   );
 
-  /// Tier 1: #0E1017 lifted by a 3 % ambient wash at the top.
-  static const LinearGradient matteWash = LinearGradient(
+  /// Tier 1: surface lifted by a 3 % ambient wash at the top.
+  static LinearGradient get matteWash => LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFF15171E), AppColors.surface],
-    stops: [0, 0.65],
+    colors: [
+      AppColors.isDark ? const Color(0xFF15171E) : AppColors.surface,
+      AppColors.surface,
+    ],
+    stops: const [0, 0.65],
   );
 
-  /// Tier 2: #141824 with a specular sheen pooled in the top-left corner.
-  static const LinearGradient floatingSheen = LinearGradient(
+  /// Tier 2: surfaceHigh with a specular sheen pooled in the top-left corner.
+  static LinearGradient get floatingSheen => LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF202330), AppColors.surfaceHigh],
-    stops: [0, 0.55],
+    colors: [
+      AppColors.isDark ? const Color(0xFF202330) : AppColors.surfaceHigh,
+      AppColors.surfaceHigh,
+    ],
+    stops: const [0, 0.55],
   );
+
+  /// Light-mode contact shadow that separates white cards from the canvas.
+  static List<BoxShadow>? get _lift => AppColors.isDark
+      ? null
+      : const [
+          BoxShadow(
+            color: Color(0x0F0F172A),
+            blurRadius: 12,
+            offset: Offset(0, 3),
+            spreadRadius: -4,
+          ),
+        ];
 
   static BoxDecoration matte({
     BorderRadius borderRadius = AppRadii.lgAll,
     Color? tint,
   }) => BoxDecoration(
     borderRadius: borderRadius,
+    boxShadow: _lift,
     gradient: tint == null ? matteWash : _tintWash(tint, AppColors.surface),
   );
 
@@ -70,6 +97,7 @@ abstract final class AppDecorations {
   }) => BoxDecoration(
     borderRadius: borderRadius,
     border: Border.all(color: AppColors.edge, width: 0.5),
+    boxShadow: _lift,
     gradient: tint == null
         ? floatingSheen
         : _tintWash(tint, AppColors.surfaceHigh),
@@ -110,11 +138,13 @@ abstract final class AppDecorations {
       );
 
   /// Contact shadow for chrome that floats above content.
-  static const List<BoxShadow> floatShadow = [
+  static List<BoxShadow> get floatShadow => [
     BoxShadow(
-      color: Color(0x99000000),
+      color: AppColors.isDark
+          ? const Color(0x99000000)
+          : const Color(0x290F172A),
       blurRadius: 32,
-      offset: Offset(0, 14),
+      offset: const Offset(0, 14),
       spreadRadius: -10,
     ),
   ];
@@ -123,11 +153,11 @@ abstract final class AppDecorations {
 /// Strokes a hairline gradient around a rounded rect — Flutter's [Border]
 /// only takes solid colours, and the specular rim needs to fall off.
 class RimLightPainter extends CustomPainter {
-  const RimLightPainter({
+  RimLightPainter({
     required this.borderRadius,
-    this.gradient = AppDecorations.rimLight,
+    Gradient? gradient,
     this.strokeWidth = 1,
-  });
+  }) : gradient = gradient ?? AppDecorations.rimLight;
 
   final BorderRadius borderRadius;
   final Gradient gradient;

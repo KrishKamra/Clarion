@@ -39,8 +39,9 @@ class HorizonHeader extends ConsumerWidget {
   }
 }
 
-/// Committed spend (settled + cart) against the monthly ceiling, beside a
-/// backlit miniature gauge. Tapping opens the Guardian.
+/// What is left of the monthly ceiling after settled spend and the cart,
+/// beside a backlit miniature gauge. The full breakdown lives one tap away
+/// on the Guardian.
 class BudgetMetric extends ConsumerWidget {
   const BudgetMetric({super.key});
 
@@ -67,17 +68,11 @@ class BudgetMetric extends ConsumerWidget {
           Flexible(
             child: FittedBox(
               fit: BoxFit.scaleDown,
-              child: Text.rich(
-                TextSpan(
-                  text: Fmt.inr(b.committed),
-                  children: [
-                    TextSpan(
-                      text: ' / ${Fmt.inr(b.limit)}',
-                      style: const TextStyle(color: AppColors.textTertiary),
-                    ),
-                  ],
-                ),
-                style: AppTypography.metricSmall.copyWith(fontSize: 12.5),
+              child: Text(
+                b.isOver
+                    ? '${Fmt.inr(b.overBy)} over'
+                    : '${Fmt.inr(b.headroom)} left',
+                style: AppTypography.metricSmall.copyWith(fontSize: 13),
               ),
             ),
           ),

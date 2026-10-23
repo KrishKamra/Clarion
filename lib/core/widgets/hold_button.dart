@@ -20,7 +20,7 @@ class HoldButton extends StatefulWidget {
     required this.label,
     required this.onConfirmed,
     this.hint = 'Hold to delay',
-    this.color = AppColors.rose,
+    this.color,
     this.duration = const Duration(milliseconds: 1200),
     this.height = 52,
   });
@@ -30,7 +30,7 @@ class HoldButton extends StatefulWidget {
   /// Second line at rest; replaced by the countdown while held.
   final String hint;
   final VoidCallback? onConfirmed;
-  final Color color;
+  final Color? color;
   final Duration duration;
   final double height;
 
@@ -90,7 +90,7 @@ class _HoldButtonState extends State<HoldButton>
           opacity: _enabled ? 1 : 0.4,
           duration: AppMotion.fast,
           child: CustomPaint(
-            foregroundPainter: const RimLightPainter(borderRadius: radius),
+            foregroundPainter: RimLightPainter(borderRadius: radius),
             child: ClipRRect(
               borderRadius: radius,
               child: AnimatedBuilder(
@@ -108,7 +108,9 @@ class _HoldButtonState extends State<HoldButton>
                           widthFactor: t,
                           heightFactor: 1,
                           child: ColoredBox(
-                            color: widget.color.withValues(alpha: 0.2),
+                            color: (widget.color ?? AppColors.rose).withValues(
+                              alpha: 0.2,
+                            ),
                           ),
                         ),
                         Center(
@@ -119,7 +121,7 @@ class _HoldButtonState extends State<HoldButton>
                                 : widget.hint,
                             progress: t,
                             color: holding
-                                ? widget.color
+                                ? (widget.color ?? AppColors.rose)
                                 : AppColors.textPrimary,
                           ),
                         ),
@@ -186,7 +188,7 @@ class _Face extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTypography.metricSmall.copyWith(
-                    fontSize: 10.5,
+                    fontSize: 11,
                     color: AppColors.textSecondary,
                   ),
                 ),

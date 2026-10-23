@@ -4,6 +4,14 @@ All notable changes to Clarion are documented here. Format based on [Keep a Chan
 
 ## [Unreleased]
 
+### Added — light mode and legibility pass
+- **Light mode** ("Porcelain"): every colour token now has a light value; Appearance (System / Light / Dark) lives in Spending Profile and persists via `shared_preferences`. Switching is live and keeps scroll and widget state.
+- **Legibility**: body 15px / 1.5, bodySmall 13.5px, captions 12.5px, labels 14px, mono micro labels 11px; no text below 10px. Dark `textSecondary` / `textTertiary` lifted to `#A3B0C2` / `#7D8899` (tertiary was ~2.6:1, now ≥ 4.5:1).
+
+### Changed — Home declutter (from `Clarion_Home_Declutter_README.md`)
+- Adopted: dropped the "STATE AN INTENT" eyebrow and shortened the hint (A); header budget is one figure, "₹1,800 left" (B); Home section headers lose their captions (D); intent suggestions hide while the field has text (G).
+- Not adopted: slimming Fit Stream cards (C — the top two weighted factors are core explainability), merging Radar into a sheet (E — hides content behind a tap), a new accent rule (F — accents already carry one meaning each), two-state Home (H) and the Compare follow-up — overkill for the problem.
+
 ### Changed — "Obsidian Titanium" brief
 - **Structure** now follows the brief: domain models in `lib/data/models/` (`product_model`, `cart_item_model`, `trade_off_item`), catalogue in `lib/data/`; atoms renamed to `fit_score_gauge`, `intent_field`, `floating_nav_capsule`; new `dynamic_pill` replaces `MetaTag` and `IntentCapsule`.
 - **Tabs** are now Intent Horizon, Compare Matrix, Smart Cart (Guardian) and Spending Profile; the cooling-off queue moved to Spending Profile.

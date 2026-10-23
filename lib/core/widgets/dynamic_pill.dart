@@ -20,7 +20,7 @@ class DynamicPill extends StatelessWidget {
     super.key,
     required this.label,
     this.icon,
-    this.color = AppColors.textSecondary,
+    this.color,
     this.selected = false,
     this.onTap,
     this.size = PillSize.compact,
@@ -30,7 +30,7 @@ class DynamicPill extends StatelessWidget {
   final IconData? icon;
 
   /// Accent for the badge (static) or the selected state (interactive).
-  final Color color;
+  final Color? color;
   final bool selected;
   final VoidCallback? onTap;
   final PillSize size;
@@ -41,6 +41,7 @@ class DynamicPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final regular = size == PillSize.regular;
     final active = !_interactive || selected;
+    final color = this.color ?? AppColors.textSecondary;
 
     final Color fill;
     final Color stroke;

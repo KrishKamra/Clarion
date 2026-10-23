@@ -261,7 +261,7 @@ class _CoolingOffStatus extends StatelessWidget {
       semanticLabel:
           'Cooling off, ${Fmt.countdown(remaining)} left. Tap to end early.',
       child: CustomPaint(
-        foregroundPainter: const RimLightPainter(borderRadius: radius),
+        foregroundPainter: RimLightPainter(borderRadius: radius),
         child: ClipRRect(
           borderRadius: radius,
           child: Container(
@@ -285,7 +285,7 @@ class _CoolingOffStatus extends StatelessWidget {
                       Text(
                         'Tap to end early',
                         style: AppTypography.caption.copyWith(
-                          fontSize: 10.5,
+                          fontSize: 11,
                           color: AppColors.textSecondary,
                         ),
                       ),

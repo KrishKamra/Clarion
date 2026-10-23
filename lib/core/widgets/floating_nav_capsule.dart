@@ -18,7 +18,7 @@ class NavDestination {
     required this.activeIcon,
     required this.label,
     this.badge = 0,
-    this.badgeColor = AppColors.iris,
+    this.badgeColor,
     this.dot,
   });
 
@@ -28,7 +28,9 @@ class NavDestination {
 
   /// Count bubble; hidden at zero.
   final int badge;
-  final Color badgeColor;
+
+  /// Defaults to iris.
+  final Color? badgeColor;
 
   /// Unobtrusive status dot (e.g. a cooling-off item awaiting a decision);
   /// hidden when null.
@@ -188,7 +190,7 @@ class _NavButton extends StatelessWidget {
                     top: -6,
                     child: _Badge(
                       count: destination.badge,
-                      color: destination.badgeColor,
+                      color: destination.badgeColor ?? AppColors.iris,
                     ),
                   )
                 else if (destination.dot != null)
@@ -210,7 +212,7 @@ class _NavButton extends StatelessWidget {
             AnimatedDefaultTextStyle(
               duration: AppMotion.medium,
               style: AppTypography.overline.copyWith(
-                fontSize: 9,
+                fontSize: 10,
                 letterSpacing: 0.6,
                 color: color,
               ),
@@ -245,7 +247,7 @@ class _Badge extends StatelessWidget {
       child: Text(
         '$count',
         style: AppTypography.metricSmall.copyWith(
-          fontSize: 9,
+          fontSize: 10,
           fontWeight: FontWeight.w600,
           color: AppColors.onAccent,
           height: 1,

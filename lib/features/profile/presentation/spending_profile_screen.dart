@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/theme/theme_mode_controller.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/chrome_header.dart';
+import '../../../core/widgets/dynamic_pill.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../core/widgets/tactile_card.dart';
 import '../../cart/application/budget_controller.dart';
@@ -90,6 +92,10 @@ class SpendingProfileScreen extends ConsumerWidget {
               const SectionHeader(eyebrow: 'Breakdown', title: 'Where it went'),
               const SizedBox(height: AppSpacing.xs),
               CategoryBreakdown(budget: budget),
+              const SizedBox(height: AppSpacing.section),
+              const SectionHeader(eyebrow: 'Display', title: 'Appearance'),
+              const SizedBox(height: AppSpacing.md),
+              const _AppearancePicker(),
               SizedBox(height: AppSpacing.navBarClearance(context)),
             ],
           ),
@@ -100,15 +106,11 @@ class SpendingProfileScreen extends ConsumerWidget {
 }
 
 class _Win extends StatelessWidget {
-  const _Win({
-    required this.value,
-    required this.label,
-    this.color = AppColors.textPrimary,
-  });
+  const _Win({required this.value, required this.label, this.color});
 
   final String value;
   final String label;
-  final Color color;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -117,11 +119,46 @@ class _Win extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(value, style: AppTypography.metricLarge.copyWith(color: color)),
+          Text(
+            value,
+            style: AppTypography.metricLarge.copyWith(
+              color: color ?? AppColors.textPrimary,
+            ),
+          ),
           const SizedBox(height: AppSpacing.xs),
           Text(label, style: AppTypography.caption),
         ],
       ),
+    );
+  }
+}
+
+class _AppearancePicker extends ConsumerWidget {
+  const _AppearancePicker();
+
+  static const _options = [
+    (ThemeMode.system, 'System', Icons.brightness_auto_outlined),
+    (ThemeMode.light, 'Light', Icons.light_mode_outlined),
+    (ThemeMode.dark, 'Dark', Icons.dark_mode_outlined),
+  ];
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mode = ref.watch(themeModeProvider);
+    return Wrap(
+      spacing: AppSpacing.sm,
+      runSpacing: AppSpacing.sm,
+      children: [
+        for (final (value, label, icon) in _options)
+          DynamicPill(
+            label: label,
+            icon: icon,
+            size: PillSize.regular,
+            color: AppColors.irisGlow,
+            selected: mode == value,
+            onTap: () => ref.read(themeModeProvider.notifier).select(value),
+          ),
+      ],
     );
   }
 }

@@ -32,7 +32,7 @@ class RoundIconButton extends StatelessWidget {
         ? FrostedChrome(
             borderRadius: radius,
             sigma: 14,
-            fill: const Color(0x7307080B),
+            fill: AppColors.canvas.withValues(alpha: 0.45),
             child: SizedBox.square(
               dimension: size,
               child: Center(child: face),

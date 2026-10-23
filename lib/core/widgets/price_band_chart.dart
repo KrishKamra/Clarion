@@ -21,13 +21,13 @@ class PriceBandChart extends StatefulWidget {
     required this.points,
     required this.average,
     this.height = 112,
-    this.color = AppColors.emeraldGlow,
+    this.color,
   });
 
   final List<PricePoint> points;
   final double average;
   final double height;
-  final Color color;
+  final Color? color;
 
   @override
   State<PriceBandChart> createState() => _PriceBandChartState();
@@ -85,7 +85,7 @@ class _PriceBandChartState extends State<PriceBandChart> {
                   painter: _BandPainter(
                     prices: [for (final p in widget.points) p.price],
                     average: widget.average,
-                    color: widget.color,
+                    color: widget.color ?? AppColors.emeraldGlow,
                     progress: t,
                     selected: _selected,
                   ),

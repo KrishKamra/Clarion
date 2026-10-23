@@ -39,10 +39,12 @@ class ProductArtwork extends StatelessWidget {
           return DecoratedBox(
             decoration: BoxDecoration(
               borderRadius: borderRadius,
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Color(0xFF16181F), AppColors.surface],
+                colors: AppColors.isDark
+                    ? [const Color(0xFF16181F), AppColors.surface]
+                    : const [Color(0xFFF8F9FB), Color(0xFFECEEF2)],
               ),
               border: Border.all(color: AppColors.hairline),
             ),
@@ -75,7 +77,9 @@ class ProductArtwork extends StatelessWidget {
                         borderRadius: AppRadii.pillAll,
                         gradient: RadialGradient(
                           colors: [
-                            Colors.black.withValues(alpha: 0.55),
+                            Colors.black.withValues(
+                              alpha: AppColors.isDark ? 0.55 : 0.16,
+                            ),
                             Colors.black.withValues(alpha: 0),
                           ],
                         ),

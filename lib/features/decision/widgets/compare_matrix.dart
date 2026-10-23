@@ -62,7 +62,7 @@ class _MatrixRow extends StatelessWidget {
               textAlign: TextAlign.center,
               maxLines: 2,
               style: AppTypography.overline.copyWith(
-                fontSize: 9.5,
+                fontSize: 10.5,
                 color: starred ? AppColors.amber : AppColors.textTertiary,
               ),
             ),
@@ -150,7 +150,7 @@ class IdenticalSpecs extends StatelessWidget {
                 AnimatedRotation(
                   turns: expanded ? 0.5 : 0,
                   duration: AppMotion.medium,
-                  child: const Icon(
+                  child: Icon(
                     Icons.expand_more_rounded,
                     color: AppColors.textTertiary,
                   ),

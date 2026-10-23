@@ -10,7 +10,9 @@ import 'core/db/cart_repository.dart';
 import 'core/db/cooldown_repository.dart';
 import 'core/db/db_providers.dart';
 import 'core/db/price_watch_repository.dart';
+import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_mode_controller.dart';
 import 'data/mock_catalog.dart';
 import 'features/navigation/main_scaffold.dart';
 
@@ -28,17 +30,8 @@ Future<void> main() async {
 
   // Draw edge-to-edge so the canvas and the floating island reach the edges.
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
-      statusBarBrightness: Brightness.dark,
-      systemNavigationBarColor: Colors.transparent,
-      systemNavigationBarIconBrightness: Brightness.light,
-      systemNavigationBarContrastEnforced: false,
-    ),
-  );
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  final themeMode = await ThemeModeController.load();
 
   // Open the local database and load saved state before the first frame. If
   // anything fails (e.g. running on web), carry on with in-memory defaults.
@@ -76,6 +69,7 @@ Future<void> main() async {
   runApp(
     ProviderScope(
       overrides: [
+        themeModeProvider.overrideWith(() => ThemeModeController(themeMode)),
         if (state != null) ...[
           appDatabaseProvider.overrideWithValue(state.db),
           initialCooldownsProvider.overrideWithValue(state.holds),
@@ -90,16 +84,66 @@ Future<void> main() async {
 }
 
 /// Root widget for the Clarion application.
-class ClarionApp extends StatelessWidget {
+class ClarionApp extends ConsumerStatefulWidget {
   const ClarionApp({super.key});
 
   @override
+  ConsumerState<ClarionApp> createState() => _ClarionAppState();
+}
+
+class _ClarionAppState extends ConsumerState<ClarionApp>
+    with WidgetsBindingObserver {
+  Brightness? _applied;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangePlatformBrightness() => setState(() {});
+
+  @override
   Widget build(BuildContext context) {
+    final brightness = switch (ref.watch(themeModeProvider)) {
+      ThemeMode.light => Brightness.light,
+      ThemeMode.dark => Brightness.dark,
+      ThemeMode.system =>
+        WidgetsBinding.instance.platformDispatcher.platformBrightness,
+    };
+    if (brightness != _applied) {
+      _applied = AppColors.brightness = brightness;
+      SystemChrome.setSystemUIOverlayStyle(AppTheme.overlayStyle);
+      _refreshAll(context as Element);
+    }
+
     return MaterialApp(
       title: 'Clarion',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark,
+      theme: AppTheme.current,
+      // Tokens swap in one frame; don't let stock widgets lerp behind them.
+      themeAnimationDuration: Duration.zero,
       home: const MainScaffold(),
     );
+  }
+
+  /// Tokens are read at build and paint time, so a palette swap has to reach
+  /// const subtrees the framework would skip and painters whose inputs did
+  /// not change. Widget and scroll state are kept.
+  static void _refreshAll(Element root) {
+    void visit(Element e) {
+      e.markNeedsBuild();
+      if (e is RenderObjectElement) e.renderObject.markNeedsPaint();
+      e.visitChildren(visit);
+    }
+
+    root.visitChildren(visit);
   }
 }

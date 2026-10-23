@@ -8,13 +8,24 @@ import 'app_typography.dart';
 
 /// Material bridge for the Clarion tokens.
 ///
-/// Clarion is dark-only by design: the obsidian canvas is part of the
-/// product's character, not a preference. Custom components read tokens
-/// directly; this theme exists so stock widgets (snackbars, dialogs,
+/// Built for whichever [AppColors.brightness] is active. Custom components
+/// read tokens directly; this theme exists so stock widgets (snackbars, dialogs,
 /// sliders, text selection) speak the same language.
 abstract final class AppTheme {
-  static ThemeData get dark {
-    const scheme = ColorScheme.dark(
+  /// Transparent system bars with icons that contrast the canvas.
+  static SystemUiOverlayStyle get overlayStyle =>
+      (AppColors.isDark
+              ? SystemUiOverlayStyle.light
+              : SystemUiOverlayStyle.dark)
+          .copyWith(
+            statusBarColor: Colors.transparent,
+            systemNavigationBarColor: Colors.transparent,
+            systemNavigationBarContrastEnforced: false,
+          );
+
+  static ThemeData get current {
+    final scheme = ColorScheme(
+      brightness: AppColors.brightness,
       primary: AppColors.iris,
       onPrimary: AppColors.onAccent,
       secondary: AppColors.emerald,
@@ -25,6 +36,7 @@ abstract final class AppTheme {
       onSurfaceVariant: AppColors.textSecondary,
       surfaceContainerHighest: AppColors.surfaceHigh,
       error: AppColors.rose,
+      onError: AppColors.onAccent,
       outline: AppColors.rim,
       outlineVariant: AppColors.hairline,
     );
@@ -35,7 +47,7 @@ abstract final class AppTheme {
 
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
+      brightness: AppColors.brightness,
       colorScheme: scheme,
       fontFamily: AppTypography.sans,
       scaffoldBackgroundColor: AppColors.canvas,
@@ -56,13 +68,10 @@ abstract final class AppTheme {
         scrolledUnderElevation: 0,
         foregroundColor: AppColors.textPrimary,
         titleTextStyle: AppTypography.titleSmall,
-        systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
-          statusBarColor: Colors.transparent,
-          systemNavigationBarColor: Colors.transparent,
-        ),
+        systemOverlayStyle: overlayStyle,
       ),
-      iconTheme: const IconThemeData(color: AppColors.textPrimary, size: 20),
-      dividerTheme: const DividerThemeData(
+      iconTheme: IconThemeData(color: AppColors.textPrimary, size: 20),
+      dividerTheme: DividerThemeData(
         color: AppColors.hairline,
         thickness: 1,
         space: 1,
@@ -72,7 +81,7 @@ abstract final class AppTheme {
         backgroundColor: AppColors.surfaceHigh,
         contentTextStyle: AppTypography.label,
         actionTextColor: AppColors.irisGlow,
-        shape: const RoundedRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: AppRadii.mdAll,
           side: BorderSide(color: AppColors.rim),
         ),

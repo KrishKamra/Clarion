@@ -49,15 +49,15 @@ class ClarionButton extends StatelessWidget {
     // every other surface, so the button reads as pressed metal, not paint.
     final (fill, ink) = switch (tone) {
       ButtonTone.primary => (
-        const [AppColors.irisGlow, AppColors.iris],
+        [AppColors.irisGlow, AppColors.iris],
         AppColors.onAccent,
       ),
       ButtonTone.positive => (
-        const [AppColors.emeraldGlow, AppColors.emerald],
+        [AppColors.emeraldGlow, AppColors.emerald],
         AppColors.canvas,
       ),
       ButtonTone.secondary => (
-        const [AppColors.vellumActive, AppColors.vellumActive],
+        [AppColors.vellumActive, AppColors.vellumActive],
         AppColors.textPrimary,
       ),
     };
@@ -91,7 +91,7 @@ class ClarionButton extends StatelessWidget {
           opacity: onPressed == null ? 0.4 : 1,
           duration: AppMotion.fast,
           child: CustomPaint(
-            foregroundPainter: const RimLightPainter(borderRadius: radius),
+            foregroundPainter: RimLightPainter(borderRadius: radius),
             child: AnimatedContainer(
               duration: AppMotion.medium,
               curve: AppMotion.standard,
@@ -162,7 +162,7 @@ class _Label extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTypography.metricSmall.copyWith(
-                        fontSize: 10.5,
+                        fontSize: 11,
                         color: color.withValues(alpha: 0.6),
                       ),
                     ),

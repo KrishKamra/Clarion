@@ -116,7 +116,7 @@ flutter test           # unit + widget tests — fails on any layout overflow
 ```
 
 > [!IMPORTANT]
-> Clarion is dark-only and portrait-locked by design. The obsidian canvas is part of the product, not a theme preference.
+> Clarion is portrait-locked. It follows the system light/dark setting by default; Spending Profile → Appearance pins Light or Dark.
 
 ## 🧪 Demo scenario (seed data)
 

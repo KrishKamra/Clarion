@@ -69,7 +69,7 @@ class _PickupPlate extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
+          Icon(
             Icons.storefront_outlined,
             size: 15,
             color: AppColors.emeraldGlow,
@@ -86,7 +86,7 @@ class _PickupPlate extends StatelessWidget {
               Text(
                 '${pickup.area} · in stock today',
                 style: AppTypography.metricSmall.copyWith(
-                  fontSize: 10.5,
+                  fontSize: 11,
                   color: AppColors.textSecondary,
                 ),
               ),

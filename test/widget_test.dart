@@ -1,3 +1,4 @@
+import 'package:clarion/core/theme/app_colors.dart';
 import 'package:clarion/core/utils/formatters.dart';
 import 'package:clarion/core/widgets/fit_score_gauge.dart';
 import 'package:clarion/core/widgets/floating_nav_capsule.dart';
@@ -11,10 +12,13 @@ import 'package:clarion/features/decision/application/fit_engine.dart';
 import 'package:clarion/features/decision/presentation/product_decision_screen.dart';
 import 'package:clarion/features/home/application/intent_controller.dart';
 import 'package:clarion/features/navigation/main_scaffold.dart';
+import 'package:clarion/features/profile/presentation/spending_profile_screen.dart';
 import 'package:clarion/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   group('Fmt', () {
@@ -162,7 +166,7 @@ void main() {
     await pumpApp(tester);
 
     expect(find.bySemanticsLabel('Clarion'), findsOneWidget);
-    expect(find.text('₹3,200 / ₹5,000', findRichText: true), findsOneWidget);
+    expect(find.text('₹1,800 left'), findsOneWidget);
     expect(find.text('What are you seeking to accomplish?'), findsOneWidget);
     expect(find.text('College Setup < ₹2.5k'), findsOneWidget);
     expect(find.text('Personal Fit Stream'), findsOneWidget);
@@ -268,5 +272,40 @@ void main() {
     await tester.pump(const Duration(seconds: 2));
     expect(container.read(budgetSnapshotProvider).isOver, isFalse);
     expect(find.text('Swap option available.'), findsNothing);
+  });
+
+  testWidgets('appearance switches live, including const subtrees', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    await pumpApp(tester);
+    // The test platform reports light, and the default follows the system.
+    expect(AppColors.isDark, isFalse);
+
+    await openTab(tester, 'Profile');
+    await tester.scrollUntilVisible(
+      find.text('Dark'),
+      300,
+      scrollable: find.descendant(
+        of: find.byType(SpendingProfileScreen),
+        matching: find.byType(Scrollable),
+      ),
+    );
+    Color? titleInk() => tester
+        .renderObject<RenderParagraph>(find.text('Appearance'))
+        .text
+        .style
+        ?.color;
+    final lightInk = titleInk();
+
+    await tester.tap(find.text('Dark'));
+    await tester.pump(const Duration(seconds: 1));
+    expect(AppColors.isDark, isTrue);
+    expect(titleInk(), isNot(lightInk));
+    expect(titleInk(), AppColors.textPrimary);
+
+    await tester.tap(find.text('Light'));
+    await tester.pump(const Duration(seconds: 1));
+    expect(titleInk(), lightInk);
   });
 }

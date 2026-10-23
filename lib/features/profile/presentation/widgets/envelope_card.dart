@@ -76,7 +76,7 @@ class EnvelopeCard extends StatelessWidget {
                     children: [
                       Text('CEILING', style: AppTypography.overline),
                       const SizedBox(width: AppSpacing.xs),
-                      const Icon(
+                      Icon(
                         Icons.edit_outlined,
                         size: 12,
                         color: AppColors.textTertiary,

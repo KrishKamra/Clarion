@@ -91,8 +91,8 @@ class _Suggestion extends StatelessWidget {
         Row(
           children: [
             ProductArtwork(product: s.from, size: 44),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
               child: Icon(
                 Icons.arrow_forward_rounded,
                 size: 16,
@@ -206,8 +206,5 @@ class _Figure extends StatelessWidget {
 
 TextSpan _strong(String text) => TextSpan(
   text: text,
-  style: const TextStyle(
-    color: AppColors.textPrimary,
-    fontWeight: FontWeight.w500,
-  ),
+  style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w500),
 );

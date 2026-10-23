@@ -56,7 +56,7 @@ class SixMonthTrend extends StatelessWidget {
               top: 16 + (chartH - 16) * (1 - limit / peak),
               child: Row(
                 children: [
-                  const Expanded(child: Divider(color: AppColors.textTertiary)),
+                  Expanded(child: Divider(color: AppColors.textTertiary)),
                   const SizedBox(width: 6),
                   Text(
                     'CEILING',
@@ -121,7 +121,7 @@ class _Column extends StatelessWidget {
         Text(
           Fmt.inrCompact(value),
           style: AppTypography.metricSmall.copyWith(
-            fontSize: 9.5,
+            fontSize: 10.5,
             color: current ? AppColors.textPrimary : AppColors.textSecondary,
           ),
         ),
@@ -143,7 +143,7 @@ class _Column extends StatelessWidget {
         Text(
           label.toUpperCase(),
           style: AppTypography.overline.copyWith(
-            fontSize: 9,
+            fontSize: 10.5,
             color: current ? AppColors.textPrimary : AppColors.textTertiary,
           ),
         ),

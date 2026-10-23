@@ -144,12 +144,12 @@ class _IntentFieldState extends State<IntentField> {
                       widthFactor: focused ? 0.84 : 0,
                       child: Container(
                         height: 1,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              Color(0x006366F1),
+                              AppColors.irisGlow.withValues(alpha: 0),
                               AppColors.irisGlow,
-                              Color(0x006366F1),
+                              AppColors.irisGlow.withValues(alpha: 0),
                             ],
                           ),
                         ),
@@ -161,23 +161,32 @@ class _IntentFieldState extends State<IntentField> {
             ),
           ),
         ),
-        if (widget.capsules.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.md),
-          Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
-            children: [
-              for (final capsule in widget.capsules)
-                DynamicPill(
-                  label: capsule,
-                  size: PillSize.regular,
-                  color: AppColors.irisGlow,
-                  selected: widget.activeIntent == capsule,
-                  onTap: () => _toggleCapsule(capsule),
+        // Suggestions step aside once there is text: the field (or the
+        // intent summary below it) is then the only thing asking for focus.
+        AnimatedSize(
+          duration: AppMotion.medium,
+          curve: AppMotion.standard,
+          alignment: Alignment.topCenter,
+          child: widget.capsules.isEmpty || hasText
+              ? const SizedBox(width: double.infinity)
+              : Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.md),
+                  child: Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.sm,
+                    children: [
+                      for (final capsule in widget.capsules)
+                        DynamicPill(
+                          label: capsule,
+                          size: PillSize.regular,
+                          color: AppColors.irisGlow,
+                          selected: widget.activeIntent == capsule,
+                          onTap: () => _toggleCapsule(capsule),
+                        ),
+                    ],
+                  ),
                 ),
-            ],
-          ),
-        ],
+        ),
       ],
     );
   }
@@ -201,7 +210,7 @@ class _Field extends StatelessWidget {
   final VoidCallback onClear;
 
   // Intent sits in the display band (24–28px) — the prompt is the hero.
-  static final TextStyle _style = AppTypography.display.copyWith(
+  static TextStyle get _style => AppTypography.display.copyWith(
     fontSize: 24,
     fontWeight: FontWeight.w500,
     height: 1.25,
@@ -212,8 +221,6 @@ class _Field extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('STATE AN INTENT', style: AppTypography.overline),
-        const SizedBox(height: AppSpacing.sm),
         TextField(
           controller: controller,
           focusNode: focusNode,
@@ -235,7 +242,7 @@ class _Field extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                'Add a ceiling like "< ₹2,500" to filter by budget',
+                'Add a ceiling, e.g. < ₹2,500',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppTypography.caption.copyWith(
@@ -247,7 +254,7 @@ class _Field extends StatelessWidget {
               Pressable(
                 onTap: onClear,
                 semanticLabel: 'Clear intent',
-                child: const SizedBox.square(
+                child: SizedBox.square(
                   dimension: 36,
                   child: Icon(
                     Icons.close_rounded,

@@ -143,7 +143,7 @@ class _DialPainter extends CustomPainter {
 
     if (detailed) {
       final tick = Paint()
-        ..color = Colors.white.withValues(alpha: 0.10)
+        ..color = AppColors.rim
         ..strokeWidth = 1;
       for (var i = 0; i <= 10; i++) {
         final a = _start + _span * i / 10;

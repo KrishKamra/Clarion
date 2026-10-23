@@ -19,7 +19,7 @@ abstract final class AppTypography {
 
   // ── Reading (sans) ────────────────────────────────────────────────────────
   /// Display / intent: authoritative, calm, inviting (24–28px band).
-  static const TextStyle display = TextStyle(
+  static TextStyle get display => TextStyle(
     fontFamily: sans,
     fontSize: 28,
     height: 1.15,
@@ -28,7 +28,7 @@ abstract final class AppTypography {
     color: AppColors.textPrimary,
   );
 
-  static const TextStyle headline = TextStyle(
+  static TextStyle get headline => TextStyle(
     fontFamily: sans,
     fontSize: 24,
     height: 1.2,
@@ -38,7 +38,7 @@ abstract final class AppTypography {
   );
 
   /// Section headers: the architectural anchor points (17–19px band).
-  static const TextStyle title = TextStyle(
+  static TextStyle get title => TextStyle(
     fontFamily: sans,
     fontSize: 18,
     height: 1.3,
@@ -47,7 +47,7 @@ abstract final class AppTypography {
     color: AppColors.textPrimary,
   );
 
-  static const TextStyle titleSmall = TextStyle(
+  static TextStyle get titleSmall => TextStyle(
     fontFamily: sans,
     fontSize: 15,
     height: 1.35,
@@ -56,55 +56,56 @@ abstract final class AppTypography {
     color: AppColors.textPrimary,
   );
 
-  /// Body / trade-offs: crisp editorial clarity.
-  static const TextStyle body = TextStyle(
+  /// Body / trade-offs: crisp editorial clarity. Nothing a person must read
+  /// is set below 12.5px; only uppercase mono micro labels go to 11px.
+  static TextStyle get body => TextStyle(
     fontFamily: sans,
-    fontSize: 14,
-    height: 1.45,
+    fontSize: 15,
+    height: 1.5,
     fontWeight: FontWeight.w400,
     letterSpacing: 0,
     color: AppColors.textPrimary,
   );
 
-  static const TextStyle bodySmall = TextStyle(
+  static TextStyle get bodySmall => TextStyle(
     fontFamily: sans,
-    fontSize: 13,
-    height: 1.45,
+    fontSize: 13.5,
+    height: 1.5,
     fontWeight: FontWeight.w400,
     letterSpacing: 0,
     color: AppColors.textSecondary,
   );
 
-  static const TextStyle label = TextStyle(
+  static TextStyle get label => TextStyle(
     fontFamily: sans,
-    fontSize: 13.5,
+    fontSize: 14,
     height: 1.3,
     fontWeight: FontWeight.w500,
     letterSpacing: 0,
     color: AppColors.textPrimary,
   );
 
-  static const TextStyle caption = TextStyle(
+  static TextStyle get caption => TextStyle(
     fontFamily: sans,
-    fontSize: 12,
-    height: 1.4,
+    fontSize: 12.5,
+    height: 1.45,
     fontWeight: FontWeight.w400,
-    letterSpacing: 0.1,
+    letterSpacing: 0,
     color: AppColors.textSecondary,
   );
 
   // ── Comparing (mono) ──────────────────────────────────────────────────────
   /// Uppercase instrument-panel micro label for eyebrows and timestamps.
-  static const TextStyle overline = TextStyle(
+  static TextStyle get overline => TextStyle(
     fontFamily: mono,
-    fontSize: 10.5,
+    fontSize: 11,
     height: 1.3,
     fontWeight: FontWeight.w500,
-    letterSpacing: 1.3,
+    letterSpacing: 1.1,
     color: AppColors.textTertiary,
   );
 
-  static const TextStyle metricXL = TextStyle(
+  static TextStyle get metricXL => TextStyle(
     fontFamily: mono,
     fontSize: 34,
     height: 1.05,
@@ -114,7 +115,7 @@ abstract final class AppTypography {
     fontFeatures: _tabular,
   );
 
-  static const TextStyle metricLarge = TextStyle(
+  static TextStyle get metricLarge => TextStyle(
     fontFamily: mono,
     fontSize: 24,
     height: 1.1,
@@ -125,7 +126,7 @@ abstract final class AppTypography {
   );
 
   /// Score & metric digits (12–16px band).
-  static const TextStyle metric = TextStyle(
+  static TextStyle get metric => TextStyle(
     fontFamily: mono,
     fontSize: 15,
     height: 1.2,
@@ -135,9 +136,9 @@ abstract final class AppTypography {
     fontFeatures: _tabular,
   );
 
-  static const TextStyle metricSmall = TextStyle(
+  static TextStyle get metricSmall => TextStyle(
     fontFamily: mono,
-    fontSize: 12,
+    fontSize: 12.5,
     height: 1.25,
     fontWeight: FontWeight.w500,
     letterSpacing: -0.2,

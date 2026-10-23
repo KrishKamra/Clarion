@@ -10,7 +10,7 @@ import '../theme/app_colors.dart';
 ///
 /// Three layers, all rasterised once behind a [RepaintBoundary] so they cost
 /// nothing while content scrolls above:
-///  1. the flat #07080B base,
+///  1. the flat canvas base,
 ///  2. a single, very faint ambient pool of [glow] at the top edge,
 ///  3. a deterministic film grain that keeps large dark areas from banding
 ///     and gives the surface a tactile, printed quality.
@@ -18,12 +18,14 @@ class ObsidianCanvas extends StatelessWidget {
   const ObsidianCanvas({
     super.key,
     required this.child,
-    this.glow = AppColors.iris,
+    this.glow,
     this.glowIntensity = 0.10,
   });
 
   final Widget child;
-  final Color glow;
+
+  /// Defaults to iris.
+  final Color? glow;
   final double glowIntensity;
 
   @override
@@ -33,7 +35,10 @@ class ObsidianCanvas extends StatelessWidget {
       children: [
         RepaintBoundary(
           child: CustomPaint(
-            painter: _CanvasPainter(glow: glow, intensity: glowIntensity),
+            painter: _CanvasPainter(
+              glow: glow ?? AppColors.iris,
+              intensity: glowIntensity,
+            ),
           ),
         ),
         child,
@@ -92,14 +97,14 @@ class _CanvasPainter extends CustomPainter {
         ui.PointMode.points,
         light,
         Paint()
-          ..color = const Color(0x09FFFFFF)
+          ..color = Color(AppColors.isDark ? 0x09FFFFFF : 0x66FFFFFF)
           ..strokeWidth = 1,
       )
       ..drawRawPoints(
         ui.PointMode.points,
         dark,
         Paint()
-          ..color = const Color(0x33000000)
+          ..color = Color(AppColors.isDark ? 0x33000000 : 0x0A000000)
           ..strokeWidth = 1,
       );
   }

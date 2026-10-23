@@ -84,9 +84,6 @@ class IntentHomeScreen extends ConsumerWidget {
             child: SectionHeader(
               eyebrow: 'Ranked for you',
               title: 'Personal Fit Stream',
-              caption: intent == null
-                  ? 'By fit to your goals and envelope.'
-                  : 'For “${intent.raw}”.',
             ),
           ),
         ),
@@ -108,13 +105,7 @@ class IntentHomeScreen extends ConsumerWidget {
               bottom: AppSpacing.md,
             ),
             sliver: const SliverToBoxAdapter(
-              child: SectionHeader(
-                eyebrow: 'Price memory',
-                title: 'Radar',
-                caption:
-                    'Below their 30-day average. No rush — Clarion '
-                    'keeps watching.',
-              ),
+              child: SectionHeader(eyebrow: 'Price memory', title: 'Radar'),
             ),
           ),
           SliverPadding(

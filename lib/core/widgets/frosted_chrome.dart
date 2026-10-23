@@ -14,7 +14,7 @@ class FrostedChrome extends StatelessWidget {
     required this.child,
     this.borderRadius = BorderRadius.zero,
     this.sigma = 24,
-    this.fill = AppDecorations.frostFill,
+    this.fill,
     this.rim = true,
     this.floating = false,
   });
@@ -22,7 +22,9 @@ class FrostedChrome extends StatelessWidget {
   final Widget child;
   final BorderRadius borderRadius;
   final double sigma;
-  final Color fill;
+
+  /// Defaults to [AppDecorations.frostFill].
+  final Color? fill;
 
   /// Paint the directional rim light along the edge.
   final bool rim;
@@ -40,7 +42,10 @@ class FrostedChrome extends StatelessWidget {
           foregroundPainter: rim
               ? RimLightPainter(borderRadius: borderRadius)
               : null,
-          child: ColoredBox(color: fill, child: child),
+          child: ColoredBox(
+            color: fill ?? AppDecorations.frostFill,
+            child: child,
+          ),
         ),
       ),
     );
