@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/models/product_model.dart';
 import '../../../data/models/trade_off_item.dart';
@@ -8,18 +9,20 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/tactile_card.dart';
+import '../../home/application/intent_controller.dart';
 
 /// "Why We Recommend This" — the fit score as a ledger. Every signed line is
 /// shown, and the total is printed beneath them, so the number is never
 /// asserted, only derived.
-class ExplainabilityCard extends StatelessWidget {
+class ExplainabilityCard extends ConsumerWidget {
   const ExplainabilityCard({super.key, required this.product});
 
   final Product product;
 
   @override
-  Widget build(BuildContext context) {
-    final color = AppColors.forFit(product.fitScore);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final fit = ref.watch(fitProvider(product.id));
+    final color = AppColors.forFit(fit.score);
 
     // The one floating surface on the canvas: this is the decision node.
     return TactileCard(
@@ -27,18 +30,18 @@ class ExplainabilityCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('HEURISTIC FIT BREAKDOWN', style: AppTypography.overline),
+          Text('HOW WELL IT FITS YOU', style: AppTypography.overline),
           const SizedBox(height: AppSpacing.xs),
           Text('Why We Recommend This', style: AppTypography.title),
           const SizedBox(height: 2),
-          Text('Every point, accounted for.', style: AppTypography.bodySmall),
+          Text('Each reason, in plain words.', style: AppTypography.bodySmall),
           const SizedBox(height: AppSpacing.md),
-          for (final (i, f) in product.tradeOffs.indexed) ...[
+          for (final (i, f) in fit.items.indexed) ...[
             if (i > 0) const Divider(),
             _LedgerRow(item: f),
           ],
           const SizedBox(height: AppSpacing.sm),
-          _Total(score: product.fitScore, color: color),
+          _Total(score: fit.score, headline: fit.headline, color: color),
         ],
       ),
     );
@@ -52,17 +55,21 @@ class _LedgerRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = item.isPositive ? AppColors.emeraldGlow : AppColors.amber;
+    final color = switch (item.verdict) {
+      'Weak' || 'Concern' => AppColors.amber,
+      'Neutral' => AppColors.textSecondary,
+      _ => item.isPositive ? AppColors.emeraldGlow : AppColors.amber,
+    };
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 48,
+            width: 72,
             child: Text(
-              Fmt.points(item.weight),
-              style: AppTypography.metric.copyWith(color: color, height: 1.3),
+              item.verdict ?? Fmt.points(item.weight),
+              style: AppTypography.label.copyWith(color: color),
             ),
           ),
           Expanded(
@@ -84,9 +91,14 @@ class _LedgerRow extends StatelessWidget {
 /// The sum line, backlit in the fit colour — the one place on the card
 /// where colour pools, because it is the conclusion.
 class _Total extends StatelessWidget {
-  const _Total({required this.score, required this.color});
+  const _Total({
+    required this.score,
+    required this.headline,
+    required this.color,
+  });
 
   final int score;
+  final String headline;
   final Color color;
 
   @override
@@ -103,22 +115,25 @@ class _Total extends StatelessWidget {
       ),
       child: Row(
         children: [
-          SizedBox(
-            width: 36,
-            child: Text(
-              '=',
-              style: AppTypography.metric.copyWith(color: color),
-            ),
-          ),
           Expanded(
-            child: Text('Personal fit score', style: AppTypography.label),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Overall match', style: AppTypography.label),
+                const SizedBox(height: 2),
+                Text(
+                  headline,
+                  style: AppTypography.caption.copyWith(color: color),
+                ),
+              ],
+            ),
           ),
           Text(
             '$score',
             style: AppTypography.metricLarge.copyWith(color: color),
           ),
           Text(
-            '/100',
+            '%',
             style: AppTypography.metricSmall.copyWith(
               color: AppColors.textTertiary,
             ),

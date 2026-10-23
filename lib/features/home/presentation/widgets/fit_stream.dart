@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -11,6 +12,7 @@ import '../../../../core/widgets/tactile_card.dart';
 import '../../../../data/models/product_model.dart';
 import '../../../../data/models/trade_off_item.dart';
 import '../../../decision/presentation/product_decision_screen.dart';
+import '../../application/intent_controller.dart';
 
 /// Personal Fit Stream: a horizontal carousel of candidates.
 ///
@@ -60,7 +62,7 @@ class FitStream extends StatelessWidget {
 }
 
 /// One candidate. Matte material, no blur — it repeats in a fast list.
-class FitStreamCard extends StatelessWidget {
+class FitStreamCard extends ConsumerWidget {
   const FitStreamCard({
     super.key,
     required this.product,
@@ -76,19 +78,17 @@ class FitStreamCard extends StatelessWidget {
   final Object? heroTag;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final p = product;
-    final top = <TradeOffItem>[
-      p.reasons.first,
-      if (p.compromises.isNotEmpty) p.compromises.first,
-    ];
+    final fit = ref.watch(fitProvider(p.id));
+    final top = fit.highlights;
 
     return SizedBox(
       width: width,
       height: height,
       child: TactileCard(
         onTap: onTap,
-        semanticLabel: '${p.title}, ${p.fitScore} percent fit',
+        semanticLabel: '${p.title}, ${fit.score} percent fit',
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -144,7 +144,7 @@ class FitStreamCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
-                FitScoreGauge(score: p.fitScore, size: 64),
+                FitScoreGauge(score: fit.score, size: 64),
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
@@ -173,23 +173,17 @@ class _FactorLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = item.isPositive ? AppColors.emeraldGlow : AppColors.amber;
+    final color = switch (item.verdict) {
+      'Weak' || 'Concern' => AppColors.amber,
+      'Neutral' => AppColors.textSecondary,
+      _ => item.isPositive ? AppColors.emeraldGlow : AppColors.amber,
+    };
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.baseline,
         textBaseline: TextBaseline.alphabetic,
         children: [
-          SizedBox(
-            width: 30,
-            child: Text(
-              Fmt.points(item.weight),
-              style: AppTypography.metricSmall.copyWith(
-                color: color,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
           Expanded(
             child: Text(
               item.title,
@@ -198,6 +192,14 @@ class _FactorLine extends StatelessWidget {
               style: AppTypography.caption.copyWith(
                 color: AppColors.textPrimary,
               ),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Text(
+            item.verdict ?? Fmt.points(item.weight),
+            style: AppTypography.metricSmall.copyWith(
+              color: color,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],

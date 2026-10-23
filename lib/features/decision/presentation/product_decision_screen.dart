@@ -13,6 +13,7 @@ import '../../../core/widgets/product_artwork.dart';
 import '../../../core/widgets/round_icon_button.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../core/widgets/tactile_card.dart';
+import '../../home/application/intent_controller.dart';
 import '../../navigation/navigation_controller.dart';
 import '../application/compare_controller.dart';
 import '../widgets/decision_drawer.dart';
@@ -170,13 +171,13 @@ class ProductDecisionScreen extends ConsumerWidget {
   }
 }
 
-class _TitleBlock extends StatelessWidget {
+class _TitleBlock extends ConsumerWidget {
   const _TitleBlock({required this.product});
 
   final Product product;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final pct = product.discountVsAverage * 100;
 
     return Row(
@@ -226,13 +227,13 @@ class _TitleBlock extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.md),
-        FitScoreGauge(score: product.fitScore, size: 88),
+        FitScoreGauge(score: ref.watch(fitProvider(product.id)).score, size: 88),
       ],
     );
   }
 }
 
-class _AlternativeRow extends StatelessWidget {
+class _AlternativeRow extends ConsumerWidget {
   const _AlternativeRow({
     required this.product,
     required this.other,
@@ -244,8 +245,9 @@ class _AlternativeRow extends StatelessWidget {
   final VoidCallback onCompare;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final diff = other.price - product.price;
+    final otherFit = ref.watch(fitProvider(other.id)).score;
 
     return TactileCard(
       onTap: onCompare,
@@ -266,7 +268,7 @@ class _AlternativeRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  '${other.fitScore} fit · ${diff < 0 ? '${Fmt.inr(-diff)} less' : '${Fmt.inr(diff)} more'}',
+                  '$otherFit fit · ${diff < 0 ? '${Fmt.inr(-diff)} less' : '${Fmt.inr(diff)} more'}',
                   style: AppTypography.metricSmall.copyWith(
                     color: diff < 0
                         ? AppColors.emeraldGlow
