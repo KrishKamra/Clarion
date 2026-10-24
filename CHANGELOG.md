@@ -4,6 +4,11 @@ All notable changes to Clarion are documented here. Format based on [Keep a Chan
 
 ## [Unreleased]
 
+### Changed — arrival and interaction polish
+- **Sign-in redesign**: a frosted pane over a slow aurora of brand light; the lens breathing in an iris halo, with the tagline wrapped around the name ("CLEAR INTENT." above, "Conscious Commerce." in the iris → emerald gradient below); three promise pills; a sliding Sign in / Sign up switch; fields with an iris focus edge and halo, hover edges and a show-password toggle; a damped shake and haptic on errors; a staggered entrance; a four-colour Google mark.
+- **App-wide hover and glow**: `Pressable` adds a click cursor, a hover lift and shared hover/press state; `PressGlow` gives solid buttons a resting glow that blooms on hover, and tappable cards light their rim in their tint.
+- Ambient animation respects the system's reduce-motion setting.
+
 ### Added — Firebase authentication
 - Email/password and Google sign-in (`firebase_auth`, `google_sign_in` 7), password reset, and sign-out under Profile → Account.
 - `AuthGate` keeps the app behind sign-in. Each account gets its own SQLite file and provider scope, so accounts on one device never share a cart, holds, budget or watchlist.

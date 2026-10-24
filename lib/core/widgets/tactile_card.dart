@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors.dart';
 import '../theme/app_decorations.dart';
 import '../theme/app_spacing.dart';
 import 'pressable.dart';
@@ -60,21 +61,43 @@ class TactileCard extends StatelessWidget {
       ),
     };
 
-    Widget card = CustomPaint(
-      foregroundPainter: RimLightPainter(
-        borderRadius: borderRadius,
-        gradient: material == CardMaterial.vellum
-            ? AppDecorations.rimLightSoft
-            : AppDecorations.rimLight,
-      ),
-      child: DecoratedBox(
-        decoration: decoration,
-        child: Padding(padding: padding, child: child),
+    final accent = tint ?? AppColors.irisGlow;
+    Widget card = Builder(
+      // Under a hovering pointer the rim catches the accent, so the card
+      // reads as lit from within rather than merely highlighted.
+      builder: (context) => CustomPaint(
+        foregroundPainter: RimLightPainter(
+          borderRadius: borderRadius,
+          gradient: Pressable.stateOf(context).hovered
+              ? LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    accent.withValues(alpha: 0.75),
+                    accent.withValues(alpha: 0.12),
+                  ],
+                )
+              : material == CardMaterial.vellum
+              ? AppDecorations.rimLightSoft
+              : AppDecorations.rimLight,
+        ),
+        child: DecoratedBox(
+          decoration: decoration,
+          child: Padding(padding: padding, child: child),
+        ),
       ),
     );
 
     if (onTap != null) {
-      card = Pressable(onTap: onTap, semanticLabel: semanticLabel, child: card);
+      card = Pressable(
+        onTap: onTap,
+        semanticLabel: semanticLabel,
+        child: PressGlow(
+          color: tint ?? AppColors.iris,
+          borderRadius: borderRadius,
+          child: card,
+        ),
+      );
     }
     return card;
   }

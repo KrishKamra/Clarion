@@ -24,6 +24,7 @@ class ClarionButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.icon,
+    this.leading,
     this.tone = ButtonTone.primary,
     this.isLoading = false,
     this.height = 52,
@@ -33,6 +34,9 @@ class ClarionButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final IconData? icon;
+
+  /// A custom mark before the label (e.g. a brand glyph); wins over [icon].
+  final Widget? leading;
   final ButtonTone tone;
   final bool isLoading;
   final double height;
@@ -76,6 +80,7 @@ class ClarionButton extends StatelessWidget {
               label: label,
               subtitle: subtitle,
               icon: icon,
+              leading: leading,
               color: ink,
             ),
     );
@@ -90,24 +95,31 @@ class ClarionButton extends StatelessWidget {
         child: AnimatedOpacity(
           opacity: onPressed == null ? 0.4 : 1,
           duration: AppMotion.fast,
-          child: CustomPaint(
-            foregroundPainter: RimLightPainter(borderRadius: radius),
-            child: AnimatedContainer(
-              duration: AppMotion.medium,
-              curve: AppMotion.standard,
-              height: height,
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                borderRadius: radius,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: fill,
+          // Solid tones keep a faint glow of their own colour that blooms on
+          // hover; secondary only glows while hovered.
+          child: PressGlow(
+            color: tone == ButtonTone.secondary ? AppColors.iris : fill.last,
+            borderRadius: radius,
+            rest: _enabled && tone != ButtonTone.secondary ? 0.28 : 0,
+            child: CustomPaint(
+              foregroundPainter: RimLightPainter(borderRadius: radius),
+              child: AnimatedContainer(
+                duration: AppMotion.medium,
+                curve: AppMotion.standard,
+                height: height,
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  borderRadius: radius,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: fill,
+                  ),
                 ),
+                child: content,
               ),
-              child: content,
             ),
           ),
         ),
@@ -123,11 +135,13 @@ class _Label extends StatelessWidget {
     required this.color,
     this.subtitle,
     this.icon,
+    this.leading,
   });
 
   final String label;
   final String? subtitle;
   final IconData? icon;
+  final Widget? leading;
   final Color color;
 
   @override
@@ -145,8 +159,8 @@ class _Label extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (icon != null) ...[
-          Icon(icon, size: 18, color: color),
+        if (leading != null || icon != null) ...[
+          leading ?? Icon(icon, size: 18, color: color),
           const SizedBox(width: AppSpacing.sm),
         ],
         Flexible(

@@ -40,7 +40,8 @@ void main() {
     await pumpSignIn(tester);
     expect(find.text('Welcome back'), findsOneWidget);
 
-    await tester.tap(find.text('Sign in'));
+    await tester.ensureVisible(find.text('Continue'));
+    await tester.tap(find.text('Continue'));
     await tester.pump();
     expect(find.text('Enter your email and password.'), findsOneWidget);
 
@@ -49,11 +50,11 @@ void main() {
     expect(find.text('Enter your email first.'), findsOneWidget);
   });
 
-  testWidgets('sign-in toggles to account creation', (tester) async {
+  testWidgets('sign-in switches to account creation', (tester) async {
     await pumpSignIn(tester);
-    await tester.tap(find.text('Create an account'));
-    await tester.pump();
-    expect(find.text('Create your account'), findsOneWidget);
+    await tester.tap(find.text('Sign up'));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('Start deciding better'), findsOneWidget);
     expect(find.text('Create account'), findsOneWidget);
     expect(find.text('Forgot password?'), findsNothing);
   });

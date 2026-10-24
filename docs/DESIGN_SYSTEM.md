@@ -103,6 +103,8 @@ flowchart TD
 | Radii | `xs 6 · sm 10 · md 14 · lg 18 · xl 24 · pill` |
 | Motion | `fast 220 · medium 250 · slow 280 ms` on `easeOutCubic`; `reveal 640 ms` only for one-off data draws (gauge sweep, price band) |
 | Haptics | `selectionClick` on intent pills, tab switches, chart/barometer scrubbing and the start of a hold; `mediumImpact` when a 24h cooling-off hold commits; `lightImpact` on card and button taps |
+| Hover & glow | Every tappable surface goes through `Pressable`: a click cursor, a hover lift of 60 % of the press depth, and hover/press state exposed through `Pressable.stateOf`. `PressGlow` turns that state into light: solid buttons keep a faint glow of their own colour that blooms on hover, and tappable `TactileCard`s light their rim in their tint (iris by default) with a soft halo. Glows are box shadows, never blurs |
+| Reduced motion | Ambient loops (aurora drift, lockup breath) and entrances stop when `MediaQuery.disableAnimations` is set |
 
 > [!CAUTION]
 > No elastic, bounce or overshoot curves. If a transition needs more than 280 ms to read, the layout change is too big.
@@ -111,7 +113,8 @@ flowchart TD
 
 | Widget | Role |
 | :--- | :--- |
-| `TactileCard` | Matte / floating / vellum surface with specular rim, optional tint and press feedback |
+| `TactileCard` | Matte / floating / vellum surface with specular rim, optional tint, press feedback and a lit rim on hover |
+| `AuroraBackdrop` | Slow drift of brand light (iris, emerald) for arrival moments, under frosted glass; gradients only |
 | `FitScoreGauge` | `CustomPainter` 300° utility dial (0–100%), mono score, halo + ticks on large sizes |
 | `IntentField` | Conversational intent input with an iris focus filament and contextual pills |
 | `DynamicPill` | One micro-badge for categories, tags, trade-offs and selectable choices |
