@@ -107,6 +107,9 @@ flutter pub get
 flutter run
 ```
 
+> [!NOTE]
+> Sign-in uses Firebase Authentication and the project config is committed, so email sign-in works out of the box. To use Google sign-in on Android, register your debug key once: see [`docs/FIREBASE_SETUP.md`](docs/FIREBASE_SETUP.md).
+
 ### Quality checks
 
 ```bash

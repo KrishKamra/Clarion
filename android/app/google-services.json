@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "22382203676",
+    "project_id": "clarion-e08f0",
+    "storage_bucket": "clarion-e08f0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:22382203676:android:fdb0e40e2cfc9e322a60d9",
+        "android_client_info": {
+          "package_name": "com.example.clarion"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "22382203676-e100b9sviktctaai8os3670bmc4k7dfc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.clarion",
+            "certificate_hash": "49676ac823226fee05dc2f9d5d7fb31b4d9241fa"
+          }
+        },
+        {
+          "client_id": "22382203676-fhtp2t2q981dnu1t1ui1hv6t9g56lmqg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAUW7J7xzr9mg9K5UQ-63sCn-985MnJQt8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "22382203676-fhtp2t2q981dnu1t1ui1hv6t9g56lmqg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

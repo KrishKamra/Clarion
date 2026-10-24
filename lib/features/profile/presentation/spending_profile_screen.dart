@@ -8,9 +8,11 @@ import '../../../core/theme/theme_mode_controller.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/chrome_header.dart';
 import '../../../core/widgets/dynamic_pill.dart';
+import '../../../core/widgets/pressable.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../core/widgets/tactile_card.dart';
 import '../../cart/application/budget_controller.dart';
+import '../../auth/application/auth_service.dart';
 import '../../decision/application/cooldown_controller.dart';
 import 'widgets/ceiling_sheet.dart';
 import 'widgets/envelope_card.dart';
@@ -96,6 +98,14 @@ class SpendingProfileScreen extends ConsumerWidget {
               const SectionHeader(eyebrow: 'Display', title: 'Appearance'),
               const SizedBox(height: AppSpacing.md),
               const _AppearancePicker(),
+              if (ref.watch(currentUserProvider) case final user?) ...[
+                const SizedBox(height: AppSpacing.section),
+                const SectionHeader(eyebrow: 'Signed in', title: 'Account'),
+                const SizedBox(height: AppSpacing.md),
+                _AccountCard(
+                  label: user.email ?? user.displayName ?? 'Clarion account',
+                ),
+              ],
               SizedBox(height: AppSpacing.navBarClearance(context)),
             ],
           ),
@@ -159,6 +169,44 @@ class _AppearancePicker extends ConsumerWidget {
             onTap: () => ref.read(themeModeProvider.notifier).select(value),
           ),
       ],
+    );
+  }
+}
+
+class _AccountCard extends StatelessWidget {
+  const _AccountCard({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return TactileCard(
+      material: CardMaterial.vellum,
+      child: Row(
+        children: [
+          Icon(Icons.person_outline_rounded, color: AppColors.textSecondary),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.label,
+            ),
+          ),
+          Pressable(
+            onTap: AuthService.signOut,
+            semanticLabel: 'Sign out',
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.xs),
+              child: Text(
+                'Sign out',
+                style: AppTypography.label.copyWith(color: AppColors.rose),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

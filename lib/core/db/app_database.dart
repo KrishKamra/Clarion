@@ -34,10 +34,12 @@ class AppDatabase {
 
   /// Opens (creating on first launch) the database.
   ///
-  /// Pass [path] (e.g. `inMemoryDatabasePath`) in tests to avoid touching the
-  /// real file.
-  static Future<AppDatabase> open({String? path}) async {
-    final resolved = path ?? p.join(await getDatabasesPath(), fileName);
+  /// Pass [userId] to open that account's own file (`clarion_<uid>.db`), so
+  /// accounts sharing a device never see each other's data. Pass [path]
+  /// (e.g. `inMemoryDatabasePath`) in tests to avoid touching the real file.
+  static Future<AppDatabase> open({String? path, String? userId}) async {
+    final name = userId == null ? fileName : 'clarion_$userId.db';
+    final resolved = path ?? p.join(await getDatabasesPath(), name);
     final db = await openDatabase(
       resolved,
       version: schemaVersion,

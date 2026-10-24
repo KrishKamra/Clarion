@@ -4,6 +4,11 @@ All notable changes to Clarion are documented here. Format based on [Keep a Chan
 
 ## [Unreleased]
 
+### Added — Firebase authentication
+- Email/password and Google sign-in (`firebase_auth`, `google_sign_in` 7), password reset, and sign-out under Profile → Account.
+- `AuthGate` keeps the app behind sign-in. Each account gets its own SQLite file and provider scope, so accounts on one device never share a cart, holds, budget or watchlist.
+- Connected to Firebase project `clarion-e08f0`. The config (`firebase_options.dart`, `google-services.json`, `firebase.json`) is committed, and each teammate registers their debug key for Google sign-in (`docs/FIREBASE_SETUP.md`).
+
 ### Added — light mode and legibility pass
 - **Light mode** ("Porcelain"): every colour token now has a light value; Appearance (System / Light / Dark) lives in Spending Profile and persists via `shared_preferences`. Switching is live and keeps scroll and widget state.
 - **Legibility**: body 15px / 1.5, bodySmall 13.5px, captions 12.5px, labels 14px, mono micro labels 11px; no text below 10px. Dark `textSecondary` / `textTertiary` lifted to `#A3B0C2` / `#7D8899` (tertiary was ~2.6:1, now ≥ 4.5:1).

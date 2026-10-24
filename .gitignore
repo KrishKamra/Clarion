@@ -43,7 +43,8 @@ Thumbs.db
 *.jks
 
 # Firebase & Sensitive Config Files
-google-services.json
+# android/app/google-services.json is committed: it identifies the Firebase
+# project (like lib/firebase_options.dart) but holds no secrets.
 GoogleService-Info.plist
 *.realm
 .env
