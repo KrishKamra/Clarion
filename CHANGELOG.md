@@ -4,6 +4,11 @@ All notable changes to Clarion are documented here. Format based on [Keep a Chan
 
 ## [Unreleased]
 
+### Added — brand identity
+- `assets/brand/clarion_logo.svg`: the lens mark evolved into a glass lens with an iris → emerald rim, a specular glint and an iris focal point. Its colours are fixed, so it reads on light and dark. `ClarionWordmark` now renders it with `flutter_svg`, so the Home header and sign-in screen use it.
+- `assets/brand/clarion_banner.svg`: logo, name and tagline ("CLEAR INTENT." / "Conscious Commerce.") over a dark aurora card. All text is outlined from the bundled fonts, so it renders identically on GitHub.
+- README: the banner, tech-stack badges (Flutter, Dart, Riverpod, Firebase Auth, SQLite, Material 3, platforms, licence), and an up-to-date note, tech stack, structure and roadmap.
+
 ### Changed — arrival and interaction polish
 - **Sign-in redesign**: a frosted pane over a slow aurora of brand light; the lens breathing in an iris halo, with the tagline wrapped around the name ("CLEAR INTENT." above, "Conscious Commerce." in the iris → emerald gradient below); three promise pills; a sliding Sign in / Sign up switch; fields with an iris focus edge and halo, hover edges and a show-password toggle; a damped shake and haptic on errors; a staggered entrance; a four-colour Google mark.
 - **App-wide hover and glow**: `Pressable` adds a click cursor, a hover lift and shared hover/press state; `PressGlow` gives solid buttons a resting glow that blooms on hover, and tappable cards light their rim in their tint.

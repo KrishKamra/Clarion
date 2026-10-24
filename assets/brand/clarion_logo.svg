@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Clarion">
+  <title>Clarion</title>
+  <defs>
+    <!-- Light falls from the top-left, as on every Clarion surface: the ring
+         runs from soft iris through iris to emerald. -->
+    <linearGradient id="ring" x1="10" y1="8" x2="54" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#A5B4FC"/>
+      <stop offset="0.45" stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#10B981"/>
+    </linearGradient>
+    <!-- A faint pool of iris inside the lens, so it reads as glass. -->
+    <radialGradient id="glass" cx="26" cy="24" r="30" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6366F1" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#6366F1" stop-opacity="0"/>
+    </radialGradient>
+    <!-- The focal point: what you are actually looking for. -->
+    <radialGradient id="focus" cx="39" cy="20.5" r="9" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#C7D2FE"/>
+      <stop offset="0.55" stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#4F46E5"/>
+    </radialGradient>
+  </defs>
+  <circle cx="32" cy="32" r="26" fill="url(#glass)"/>
+  <circle cx="32" cy="32" r="26" fill="none" stroke="url(#ring)" stroke-width="4.5"/>
+  <!-- Specular glint on the inner edge of the lens. -->
+  <path d="M15.5 27.5 A17 17 0 0 1 25 15.6" fill="none" stroke="#FFFFFF" stroke-opacity="0.6" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="41" cy="23" r="8.25" fill="url(#focus)"/>
+</svg>

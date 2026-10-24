@@ -1,16 +1,22 @@
-# Clarion
+<p align="center">
+  <img src="assets/brand/clarion_banner.svg" alt="Clarion — Clear Intent. Conscious Commerce." width="100%">
+</p>
 
-> **Clear Intent. Conscious Commerce.**
+<p align="center">
+  <a href="https://flutter.dev"><img alt="Flutter 3.47" src="https://img.shields.io/badge/Flutter-3.47-02569B?style=flat-square&logo=flutter&logoColor=white"></a>
+  <a href="https://dart.dev"><img alt="Dart 3" src="https://img.shields.io/badge/Dart-%E2%89%A53.13-0175C2?style=flat-square&logo=dart&logoColor=white"></a>
+  <a href="https://riverpod.dev"><img alt="Riverpod 3" src="https://img.shields.io/badge/Riverpod-3-4F46E5?style=flat-square"></a>
+  <a href="https://firebase.google.com/docs/auth"><img alt="Firebase Auth" src="https://img.shields.io/badge/Firebase-Auth-FFCA28?style=flat-square&logo=firebase&logoColor=black"></a>
+  <a href="https://pub.dev/packages/sqflite"><img alt="SQLite" src="https://img.shields.io/badge/SQLite-sqflite-003B57?style=flat-square&logo=sqlite&logoColor=white"></a>
+  <a href="https://m3.material.io"><img alt="Material 3" src="https://img.shields.io/badge/Material-3-6366F1?style=flat-square&logo=materialdesign&logoColor=white"></a>
+  <img alt="Platforms: Android and Web" src="https://img.shields.io/badge/platforms-Android%20%C2%B7%20Web-3DDC84?style=flat-square&logo=android&logoColor=white">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-10B981?style=flat-square"></a>
+</p>
 
 Clarion is an intent-driven e-commerce **decision-support system** — *e-commerce that helps you buy better, not buy more.* Instead of infinite feeds and opaque recommendations, you state a goal, see exactly why each product fits (or doesn't), compare only what differs, and stay inside a monthly envelope that the app guards for you.
 
-[![Flutter](https://img.shields.io/badge/Flutter-3.47-02569B?logo=flutter)](https://flutter.dev)
-[![Dart](https://img.shields.io/badge/Dart-%E2%89%A53.13-0175C2?logo=dart)](https://dart.dev)
-[![Riverpod](https://img.shields.io/badge/state-Riverpod%203-4F46E5)](https://riverpod.dev)
-[![License: MIT](https://img.shields.io/badge/license-MIT-10B981)](LICENSE)
-
 > [!NOTE]
-> Clarion is a **UI/UX foundation** running on an in-memory mock catalogue. There is no backend, authentication, payment or persistence yet — checkout is simulated. See [Roadmap](#️-roadmap).
+> Products come from a mock catalogue and checkout is simulated. Sign-in is real (Firebase Authentication), and each account's cart, cooling-off holds, budget and watchlist are saved on the device in SQLite. See [Roadmap](#️-roadmap).
 
 ---
 
@@ -69,7 +75,9 @@ flowchart TD
 | :--- | :--- |
 | Framework | [Flutter](https://flutter.dev) 3.x · Material 3 · Dart 3 |
 | State | [`flutter_riverpod`](https://pub.dev/packages/flutter_riverpod) 3.x — `Notifier`s + derived `Provider`s |
-| Data | In-memory mock catalogue behind `catalogProvider` |
+| Data | Mock catalogue behind `catalogProvider`; per-account local persistence in SQLite ([`sqflite`](https://pub.dev/packages/sqflite)) |
+| Auth | [Firebase Authentication](https://firebase.google.com/docs/auth): email/password and Google ([`google_sign_in`](https://pub.dev/packages/google_sign_in)) |
+| Brand | SVG logo and banner in `assets/brand/`, rendered with [`flutter_svg`](https://pub.dev/packages/flutter_svg) |
 | Typography | Schibsted Grotesk + Geist Mono (OFL-1.1, bundled) |
 
 ## 🗂️ Project structure
@@ -77,6 +85,7 @@ flowchart TD
 ```text
 lib/
 ├── core/
+│   ├── db/            # SQLite schema, repositories, per-account session loading
 │   ├── theme/         # app_colors · app_typography · app_decorations · app_spacing · app_theme
 │   ├── utils/         # INR (Indian grouping), signed weights, dates, countdowns
 │   └── widgets/       # tactile_card · fit_score_gauge · intent_field · dynamic_pill ·
@@ -86,12 +95,13 @@ lib/
 │   ├── catalog.dart   # Read-only Catalog + catalogProvider (the backend seam)
 │   └── mock_catalog.dart
 ├── features/
+│   ├── auth/          # Firebase sign-in (email/password, Google) · sign-in screen
 │   ├── home/          # Intent parsing & ranking · Intent Horizon (fit stream, price radar)
 │   ├── decision/      # Decision canvas · Compare Matrix · cooldowns · compare scoring
 │   ├── cart/          # Cart + budget state, Guardian Swap Engine · Smart Cart
 │   ├── profile/       # Spending Profile (envelope, cooling-off queue, history)
 │   └── navigation/    # AppTab controller & MainScaffold shell
-└── main.dart          # Edge-to-edge setup, ProviderScope, MaterialApp
+└── main.dart          # Firebase init, AuthGate (per-account scopes), MaterialApp
 ```
 
 Architecture, state graph and performance rules: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
@@ -138,8 +148,9 @@ The mock state is tuned so the headline numbers fall out of real arithmetic:
 
 - [x] Design system, atomic widgets and all core screens
 - [x] Riverpod state with derived business rules and tests
-- [ ] Local persistence (cart, holds, envelope history)
-- [ ] Authentication and a real catalogue/decision-engine backend
+- [x] Local persistence (cart, holds, envelope history, watchlist)
+- [x] Authentication (Firebase: email/password and Google)
+- [ ] A real catalogue/decision-engine backend
 - [ ] Payments and order history
 - [ ] Notifications when a cooling-off period ends
 

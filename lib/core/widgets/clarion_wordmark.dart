@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
 
-/// Clarion mark: a hairline lens with an iris focal point. Shown alone as a
-/// monogram, or beside the name in the grotesque.
+/// Clarion mark (`assets/brand/clarion_logo.svg`): a glass lens with an
+/// iris-to-emerald rim and an iris focal point. Shown alone as a monogram,
+/// or beside the name in the grotesque. Its colours are fixed, so it reads
+/// the same on light and dark.
 class ClarionWordmark extends StatelessWidget {
   const ClarionWordmark({super.key, this.size = 18, this.showName = true});
 
@@ -22,7 +24,11 @@ class ClarionWordmark extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CustomPaint(size: Size.square(size), painter: const _LensPainter()),
+          SvgPicture.asset(
+            'assets/brand/clarion_logo.svg',
+            width: size,
+            height: size,
+          ),
           if (showName) ...[
             SizedBox(width: size * 0.45),
             Text(
@@ -38,31 +44,4 @@ class ClarionWordmark extends StatelessWidget {
       ),
     );
   }
-}
-
-class _LensPainter extends CustomPainter {
-  const _LensPainter();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final c = size.center(Offset.zero);
-    final r = size.width / 2;
-    canvas
-      ..drawCircle(
-        c,
-        r - 0.8,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.6
-          ..color = AppColors.textPrimary,
-      )
-      ..drawCircle(
-        c.translate(r * 0.28, -r * 0.28),
-        r * 0.26,
-        Paint()..color = AppColors.irisGlow,
-      );
-  }
-
-  @override
-  bool shouldRepaint(_LensPainter oldDelegate) => false;
 }
