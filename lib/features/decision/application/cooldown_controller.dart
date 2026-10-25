@@ -3,6 +3,8 @@ import 'dart:developer' as developer;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/db/db_providers.dart';
+import '../../../core/notifications/notification_service.dart';
+import '../../../data/catalog.dart';
 
 /// 24h Cooling Off – products the user parked to decide on once the urge passes.
 ///
@@ -23,11 +25,17 @@ class CooldownController extends Notifier<Map<String, DateTime>> {
     _persist(
       ref.read(cooldownRepositoryProvider)?.upsert(productId, now, expiresAt),
     );
+    // The moment a reminder becomes useful is the moment to ask for it.
+    final product = ref.read(catalogProvider).byId(productId);
+    NotificationService.requestPermission().then(
+      (_) => NotificationService.scheduleCoolingOff(product, expiresAt),
+    );
   }
 
   void release(String productId) {
     state = {...state}..remove(productId);
     _persist(ref.read(cooldownRepositoryProvider)?.remove(productId));
+    NotificationService.cancelCoolingOff(productId);
   }
 
   /// The UI updates instantly from memory; the database write happens after.

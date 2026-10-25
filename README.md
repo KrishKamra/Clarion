@@ -3,6 +3,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/KrishKamra/Clarion/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/KrishKamra/Clarion/actions/workflows/ci.yml/badge.svg?branch=main"></a>
   <a href="https://flutter.dev"><img alt="Flutter 3.47" src="https://img.shields.io/badge/Flutter-3.47-02569B?style=flat-square&logo=flutter&logoColor=white"></a>
   <a href="https://dart.dev"><img alt="Dart 3" src="https://img.shields.io/badge/Dart-%E2%89%A53.13-0175C2?style=flat-square&logo=dart&logoColor=white"></a>
   <a href="https://riverpod.dev"><img alt="Riverpod 3" src="https://img.shields.io/badge/Riverpod-3-4F46E5?style=flat-square"></a>
@@ -127,6 +128,8 @@ dart format lib test   # formatting
 flutter analyze        # static analysis (flutter_lints) — expected: no issues
 flutter test           # unit + widget tests — fails on any layout overflow
 ```
+
+CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs the same three checks on every push to `main` and every pull request, then builds a debug APK. Reviewers can download it from the run page.
 
 > [!IMPORTANT]
 > Clarion is portrait-locked. It follows the system light/dark setting by default; Spending Profile → Appearance pins Light or Dark.

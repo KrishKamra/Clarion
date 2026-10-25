@@ -489,7 +489,17 @@ abstract final class MockCatalog {
       rating: 4.3,
       reviewCount: 2410,
       pickup: const PickupPoint('Andheri West', 3.4),
-      intentTags: const {'mouse', 'wireless', 'silent', 'desk', 'setup', 'work', 'study', 'college', 'laptop'},
+      intentTags: const {
+        'mouse',
+        'wireless',
+        'silent',
+        'desk',
+        'setup',
+        'work',
+        'study',
+        'college',
+        'laptop',
+      },
       specs: [
         _lower('noise', 'Click noise', '22 dB', 22),
         _higher('battery', 'Battery', '18 months', 18),
@@ -540,7 +550,17 @@ abstract final class MockCatalog {
       rating: 4.4,
       reviewCount: 1137,
       pickup: const PickupPoint('Dadar', 4.2),
-      intentTags: const {'mouse', 'wireless', 'ergonomic', 'vertical', 'desk', 'setup', 'work', 'study', 'college'},
+      intentTags: const {
+        'mouse',
+        'wireless',
+        'ergonomic',
+        'vertical',
+        'desk',
+        'setup',
+        'work',
+        'study',
+        'college',
+      },
       specs: [
         _lower('noise', 'Click noise', '35 dB', 35),
         _higher('battery', 'Battery', '6 months', 6),
@@ -559,11 +579,7 @@ abstract final class MockCatalog {
           detail: '57° vertical angle reduces strain',
           weight: 26,
         ),
-        TradeOffItem(
-          title: 'Warranty',
-          detail: '2-year cover',
-          weight: 10,
-        ),
+        TradeOffItem(title: 'Warranty', detail: '2-year cover', weight: 10),
         TradeOffItem(
           title: 'Build Trust',
           detail: '4.4★ across 1,137 owners',
@@ -601,7 +617,17 @@ abstract final class MockCatalog {
       rating: 4.5,
       reviewCount: 3920,
       pickup: const PickupPoint('Vile Parle', 1.8),
-      intentTags: const {'bottle', 'hydration', 'daily', 'edc', 'college', 'commute', 'durable', 'travel', 'gym'},
+      intentTags: const {
+        'bottle',
+        'hydration',
+        'daily',
+        'edc',
+        'college',
+        'commute',
+        'durable',
+        'travel',
+        'gym',
+      },
       specs: [
         _higher('capacity', 'Volume', '750 ml', 0.75),
         _lower('weight', 'Weight', '390 g', 390),
@@ -651,7 +677,16 @@ abstract final class MockCatalog {
       tone: const Color(0xFFFB923C),
       rating: 4.2,
       reviewCount: 1560,
-      intentTags: const {'notebook', 'notes', 'study', 'college', 'writing', 'stationery', 'setup', 'desk'},
+      intentTags: const {
+        'notebook',
+        'notes',
+        'study',
+        'college',
+        'writing',
+        'stationery',
+        'setup',
+        'desk',
+      },
       specs: [
         _higher('pages', 'Pages', '3 × 160', 480),
         _neutral('paper', 'Paper', '100 gsm, fountain-pen safe'),
@@ -700,7 +735,18 @@ abstract final class MockCatalog {
       rating: 4.4,
       reviewCount: 4725,
       pickup: const PickupPoint('Bandra West', 2.6),
-      intentTags: const {'power', 'bank', 'powerbank', 'charging', 'travel', 'commute', 'college', 'laptop', 'daily', 'edc'},
+      intentTags: const {
+        'power',
+        'bank',
+        'powerbank',
+        'charging',
+        'travel',
+        'commute',
+        'college',
+        'laptop',
+        'daily',
+        'edc',
+      },
       specs: [
         _higher('capacity', 'Capacity', '20,000 mAh', 20000),
         _higher('output', 'Output', '45 W', 45),
@@ -756,7 +802,17 @@ abstract final class MockCatalog {
       rating: 4.5,
       reviewCount: 2088,
       pickup: const PickupPoint('Vile Parle East', 1.1),
-      intentTags: const {'laptop', 'stand', 'ergonomic', 'desk', 'setup', 'work', 'study', 'college', 'posture'},
+      intentTags: const {
+        'laptop',
+        'stand',
+        'ergonomic',
+        'desk',
+        'setup',
+        'work',
+        'study',
+        'college',
+        'posture',
+      },
       specs: [
         _higher('height', 'Height range', '6 positions', 6),
         _lower('weight', 'Weight', '560 g', 560),
@@ -812,7 +868,16 @@ abstract final class MockCatalog {
       rating: 4.2,
       reviewCount: 6240,
       pickup: const PickupPoint('Dadar', 4.2),
-      intentTags: const {'earbuds', 'wireless', 'audio', 'music', 'commute', 'gym', 'calls', 'daily'},
+      intentTags: const {
+        'earbuds',
+        'wireless',
+        'audio',
+        'music',
+        'commute',
+        'gym',
+        'calls',
+        'daily',
+      },
       specs: [
         _higher('battery', 'Battery', '36 h', 36),
         _lower('weight', 'Weight', '48 g', 48),
@@ -867,7 +932,17 @@ abstract final class MockCatalog {
       tone: const Color(0xFF38BDF8),
       rating: 4.1,
       reviewCount: 903,
-      intentTags: const {'webcam', 'camera', 'video', 'calls', 'work', 'setup', 'desk', 'college', 'online'},
+      intentTags: const {
+        'webcam',
+        'camera',
+        'video',
+        'calls',
+        'work',
+        'setup',
+        'desk',
+        'college',
+        'online',
+      },
       specs: [
         _higher('resolution', 'Resolution', '1080p / 60 fps', 1080),
         _higher('fov', 'Field of view', '90°', 90),
@@ -886,11 +961,7 @@ abstract final class MockCatalog {
           detail: 'Sharp 1080p even in a dim hostel room',
           weight: 22,
         ),
-        TradeOffItem(
-          title: 'Privacy',
-          detail: 'Physical shutter',
-          weight: 10,
-        ),
+        TradeOffItem(title: 'Privacy', detail: 'Physical shutter', weight: 10),
         TradeOffItem(
           title: 'Build Trust',
           detail: '4.1★ across 903 owners',
@@ -923,7 +994,18 @@ abstract final class MockCatalog {
       rating: 4.3,
       reviewCount: 1675,
       pickup: const PickupPoint('Andheri West', 3.4),
-      intentTags: const {'cushion', 'lumbar', 'back', 'ergonomic', 'chair', 'posture', 'desk', 'study', 'setup', 'college'},
+      intentTags: const {
+        'cushion',
+        'lumbar',
+        'back',
+        'ergonomic',
+        'chair',
+        'posture',
+        'desk',
+        'study',
+        'setup',
+        'college',
+      },
       specs: [
         _neutral('foam', 'Foam', 'High-density memory foam'),
         _higher('warranty', 'Warranty', '1 year', 1),
@@ -1041,9 +1123,12 @@ abstract final class MockCatalog {
       for (var i = 0; i < days; i++) math.pow(1 - i / last, 1.5).toDouble(),
     ];
 
-    final target = (average - current) * days - w.fold<double>(0, (a, b) => a + b);
+    final target =
+        (average - current) * days - w.fold<double>(0, (a, b) => a + b);
     final scale = target / h.fold<double>(0, (a, b) => a + b);
-    final prices = [for (var i = 0; i < days; i++) current + w[i] + scale * h[i]];
+    final prices = [
+      for (var i = 0; i < days; i++) current + w[i] + scale * h[i],
+    ];
     prices[last] = current;
 
     final now = DateTime.now();

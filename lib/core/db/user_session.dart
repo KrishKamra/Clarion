@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 import 'package:flutter_riverpod/misc.dart' show Override;
 
 import '../../data/mock_catalog.dart';
+import '../notifications/notification_service.dart';
 import 'app_database.dart';
 import 'budget_repository.dart';
 import 'cart_repository.dart';
@@ -31,22 +32,27 @@ Future<UserSession> openUserSession(String userId) async {
         stackTrace: stack,
       );
     }
+    final holds = await CooldownRepository(db).loadAll();
+    final watchlist = await priceWatch.loadWatchlist();
+    // Fire-and-forget: reminders must never delay the app opening.
+    NotificationService.syncSession(
+      userId: userId,
+      holds: holds,
+      watchlist: watchlist,
+      products: {for (final p in MockCatalog.products) p.id: p},
+    );
     return (
       db: db,
       overrides: [
         appDatabaseProvider.overrideWithValue(db),
-        initialCooldownsProvider.overrideWithValue(
-          await CooldownRepository(db).loadAll(),
-        ),
+        initialCooldownsProvider.overrideWithValue(holds),
         initialCartProvider.overrideWithValue(
           await CartRepository(db).loadAll(),
         ),
         initialBudgetProvider.overrideWithValue(
           await BudgetRepository(db).load(),
         ),
-        initialWatchlistProvider.overrideWithValue(
-          await priceWatch.loadWatchlist(),
-        ),
+        initialWatchlistProvider.overrideWithValue(watchlist),
       ],
     );
   } catch (error, stack) {

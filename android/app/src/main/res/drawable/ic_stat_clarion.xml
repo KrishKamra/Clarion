@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Status-bar icon for Clarion reminders: the lens mark (ring and focal
+     point) as a single-colour silhouette, as Android requires. Geometry
+     matches assets/brand/clarion_logo.svg. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <path
+        android:pathData="M32,6 A26,26 0 1,1 31.99,6 Z"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="5.5" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M41,14.75 A8.25,8.25 0 1,1 40.99,14.75 Z" />
+</vector>

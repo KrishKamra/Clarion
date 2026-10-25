@@ -143,11 +143,11 @@ class _CeilingEditorState extends ConsumerState<_CeilingEditor> {
         Text(
           widget.welcome
               ? 'What is the most you want to spend in a month? Clarion '
-                  'measures every decision against this number and warns you '
-                  'before you cross it. You can change it any time from '
-                  'Profile.'
+                    'measures every decision against this number and warns you '
+                    'before you cross it. You can change it any time from '
+                    'Profile.'
               : 'Clarion measures every decision against this number. '
-                  'Changes apply from today.',
+                    'Changes apply from today.',
           style: AppTypography.bodySmall,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -209,7 +209,8 @@ class _CeilingEditorState extends ConsumerState<_CeilingEditor> {
         if (widget.welcome) ...[
           const SizedBox(height: AppSpacing.sm),
           ClarionButton(
-            label: 'Keep ${Fmt.inr(ref.read(budgetProvider).monthlyLimit)} for now',
+            label:
+                'Keep ${Fmt.inr(ref.read(budgetProvider).monthlyLimit)} for now',
             tone: ButtonTone.secondary,
             onPressed: () => Navigator.of(context).pop(),
           ),

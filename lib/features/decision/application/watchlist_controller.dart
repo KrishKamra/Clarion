@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/db/db_providers.dart';
+import '../../../core/notifications/notification_service.dart';
 import '../../../data/catalog.dart';
 import '../../../data/models/product_model.dart';
 
@@ -21,13 +22,13 @@ class WatchlistController extends Notifier<Map<String, double?>> {
   void watch(String productId, {double? target}) {
     state = {...state, productId: target};
     _persist(ref.read(priceWatchRepositoryProvider)?.upsert(productId, target));
+    // A target is a request to be told; ask for permission right then.
+    if (target != null) NotificationService.requestPermission();
   }
 
   /// Changes the target of an already-watched product (`null` clears it).
-  void setTarget(String productId, double? target) => watch(
-    productId,
-    target: target,
-  );
+  void setTarget(String productId, double? target) =>
+      watch(productId, target: target);
 
   void unwatch(String productId) {
     state = {...state}..remove(productId);

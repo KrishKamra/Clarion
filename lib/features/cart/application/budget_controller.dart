@@ -114,9 +114,7 @@ class BudgetController extends Notifier<BudgetState> {
       impulseBuysAvoided: state.impulseBuysAvoided + 1,
       savedViaCooldown: state.savedViaCooldown + amount,
     );
-    _persist(
-      ref.read(budgetRepositoryProvider)?.recordImpulseAvoided(amount),
-    );
+    _persist(ref.read(budgetRepositoryProvider)?.recordImpulseAvoided(amount));
   }
 }
 

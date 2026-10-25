@@ -51,8 +51,10 @@ void main() {
       final q = IntentQuery.parse('Ball');
       expect(q.keywords, {'ball'});
       expect(q.rank(MockCatalog.products), isEmpty);
-      expect(IntentQuery.parse('Ball under 2000').rank(MockCatalog.products),
-          isEmpty);
+      expect(
+        IntentQuery.parse('Ball under 2000').rank(MockCatalog.products),
+        isEmpty,
+      );
     });
 
     test('a goal with no words falls back to everything within budget', () {

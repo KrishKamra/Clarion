@@ -231,7 +231,10 @@ class _TitleBlock extends ConsumerWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.md),
-        FitScoreGauge(score: ref.watch(fitProvider(product.id)).score, size: 88),
+        FitScoreGauge(
+          score: ref.watch(fitProvider(product.id)).score,
+          size: 88,
+        ),
       ],
     );
   }

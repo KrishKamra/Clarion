@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/notifications/notification_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/widgets/floating_nav_capsule.dart';
 import '../../core/widgets/obsidian_canvas.dart';
+import '../../data/catalog.dart';
 import '../auth/application/auth_service.dart';
 import '../cart/application/budget_controller.dart';
 import '../cart/application/cart_controller.dart';
 import '../cart/presentation/smart_cart_screen.dart';
 import '../decision/application/cooldown_controller.dart';
 import '../decision/presentation/compare_matrix_screen.dart';
+import '../decision/presentation/product_decision_screen.dart';
 import '../home/presentation/intent_home_screen.dart';
 import '../profile/application/ceiling_onboarding.dart';
 import '../profile/presentation/spending_profile_screen.dart';
@@ -34,7 +37,27 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _runOnboarding());
+    NotificationService.opened.addListener(_openFromNotification);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // A tap that launched the app goes straight to its product.
+      _openFromNotification();
+      _runOnboarding();
+    });
+  }
+
+  @override
+  void dispose() {
+    NotificationService.opened.removeListener(_openFromNotification);
+    super.dispose();
+  }
+
+  /// Opens the product a tapped reminder is about, on top of the current tab.
+  void _openFromNotification() {
+    final id = NotificationService.opened.value;
+    if (id == null || !mounted) return;
+    NotificationService.opened.value = null;
+    final known = ref.read(catalogProvider).products.any((p) => p.id == id);
+    if (known) ProductDecisionScreen.open(context, id);
   }
 
   /// First-run onboarding, once per account: set the monthly ceiling, then

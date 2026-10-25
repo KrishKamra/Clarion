@@ -331,7 +331,10 @@ class _TourLayerState extends ConsumerState<_TourLayer>
     if (id != null) {
       _target = TourTargets.rectOf(id);
       final align = step.scrollAlignment;
-      if (_target != null && align != null && !_scrolled && elapsed > _scrollDelay) {
+      if (_target != null &&
+          align != null &&
+          !_scrolled &&
+          elapsed > _scrollDelay) {
         _scrolled = true;
         final context = TourTargets.contextOf(id);
         if (context != null) {
@@ -393,9 +396,13 @@ class _TourLayerState extends ConsumerState<_TourLayer>
         if (step.tab != null) {
           // Mirrors FloatingNavCapsule's geometry.
           final slot =
-              (w - AppSpacing.xxl * 2 - _capsuleInset * 2) / AppTab.values.length;
+              (w - AppSpacing.xxl * 2 - _capsuleInset * 2) /
+              AppTab.values.length;
           final capsuleTop =
-              h - AppSpacing.navBarMargin - padding.bottom - AppSpacing.navBarHeight;
+              h -
+              AppSpacing.navBarMargin -
+              padding.bottom -
+              AppSpacing.navBarHeight;
           spot = Rect.fromLTWH(
             AppSpacing.xxl + _capsuleInset + slot * step.tab!.index,
             capsuleTop + _capsuleInset,
@@ -473,10 +480,7 @@ class _TourLayerState extends ConsumerState<_TourLayer>
             Positioned.fromRect(
               rect: hole,
               child: IgnorePointer(
-                child: _GlowRing(
-                  phase: _now.inMilliseconds / 260,
-                  pill: pill,
-                ),
+                child: _GlowRing(phase: _now.inMilliseconds / 260, pill: pill),
               ),
             ),
             // Inside the spotlight: tap steps let the touch through to the
@@ -716,7 +720,8 @@ class _TourCard extends StatelessWidget {
                   children: [
                     Text(
                       '${index + 1} / ${tourSteps.length} · '
-                      '${step.eyebrow}'.toUpperCase(),
+                              '${step.eyebrow}'
+                          .toUpperCase(),
                       style: AppTypography.overline,
                     ),
                     const SizedBox(height: AppSpacing.xxs),

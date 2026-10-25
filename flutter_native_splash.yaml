@@ -1,0 +1,14 @@
+# Native splash, generated from the sources in assets/brand/icon/.
+# Regenerate after changing them: dart run flutter_native_splash:create
+# Colours are the app's two canvases, so the splash hands off seamlessly to
+# the first frame in either system theme.
+flutter_native_splash:
+  color: "#F3F4F6"
+  color_dark: "#07080B"
+  image: assets/brand/icon/splash_logo.png
+  android_12:
+    image: assets/brand/icon/splash_logo_android12.png
+    color: "#F3F4F6"
+    color_dark: "#07080B"
+  ios: false
+  web: false

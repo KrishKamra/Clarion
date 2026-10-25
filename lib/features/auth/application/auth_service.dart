@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import '../../../core/notifications/notification_service.dart';
+
 /// The signed-in account, or `null` outside a session (and in widget tests).
 ///
 /// `AuthGate` overrides this for each account's provider scope.
@@ -52,6 +54,8 @@ abstract final class AuthService {
   });
 
   static Future<void> signOut() async {
+    // Reminders belong to this account; the next one must not see them.
+    await NotificationService.cancelAll();
     if (!kIsWeb && _googleReady != null) {
       await GoogleSignIn.instance.signOut();
     }

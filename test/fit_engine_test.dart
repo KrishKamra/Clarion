@@ -66,14 +66,18 @@ void main() {
         for (final item in r.items) {
           expect(item.verdict, isNotNull, reason: '${p.id} ${item.title}');
         }
-        expect(
-          ['Great fit', 'Good fit', 'Fair fit', 'Poor fit'],
-          contains(r.headline),
-        );
+        expect([
+          'Great fit',
+          'Good fit',
+          'Fair fit',
+          'Poor fit',
+        ], contains(r.headline));
       }
       final neutral = FitEngine.evaluate(product('bp_atlas'), noGoal);
       expect(
-        neutral.items.firstWhere((t) => t.title == FitEngine.intentTitle).verdict,
+        neutral.items
+            .firstWhere((t) => t.title == FitEngine.intentTitle)
+            .verdict,
         'Neutral',
       );
     });
@@ -139,7 +143,14 @@ void main() {
       // lowering the ceiling made no visible difference.
       for (final p in catalog.products) {
         var previous = -1;
-        for (final limit in [3000.0, 4000.0, 5000.0, 7500.0, 10000.0, 20000.0]) {
+        for (final limit in [
+          3000.0,
+          4000.0,
+          5000.0,
+          7500.0,
+          10000.0,
+          20000.0,
+        ]) {
           final r = FitEngine.evaluate(
             p,
             FitContext(monthlyLimit: limit, spentThisMonth: 0),
@@ -201,7 +212,9 @@ void main() {
       final container = ProviderContainer(overrides: demoScenario());
       addTearDown(container.dispose);
 
-      container.read(intentProvider.notifier).submit('ANC for Focus under 1600');
+      container
+          .read(intentProvider.notifier)
+          .submit('ANC for Focus under 1600');
       final picks = container.read(fitPicksProvider);
       expect(picks, isNotEmpty);
       expect(picks.first.id, 'hp_core');

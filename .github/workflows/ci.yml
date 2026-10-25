@@ -1,0 +1,66 @@
+# Every push to main and every pull request: format, analyze and test, then
+# prove the Android app still builds. Flutter is pinned so CI formats and
+# analyzes exactly like a contributor's machine; bump it here when the team
+# upgrades.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A newer push to the same branch or PR cancels the run it supersedes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: "3.47.7"
+
+jobs:
+  check:
+    name: Format, analyze, test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Format
+        run: dart format --output=none --set-exit-if-changed lib test
+      - name: Analyze
+        run: flutter analyze
+      - name: Test
+        run: flutter test
+
+  android:
+    name: Build Android (debug APK)
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter build apk --debug
+      # Lets reviewers install a PR's build straight from the run page.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: clarion-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 7

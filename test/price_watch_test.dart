@@ -58,15 +58,20 @@ void main() {
       expect(controller.isWatching('hp_pro'), isFalse);
     });
 
-    test('price history falls back to the catalogue without a database', () async {
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-      final history = await container.read(priceHistoryProvider('hp_pro').future);
-      expect(history, hasLength(30));
-      expect(
-        history.last.price,
-        container.read(catalogProvider).byId('hp_pro').price,
-      );
-    });
+    test(
+      'price history falls back to the catalogue without a database',
+      () async {
+        final container = ProviderContainer();
+        addTearDown(container.dispose);
+        final history = await container.read(
+          priceHistoryProvider('hp_pro').future,
+        );
+        expect(history, hasLength(30));
+        expect(
+          history.last.price,
+          container.read(catalogProvider).byId('hp_pro').price,
+        );
+      },
+    );
   });
 }

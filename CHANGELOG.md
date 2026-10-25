@@ -4,6 +4,12 @@ All notable changes to Clarion are documented here. Format based on [Keep a Chan
 
 ## [Unreleased]
 
+### Added — reminders, app icon, splash and CI
+- **Notifications** (`flutter_local_notifications`, Android): a cooling-off reminder is scheduled for the moment each 24h hold ends and survives reboots; a price-watch alert fires when a watched product reaches its target (once per target). Tapping either opens the product. Permission is asked when a reminder first becomes useful (holding a product or setting a target), never at launch. Reminders are re-armed per account when its session opens and cleared on sign-out. Calm copy, no countdowns.
+- **App icon**: an adaptive icon (the lens over the aurora canvas), a themed monochrome icon for Android 13+, a legacy icon and web icons, all generated from `assets/brand/icon/` (`flutter_launcher_icons.yaml`). The app is now labelled "Clarion".
+- **Splash**: native light and dark splash screens on the app's two canvas colours, for both pre-12 and Android 12+ (`flutter_native_splash.yaml`).
+- **CI** (`.github/workflows/ci.yml`): format, analyze and test on every push and PR with Flutter pinned to 3.47.7, then a debug APK build uploaded as an artifact. One-time `dart format` pass over the repo so the format check starts green.
+
 ### Added — brand identity
 - `assets/brand/clarion_logo.svg`: the lens mark evolved into a glass lens with an iris → emerald rim, a specular glint and an iris focal point. Its colours are fixed, so it reads on light and dark. `ClarionWordmark` now renders it with `flutter_svg`, so the Home header and sign-in screen use it.
 - `assets/brand/clarion_banner.svg`: logo, name and tagline ("CLEAR INTENT." / "Conscious Commerce.") over a dark aurora card. All text is outlined from the bundled fonts, so it renders identically on GitHub.

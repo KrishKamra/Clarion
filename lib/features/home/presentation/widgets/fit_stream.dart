@@ -21,12 +21,7 @@ import '../../application/intent_controller.dart';
 /// line of rationale and the top two weighted factors. The full ledger and
 /// specifications live one tap away on the decision canvas.
 class FitStream extends StatelessWidget {
-  const FitStream({
-    super.key,
-    required this.products,
-    this.budget,
-    this.query,
-  });
+  const FitStream({super.key, required this.products, this.budget, this.query});
 
   final List<Product> products;
 
