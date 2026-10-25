@@ -67,6 +67,7 @@ flutter:
 
   assets:
     - assets/brand/clarion_logo.svg
+    - assets/products/
 
   # Bundled (OFL-1.1, licences alongside) so type renders identically on
   # every device with no runtime download.

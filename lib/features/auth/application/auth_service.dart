@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -40,6 +40,9 @@ abstract final class AuthService {
         GoogleAuthProvider.credential(idToken: account.authentication.idToken),
       );
     } on GoogleSignInException catch (e) {
+      // Visible in the `flutter run` console. On Android a missing SHA-1 in
+      // Firebase shows up here as `canceled`, so log before swallowing it.
+      debugPrint('Google sign-in: ${e.code} - ${e.description}');
       if (e.code == GoogleSignInExceptionCode.canceled ||
           e.code == GoogleSignInExceptionCode.interrupted) {
         return;

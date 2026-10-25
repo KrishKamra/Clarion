@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/db/db_providers.dart';
 import '../../../core/db/demo_seed.dart';
+import '../../../data/models/cart_item_model.dart';
 import 'cart_controller.dart';
 
 /// A month's settled spending within one category.
@@ -86,18 +87,25 @@ class BudgetController extends Notifier<BudgetState> {
     _persist(ref.read(budgetRepositoryProvider)?.setMonthlyLimit(limit));
   }
 
-  /// Settles a checkout against the envelope under a "Planned" category.
-  void recordPurchase(double amount) {
-    const label = 'Planned';
-    final existing = state.categories.where((c) => c.label == label);
-    final updated = existing.isEmpty
-        ? [...state.categories, CategorySpend(label, amount)]
-        : [
-            for (final c in state.categories)
-              c.label == label ? CategorySpend(label, c.amount + amount) : c,
-          ];
-    state = state.copyWith(categories: updated);
-    _persist(ref.read(budgetRepositoryProvider)?.addSpend(label, amount));
+  /// Settles a checkout against the envelope, one entry per product bought,
+  /// so "Where it went" lists exactly what the money was spent on.
+  void recordPurchase(List<CartItem> lines) {
+    var categories = state.categories;
+    final repo = ref.read(budgetRepositoryProvider);
+    for (final line in lines) {
+      final label = line.quantity > 1
+          ? '${line.product.title} × ${line.quantity}'
+          : line.product.title;
+      final amount = line.subtotal;
+      categories = categories.any((c) => c.label == label)
+          ? [
+              for (final c in categories)
+                c.label == label ? CategorySpend(label, c.amount + amount) : c,
+            ]
+          : [...categories, CategorySpend(label, amount)];
+      _persist(repo?.addSpend(label, amount));
+    }
+    state = state.copyWith(categories: categories);
   }
 
   /// Credits a product the user decided against after a cooldown.

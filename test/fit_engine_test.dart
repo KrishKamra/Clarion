@@ -7,6 +7,8 @@ import 'package:clarion/features/home/application/intent_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'demo_scenario.dart';
+
 void main() {
   final catalog = Catalog(MockCatalog.products, MockCatalog.comparePairs);
   Product product(String id) => catalog.byId(id);
@@ -132,6 +134,33 @@ void main() {
       expect(core.score, greaterThan(pro.score));
     });
 
+    test('every change to the ceiling changes the score', () {
+      // Roomy ceilings used to saturate the budget line, so raising or
+      // lowering the ceiling made no visible difference.
+      for (final p in catalog.products) {
+        var previous = -1;
+        for (final limit in [3000.0, 4000.0, 5000.0, 7500.0, 10000.0, 20000.0]) {
+          final r = FitEngine.evaluate(
+            p,
+            FitContext(monthlyLimit: limit, spentThisMonth: 0),
+          );
+          if (previous >= 0) {
+            expect(r.score, greaterThanOrEqualTo(previous), reason: p.id);
+          }
+          previous = r.score;
+        }
+        final low = FitEngine.evaluate(
+          p,
+          const FitContext(monthlyLimit: 4000, spentThisMonth: 0),
+        );
+        final high = FitEngine.evaluate(
+          p,
+          const FitContext(monthlyLimit: 12000, spentThisMonth: 0),
+        );
+        expect(high.score, greaterThan(low.score), reason: p.id);
+      }
+    });
+
     test('a bigger discount scores higher on price', () {
       final deep = FitEngine.evaluate(product('hp_pro'), noGoal); // ~19% off
       final shallow = FitEngine.evaluate(product('bp_metro'), noGoal); // ~4%
@@ -144,17 +173,22 @@ void main() {
 
   group('Fit providers', () {
     test('score reacts to the monthly limit', () {
-      final container = ProviderContainer();
+      final container = ProviderContainer(overrides: demoScenario());
       addTearDown(container.dispose);
 
       final before = container.read(fitProvider('bp_atlas')).score;
       container.read(budgetProvider.notifier).setMonthlyLimit(3000);
       final after = container.read(fitProvider('bp_atlas')).score;
       expect(after, lessThan(before));
+      container.read(budgetProvider.notifier).setMonthlyLimit(9000);
+      expect(
+        container.read(fitProvider('bp_atlas')).score,
+        greaterThan(before),
+      );
     });
 
     test('score reacts to the stated goal', () {
-      final container = ProviderContainer();
+      final container = ProviderContainer(overrides: demoScenario());
       addTearDown(container.dispose);
 
       final before = container.read(fitProvider('bp_atlas')).score;
@@ -164,7 +198,7 @@ void main() {
     });
 
     test('the stream is ranked by computed fit and respects the ceiling', () {
-      final container = ProviderContainer();
+      final container = ProviderContainer(overrides: demoScenario());
       addTearDown(container.dispose);
 
       container.read(intentProvider.notifier).submit('ANC for Focus under 1600');

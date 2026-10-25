@@ -6,8 +6,9 @@ import '../theme/app_spacing.dart';
 
 /// Product shot on a matte studio stage: a soft key light from above tinted
 /// by the product's tone, a contact shadow on the floor, and the glyph lit
-/// in titanium. Stands in for photography until a CDN exists, and doubles
-/// as the [Hero] anchor between list and detail.
+/// in titanium. Shows the product's photo from `assets/products/` when one
+/// has been added (see [Product.imageAssets]) and the glyph otherwise, and
+/// doubles as the [Hero] anchor between list and detail.
 class ProductArtwork extends StatelessWidget {
   const ProductArtwork({
     super.key,
@@ -25,6 +26,12 @@ class ProductArtwork extends StatelessWidget {
   final double radius;
   final Object? heroTag;
   final double glyphScale;
+
+  Widget glyph(double extent) => Icon(
+    product.icon,
+    size: extent * glyphScale,
+    color: AppColors.textPrimary.withValues(alpha: 0.92),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -88,10 +95,16 @@ class ProductArtwork extends StatelessWidget {
                   ),
                 Align(
                   alignment: Alignment(0, staged ? -0.08 : 0),
-                  child: Icon(
-                    product.icon,
-                    size: extent * glyphScale,
-                    color: AppColors.textPrimary.withValues(alpha: 0.92),
+                  child: glyph(extent),
+                ),
+                // A real photo, when one has been added, covers the stage.
+                Positioned.fill(
+                  child: ClipRRect(
+                    borderRadius: borderRadius,
+                    child: _ProductPhoto(
+                      candidates: product.imageAssets,
+                      fallback: const SizedBox.shrink(),
+                    ),
                   ),
                 ),
               ],
@@ -103,5 +116,47 @@ class ProductArtwork extends StatelessWidget {
 
     if (heroTag == null) return art;
     return Hero(tag: heroTag!, child: art);
+  }
+}
+
+/// Tries each candidate asset in turn and shows the first that exists; shows
+/// [fallback] (nothing) when none does, so a missing photo is never an error.
+class _ProductPhoto extends StatefulWidget {
+  const _ProductPhoto({required this.candidates, required this.fallback});
+
+  final List<String> candidates;
+  final Widget fallback;
+
+  @override
+  State<_ProductPhoto> createState() => _ProductPhotoState();
+}
+
+class _ProductPhotoState extends State<_ProductPhoto> {
+  int _index = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_index >= widget.candidates.length) return widget.fallback;
+    final path = widget.candidates[_index];
+    return Image.asset(
+      path,
+      key: ValueKey(path),
+      fit: BoxFit.cover,
+      gaplessPlayback: true,
+      frameBuilder: (context, child, frame, sync) => AnimatedOpacity(
+        opacity: frame == null && !sync ? 0 : 1,
+        duration: const Duration(milliseconds: 220),
+        child: child,
+      ),
+      errorBuilder: (context, error, stack) {
+        // Not found: try the next extension after this frame.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && _index < widget.candidates.length) {
+            setState(() => _index++);
+          }
+        });
+        return widget.fallback;
+      },
+    );
   }
 }

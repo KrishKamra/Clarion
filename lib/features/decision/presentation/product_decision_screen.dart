@@ -13,6 +13,7 @@ import '../../../core/widgets/product_artwork.dart';
 import '../../../core/widgets/round_icon_button.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../core/widgets/tactile_card.dart';
+import '../../../core/widgets/tour_target.dart';
 import '../../home/application/intent_controller.dart';
 import '../../navigation/navigation_controller.dart';
 import '../application/compare_controller.dart';
@@ -117,7 +118,10 @@ class ProductDecisionScreen extends ConsumerWidget {
                     children: [
                       _TitleBlock(product: product),
                       const SizedBox(height: AppSpacing.xxl),
-                      ExplainabilityCard(product: product),
+                      TourTargetBox(
+                        id: TourTarget.ledger,
+                        child: ExplainabilityCard(product: product),
+                      ),
                       const SizedBox(height: AppSpacing.md),
                       PriceBandCard(product: product),
                       const SizedBox(height: AppSpacing.section),

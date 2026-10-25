@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -9,6 +10,7 @@ import '../../../core/widgets/frosted_chrome.dart';
 import '../../../core/widgets/pressable.dart';
 import '../../../core/widgets/product_artwork.dart';
 import '../../../data/models/product_model.dart';
+import '../../home/application/intent_controller.dart';
 import '../presentation/product_decision_screen.dart';
 
 /// Sticky side-by-side candidate header for the Compare Matrix.
@@ -143,14 +145,16 @@ class _Stage extends StatelessWidget {
   }
 }
 
-class _Candidate extends StatelessWidget {
+class _Candidate extends ConsumerWidget {
   const _Candidate({required this.product, required this.leads});
 
   final Product product;
   final bool leads;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Live score: it moves with the goal and the monthly ceiling.
+    final fit = ref.watch(fitProvider(product.id)).score;
     return Pressable(
       onTap: () => ProductDecisionScreen.open(context, product.id),
       semanticLabel: 'Open ${product.title}',
@@ -182,7 +186,7 @@ class _Candidate extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.xs),
-          FitScoreGauge(score: product.fitScore, size: 40, animate: false),
+          FitScoreGauge(score: fit, size: 40, animate: false),
         ],
       ),
     );

@@ -1,8 +1,6 @@
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
-import 'demo_seed.dart';
-
 /// Clarion's local SQLite database (Local SQLite Layer).
 ///
 /// One file on the device (`clarion.db`) holds everything that must survive an
@@ -22,7 +20,10 @@ class AppDatabase {
   ///
   /// v1: initial schema.
   /// v2: cart lines remember their intent priority (`cart_items.priority`).
-  static const int schemaVersion = 2;
+  /// v3: accounts start empty; clears the demo cart, hold and spend that
+  ///     v1/v2 databases were seeded with.
+  /// v4: checkout records each product by name instead of a lump "Planned".
+  static const int schemaVersion = 4;
 
   // Table names, kept in one place so repositories never mistype them.
   static const String cartItemsTable = 'cart_items';
@@ -121,79 +122,39 @@ class AppDatabase {
     ''');
 
     await batch.commit(noResult: true);
-
-    // First-launch demo data (runs once, when the database file is created).
-    final now = DateTime.now();
-    // The Loom 75 keyboard is mid-way through its 24h cooling-off period.
-    await db.insert(cooldownHoldsTable, {
-      'product_id': 'kb_loom',
-      'started_at': now
-          .subtract(const Duration(hours: 6, minutes: 18))
-          .millisecondsSinceEpoch,
-      'expires_at': now
-          .add(const Duration(hours: 17, minutes: 42))
-          .millisecondsSinceEpoch,
-    });
-    await _seedStarterData(db, now);
   }
 
   static Future<void> _onUpgrade(Database db, int oldV, int newV) async {
     if (oldV < 2) {
-      // v1 had no cart priority and only seeded the cooldown hold.
       await db.execute(
         "ALTER TABLE $cartItemsTable "
         "ADD COLUMN priority TEXT NOT NULL DEFAULT 'important'",
       );
-      await _seedStarterData(db, DateTime.now());
     }
-  }
-
-  /// Inserts the demo cart, budget envelope and this month's settled spend,
-  /// so a fresh install shows "₹3,200 / ₹5,000". Each table is only seeded
-  /// when it is empty, so running this twice never duplicates anything.
-  static Future<void> _seedStarterData(
-    DatabaseExecutor db,
-    DateTime now,
-  ) async {
-    Future<bool> isEmpty(String table) async =>
-        (Sqflite.firstIntValue(
-              await db.rawQuery('SELECT COUNT(*) FROM $table'),
-            ) ??
-            0) ==
-        0;
-
-    final nowMs = now.millisecondsSinceEpoch;
-
-    if (await isEmpty(cartItemsTable)) {
-      for (var i = 0; i < DemoSeed.cartLines.length; i++) {
-        final (productId, quantity, priority) = DemoSeed.cartLines[i];
-        await db.insert(cartItemsTable, {
-          'product_id': productId,
-          'quantity': quantity,
-          'priority': priority,
-          'position': i,
-          'added_at': nowMs,
-        });
+    if (oldV < 3) {
+      // Earlier builds seeded every account with a demo cart, cooling-off
+      // hold, spend and stats. Wipe them once; the budget row is recreated
+      // from the (now empty) defaults the next time it is loaded.
+      final batch = db.batch();
+      for (final table in const [
+        cartItemsTable,
+        cooldownHoldsTable,
+        budgetProfileTable,
+        spendEntriesTable,
+        watchlistTable,
+      ]) {
+        batch.delete(table);
       }
+      await batch.commit(noResult: true);
     }
-
-    if (await isEmpty(budgetProfileTable)) {
-      await db.insert(budgetProfileTable, {
-        'id': 1,
-        'monthly_limit': DemoSeed.monthlyLimit,
-        'impulse_buys_avoided': DemoSeed.impulseBuysAvoided,
-        'saved_via_cooldown': DemoSeed.savedViaCooldown,
-      });
-    }
-
-    if (await isEmpty(spendEntriesTable)) {
-      for (final (category, amount) in DemoSeed.spend) {
-        await db.insert(spendEntriesTable, {
-          'category': category,
-          'amount': amount,
-          'spent_at': nowMs,
-        });
-      }
+    if (oldV < 4) {
+      // Old lump-sum checkouts have no product names to recover.
+      await db.update(
+        spendEntriesTable,
+        {'category': 'Earlier order'},
+        where: 'category = ?',
+        whereArgs: ['Planned'],
+      );
     }
   }
 

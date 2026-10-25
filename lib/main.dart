@@ -14,6 +14,7 @@ import 'core/theme/theme_mode_controller.dart';
 import 'features/auth/application/auth_service.dart';
 import 'features/auth/presentation/sign_in_screen.dart';
 import 'features/navigation/main_scaffold.dart';
+import 'features/tour/app_tour.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -150,6 +151,13 @@ class _ClarionAppState extends ConsumerState<ClarionApp>
       theme: AppTheme.current,
       // Tokens swap in one frame; don't let stock widgets lerp behind them.
       themeAnimationDuration: Duration.zero,
+      navigatorObservers: [ref.read(tourNavigatorObserverProvider)],
+      // The tour sits above every route, so it can follow the user onto the
+      // product page and back.
+      builder: (context, child) => Stack(
+        fit: StackFit.expand,
+        children: [child ?? const SizedBox.shrink(), const AppTourOverlay()],
+      ),
       home: widget.home,
     );
   }

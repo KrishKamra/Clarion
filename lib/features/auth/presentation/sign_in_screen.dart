@@ -383,14 +383,7 @@ class _LockupState extends State<_Lockup> with SingleTickerProviderStateMixin {
           ),
         ),
         const SizedBox(height: AppSpacing.sm),
-        Text(
-          'Clarion',
-          style: AppTypography.display.copyWith(
-            fontSize: 46,
-            letterSpacing: -1.6,
-            height: 1,
-          ),
-        ),
+        const ClarionName(fontSize: 46),
         const SizedBox(height: AppSpacing.sm),
         ShaderMask(
           blendMode: BlendMode.srcIn,

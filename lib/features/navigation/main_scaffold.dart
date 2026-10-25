@@ -5,13 +5,17 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/widgets/floating_nav_capsule.dart';
 import '../../core/widgets/obsidian_canvas.dart';
+import '../auth/application/auth_service.dart';
 import '../cart/application/budget_controller.dart';
 import '../cart/application/cart_controller.dart';
 import '../cart/presentation/smart_cart_screen.dart';
 import '../decision/application/cooldown_controller.dart';
 import '../decision/presentation/compare_matrix_screen.dart';
 import '../home/presentation/intent_home_screen.dart';
+import '../profile/application/ceiling_onboarding.dart';
 import '../profile/presentation/spending_profile_screen.dart';
+import '../profile/presentation/widgets/ceiling_sheet.dart';
+import '../tour/app_tour.dart';
 import 'navigation_controller.dart';
 
 /// Spatial shell hosting the four primary tabs under the floating capsule.
@@ -19,24 +23,62 @@ import 'navigation_controller.dart';
 /// Tabs are built lazily on first visit and kept alive, so scroll position
 /// and in-progress state survive switches. Inactive tabs are faded out,
 /// ignore input and have their tickers paused.
-class MainScaffold extends ConsumerWidget {
+class MainScaffold extends ConsumerStatefulWidget {
   const MainScaffold({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MainScaffold> createState() => _MainScaffoldState();
+}
+
+class _MainScaffoldState extends ConsumerState<MainScaffold> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _runOnboarding());
+  }
+
+  /// First-run onboarding, once per account: set the monthly ceiling, then
+  /// take the app tour. Outside a session (widget tests) there is no account,
+  /// so nothing is shown.
+  Future<void> _runOnboarding() async {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+    if (!await CeilingOnboarding.isDone(user.uid)) {
+      if (!mounted) return;
+      // Mark first: however the sheet is dismissed, it never nags again.
+      await CeilingOnboarding.markDone(user.uid);
+      if (!mounted) return;
+      await showCeilingSheet(context, welcome: true);
+    }
+    if (!mounted) return;
+    if (!await TourOnboarding.isDone(user.uid)) {
+      if (!mounted) return;
+      await TourOnboarding.markDone(user.uid);
+      if (!mounted) return;
+      ref.read(appTourProvider.notifier).start();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final tab = ref.watch(navigationProvider);
     final cartCount = ref.watch(cartCountProvider);
     final overBudget = ref.watch(
       budgetSnapshotProvider.select((b) => b.isOver),
     );
     final coolingOff = ref.watch(cooldownProvider.select((m) => m.isNotEmpty));
+    final touring = ref.watch(appTourProvider.select((i) => i != null));
 
     // The canvas sits outside the Scaffold so the keyboard never resizes it.
     return ObsidianCanvas(
       child: PopScope(
-        canPop: tab == AppTab.horizon,
+        canPop: tab == AppTab.horizon && !touring,
         onPopInvokedWithResult: (didPop, _) {
-          if (!didPop) {
+          if (didPop) return;
+          // Back during the tour ends it; otherwise it returns to Horizon.
+          if (touring) {
+            ref.read(appTourProvider.notifier).finish();
+          } else {
             ref.read(navigationProvider.notifier).select(AppTab.horizon);
           }
         },

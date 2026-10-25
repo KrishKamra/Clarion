@@ -118,6 +118,32 @@ class Product {
   /// Spec parity (0–100) of [alternativeId] relative to this product.
   final int? alternativeParity;
 
+  /// Where a product photo is looked for, in order: drop `<id>.jpg` (or
+  /// `.png` / `.webp`) into `assets/products/`. Without one, the product keeps
+  /// its glyph on the studio stage.
+  static const List<String> imageExtensions = ['jpg', 'png', 'webp'];
+
+  List<String> get imageAssets => [
+    for (final ext in imageExtensions) 'assets/products/$id.$ext',
+  ];
+
+  /// Whether a word from the user's goal describes this product: a goal tag,
+  /// or a word in its brand, name or category. Plurals are treated alike, so
+  /// "headphone" finds headphones.
+  bool matchesKeyword(String word) {
+    final w = _stem(word.toLowerCase());
+    bool hit(String term) => _stem(term) == w;
+    if (intentTags.any(hit)) return true;
+    return '$brand $title $category'
+        .toLowerCase()
+        .split(RegExp(r'[^a-z0-9]+'))
+        .where((t) => t.isNotEmpty)
+        .any(hit);
+  }
+
+  static String _stem(String s) =>
+      s.length > 3 && s.endsWith('s') ? s.substring(0, s.length - 1) : s;
+
   /// Fraction below (positive) or above (negative) the 30-day average.
   double get discountVsAverage => 1 - price / averagePrice30d;
 

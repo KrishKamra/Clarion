@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -10,10 +11,11 @@ import '../../../../core/widgets/product_artwork.dart';
 import '../../../../core/widgets/tactile_card.dart';
 import '../../../../core/widgets/dynamic_pill.dart';
 import '../../../../data/models/cart_item_model.dart';
+import '../../../home/application/intent_controller.dart';
 
 /// Intent Cart row: swipe to remove, a quantity stepper, the item's fit, and
 /// its intent priority — tap the pill to re-rank how essential it is.
-class CartItemTile extends StatelessWidget {
+class CartItemTile extends ConsumerWidget {
   const CartItemTile({
     super.key,
     required this.line,
@@ -30,8 +32,10 @@ class CartItemTile extends StatelessWidget {
   final VoidCallback onPriority;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final p = line.product;
+    // Live score: it moves with the goal and the monthly ceiling.
+    final fit = ref.watch(fitProvider(p.id)).score;
 
     return Dismissible(
       key: ValueKey('dismiss-${p.id}'),
@@ -81,7 +85,7 @@ class CartItemTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: AppSpacing.md),
-            FitScoreGauge(score: p.fitScore, size: 36, animate: false),
+            FitScoreGauge(score: fit, size: 36, animate: false),
           ],
         ),
       ),

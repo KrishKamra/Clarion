@@ -7,6 +7,7 @@ import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import 'dynamic_pill.dart';
 import 'pressable.dart';
+import 'tour_target.dart';
 
 /// IntentField: a serene, conversational surface where the user states a
 /// goal, followed by curated contextual intent pills.
@@ -93,6 +94,10 @@ class _IntentFieldState extends State<IntentField> {
     _submit(capsule, false);
   }
 
+  /// The first suggestion is what the app tour asks the user to tap.
+  Widget _tourMark(bool first, Widget pill) =>
+      first ? TourTargetBox(id: TourTarget.suggestion, child: pill) : pill;
+
   @override
   Widget build(BuildContext context) {
     final focused = _focus.hasFocus;
@@ -175,13 +180,16 @@ class _IntentFieldState extends State<IntentField> {
                     spacing: AppSpacing.sm,
                     runSpacing: AppSpacing.sm,
                     children: [
-                      for (final capsule in widget.capsules)
-                        DynamicPill(
-                          label: capsule,
-                          size: PillSize.regular,
-                          color: AppColors.irisGlow,
-                          selected: widget.activeIntent == capsule,
-                          onTap: () => _toggleCapsule(capsule),
+                      for (final (i, capsule) in widget.capsules.indexed)
+                        _tourMark(
+                          i == 0,
+                          DynamicPill(
+                            label: capsule,
+                            size: PillSize.regular,
+                            color: AppColors.irisGlow,
+                            selected: widget.activeIntent == capsule,
+                            onTap: () => _toggleCapsule(capsule),
+                          ),
                         ),
                     ],
                   ),

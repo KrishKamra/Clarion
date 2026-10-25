@@ -13,6 +13,7 @@ import '../../../core/widgets/clarion_button.dart';
 import '../../../core/widgets/frosted_chrome.dart';
 import '../../../core/widgets/hold_button.dart';
 import '../../../core/widgets/pressable.dart';
+import '../../../core/widgets/tour_target.dart';
 import '../../cart/application/budget_controller.dart';
 import '../../cart/application/cart_controller.dart';
 import '../../navigation/navigation_controller.dart';
@@ -139,19 +140,25 @@ class _DecisionDrawerState extends ConsumerState<DecisionDrawer> {
               children: [
                 Expanded(
                   child: holdUntil == null
-                      ? HoldButton(
-                          label: '24h Cooling Off',
-                          onConfirmed: inCart ? null : _coolOff,
+                      ? TourTargetBox(
+                          id: TourTarget.coolOff,
+                          child: HoldButton(
+                            label: '24h Cooling Off',
+                            onConfirmed: inCart ? null : _coolOff,
+                          ),
                         )
                       : _CoolingOffStatus(until: holdUntil, onEnd: _release),
                 ),
                 const SizedBox(width: AppSpacing.sm + 2),
                 Expanded(
-                  child: ClarionButton(
-                    label: inCart ? 'View Intent Cart' : 'Add to Intent Cart',
-                    tone: inCart ? ButtonTone.positive : ButtonTone.primary,
-                    isLoading: _adding,
-                    onPressed: _onAdd,
+                  child: TourTargetBox(
+                    id: TourTarget.addToCart,
+                    child: ClarionButton(
+                      label: inCart ? 'View Intent Cart' : 'Add to Intent Cart',
+                      tone: inCart ? ButtonTone.positive : ButtonTone.primary,
+                      isLoading: _adding,
+                      onPressed: _onAdd,
+                    ),
                   ),
                 ),
               ],
