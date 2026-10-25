@@ -10,6 +10,12 @@ import '../../../core/notifications/notification_service.dart';
 /// `AuthGate` overrides this for each account's provider scope.
 final currentUserProvider = Provider<User?>((ref) => null);
 
+/// Helper provider returning true if the currently signed-in user's email is verified.
+final isEmailVerifiedProvider = Provider<bool>((ref) {
+  final user = ref.watch(currentUserProvider);
+  return user?.emailVerified ?? false;
+});
+
 /// Thin wrapper over Firebase Auth. Every method throws [AuthFailure] with a
 /// message fit to show the user; a dismissed Google picker returns quietly.
 abstract final class AuthService {
@@ -21,10 +27,26 @@ abstract final class AuthService {
     () => _auth.signInWithEmailAndPassword(email: email, password: password),
   );
 
-  static Future<void> register(String email, String password) => _guard(
-    () =>
-        _auth.createUserWithEmailAndPassword(email: email, password: password),
-  );
+  static Future<void> register(String email, String password) => _guard(() async {
+    final cred = await _auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    await cred.user?.sendEmailVerification();
+  });
+
+  static Future<void> sendEmailVerification() => _guard(() async {
+    final user = _auth.currentUser;
+    if (user != null && !user.emailVerified) {
+      await user.sendEmailVerification();
+    }
+  });
+
+  static Future<void> reloadUser() => _guard(() async {
+    await _auth.currentUser?.reload();
+  });
+
+  static bool get isEmailVerified => _auth.currentUser?.emailVerified ?? false;
 
   static Future<void> sendPasswordReset(String email) =>
       _guard(() => _auth.sendPasswordResetEmail(email: email));

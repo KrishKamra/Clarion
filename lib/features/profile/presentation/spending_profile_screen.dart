@@ -16,6 +16,7 @@ import '../../auth/application/auth_service.dart';
 import '../../decision/application/cooldown_controller.dart';
 import '../../tour/app_tour.dart';
 import 'widgets/ceiling_sheet.dart';
+import 'widgets/email_verification_card.dart';
 import 'widgets/envelope_card.dart';
 import 'widgets/pending_hold_tile.dart';
 import 'widgets/regret_barometer_card.dart';
@@ -52,6 +53,8 @@ class SpendingProfileScreen extends ConsumerWidget {
                 _AccountCard(
                   label: user.email ?? user.displayName ?? 'Clarion account',
                 ),
+                const SizedBox(height: AppSpacing.md),
+                EmailVerificationCard(user: user),
                 const SizedBox(height: AppSpacing.section),
               ],
               const SectionHeader(eyebrow: 'Display', title: 'Appearance'),
