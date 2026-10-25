@@ -22,12 +22,49 @@ class EmailVerificationCard extends ConsumerStatefulWidget {
       _EmailVerificationCardState();
 }
 
-class _EmailVerificationCardState extends ConsumerState<EmailVerificationCard> {
+class _EmailVerificationCardState extends ConsumerState<EmailVerificationCard>
+    with WidgetsBindingObserver {
   bool _busy = false;
 
   /// Starts from the session's user, then follows each reload: the session
   /// `User` object never changes after sign-in, so it can't be the source.
   late bool _verified = widget.user.emailVerified;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// People verify by tapping the link in their mail app, then switch back.
+  /// Coming back is the moment to check, so they never have to ask.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && !_verified && !_busy) {
+      _refreshQuietly();
+    }
+  }
+
+  Future<void> _refreshQuietly() async {
+    try {
+      await AuthService.reloadUser();
+    } catch (_) {
+      return; // Offline or signed out: the button still works later.
+    }
+    if (!mounted || !AuthService.isEmailVerified) return;
+    setState(() => _verified = true);
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(content: Text('Email verified. Thank you!')),
+      );
+  }
 
   Future<void> _resendEmail() async {
     setState(() => _busy = true);

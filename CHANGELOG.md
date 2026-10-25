@@ -4,6 +4,10 @@ All notable changes to Clarion are documented here. Format based on [Keep a Chan
 
 ## [Unreleased]
 
+### Fixed — Google sign-in errors and verification status
+- **Google sign-in no longer fails silently.** On Android, a build whose signing key (SHA-1) isn't registered in Firebase is reported by Credential Manager as a *cancellation* ("[16] Account reauth failed."), so the button used to do nothing. It now says Google sign-in isn't set up for this build and suggests email. A device with no Google account and a picker that can't open also get their own messages; closing the picker stays quiet.
+- **Email verification refreshes by itself** when the app returns to the foreground, so after tapping the link in their mail app people see "verified" without pressing "Check status".
+
 ### Added — the clarity loop
 - **Regret check-in, 14–30 days on**: kept purchases in that window ask "Still glad you bought it?". The answers nudge fit scores in that category and the Mindful Barometer shows a personal regret rate. Schema v7 stores the product and category on each check-in.
 - **Cost per use**: the decision canvas states a year of use, consumables and accessories.

@@ -4,6 +4,7 @@ import 'package:clarion/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 void main() {
   test('Firebase error codes map to plain-language messages', () {
@@ -24,6 +25,47 @@ void main() {
       'Something went wrong. Please try again.',
     );
   });
+
+  test(
+    'a misconfigured Google sign-in says so; closing the picker does not',
+    () {
+      String? message(GoogleSignInExceptionCode code, [String? detail]) =>
+          AuthService.googleMessageFor(code, detail);
+
+      // An unregistered SHA-1 arrives as a "cancellation" from Credential
+      // Manager; it must not be mistaken for the user backing out.
+      expect(
+        message(
+          GoogleSignInExceptionCode.canceled,
+          '[16] Account reauth failed.',
+        ),
+        AuthService.googleNotConfigured,
+      );
+      expect(
+        message(GoogleSignInExceptionCode.clientConfigurationError),
+        AuthService.googleNotConfigured,
+      );
+      expect(
+        message(
+          GoogleSignInExceptionCode.canceled,
+          'activity is cancelled by the user.',
+        ),
+        isNull,
+      );
+      expect(message(GoogleSignInExceptionCode.interrupted), isNull);
+      expect(
+        message(
+          GoogleSignInExceptionCode.unknownError,
+          'No credential available',
+        ),
+        contains('No Google account'),
+      );
+      expect(
+        message(GoogleSignInExceptionCode.unknownError),
+        'Google sign-in failed. Please try again.',
+      );
+    },
+  );
 
   Future<void> pumpSignIn(WidgetTester tester) async {
     await tester.binding.setSurfaceSize(const Size(412, 915));

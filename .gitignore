@@ -64,3 +64,8 @@ app.*.map.json
 # AI assistant local settings & working briefs
 .claude/settings.local.json
 prompt.md
+
+# Report, demo video and signatures for the course submission (kept local).
+/submission/
+# Word lock files while a document is open.
+~$*

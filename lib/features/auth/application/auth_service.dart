@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
+import 'package:flutter/foundation.dart'
+    show debugPrint, kIsWeb, visibleForTesting;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -61,16 +62,48 @@ abstract final class AuthService {
         GoogleAuthProvider.credential(idToken: account.authentication.idToken),
       );
     } on GoogleSignInException catch (e) {
-      // Visible in the `flutter run` console. On Android a missing SHA-1 in
-      // Firebase shows up here as `canceled`, so log before swallowing it.
+      // Also visible in the `flutter run` console, for the full detail.
       debugPrint('Google sign-in: ${e.code} - ${e.description}');
-      if (e.code == GoogleSignInExceptionCode.canceled ||
-          e.code == GoogleSignInExceptionCode.interrupted) {
-        return;
-      }
-      throw const AuthFailure('Google sign-in failed. Please try again.');
+      final message = googleMessageFor(e.code, e.description);
+      if (message != null) throw AuthFailure(message);
     }
   });
+
+  /// Shown when this build's signing key isn't registered in Firebase.
+  static const googleNotConfigured =
+      'Google sign-in isn’t set up for this build of the app. Please sign '
+      'in with email for now.';
+
+  /// What to tell the user about a failed Google sign-in, or `null` when
+  /// they simply closed the account picker.
+  ///
+  /// On Android, an unregistered SHA-1 doesn't arrive as a configuration
+  /// error: Credential Manager reports it as a cancellation whose message
+  /// is "[16] Account reauth failed.", so that case is told apart here
+  /// instead of being dropped as if the user had backed out.
+  @visibleForTesting
+  static String? googleMessageFor(
+    GoogleSignInExceptionCode code,
+    String? description,
+  ) {
+    final detail = description?.toLowerCase() ?? '';
+    return switch (code) {
+      GoogleSignInExceptionCode.canceled
+          when detail.contains('[16]') || detail.contains('reauth') =>
+        googleNotConfigured,
+      GoogleSignInExceptionCode.canceled ||
+      GoogleSignInExceptionCode.interrupted => null,
+      GoogleSignInExceptionCode.clientConfigurationError ||
+      GoogleSignInExceptionCode.providerConfigurationError =>
+        googleNotConfigured,
+      GoogleSignInExceptionCode.uiUnavailable =>
+        'Google sign-in couldn’t open. Please try again.',
+      _ when detail.contains('no credential') =>
+        'No Google account is set up on this device. Add one in Settings, '
+            'then try again.',
+      _ => 'Google sign-in failed. Please try again.',
+    };
+  }
 
   static Future<void> signOut() async {
     // Reminders belong to this account; the next one must not see them.
@@ -130,6 +163,8 @@ abstract final class AuthService {
     'too-many-requests' => 'Too many attempts. Try again in a few minutes.',
     'network-request-failed' => 'No connection. Check your network.',
     'operation-not-allowed' => 'This sign-in method isn’t enabled yet.',
+    'account-exists-with-different-credential' =>
+      'This email already has an account. Sign in with email and password.',
     'requires-recent-login' => 'For security, please sign out and sign in again before deleting your account.',
     _ => 'Something went wrong. Please try again.',
   };
