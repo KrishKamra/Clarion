@@ -31,6 +31,7 @@ void main() {
   Future<ProviderContainer> pumpApp(
     WidgetTester tester, {
     double textScale = 1,
+    double height = 915,
     ThemeMode theme = ThemeMode.light,
   }) async {
     final container = ProviderContainer(overrides: demoScenario());
@@ -41,7 +42,7 @@ void main() {
     );
     // An order, so Profile, Orders and the order page have content.
     container.read(ordersProvider.notifier).place(container.read(cartProvider));
-    await tester.binding.setSurfaceSize(const Size(412, 915));
+    await tester.binding.setSurfaceSize(Size(412, height));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     tester.platformDispatcher.textScaleFactorTestValue = textScale;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
@@ -103,7 +104,11 @@ void main() {
       tester,
     ) async {
       final handle = tester.ensureSemantics();
-      final container = await pumpApp(tester, theme: theme);
+      // Content scrolls under the floating nav island by design. A screen
+      // tall enough to lay everything out above it measures each text
+      // against its real background, not the island covering it, so the
+      // result can't depend on where font metrics happen to leave a label.
+      final container = await pumpApp(tester, theme: theme, height: 5000);
       expect(AppColors.isDark, theme == ThemeMode.dark);
       // Collected rather than failing fast, so one run lists every finding.
       final findings = <String>[];
