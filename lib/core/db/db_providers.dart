@@ -1,11 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/models/regret_checkin_model.dart';
 import 'app_database.dart';
 import 'budget_repository.dart';
 import 'cart_repository.dart';
 import 'cooldown_repository.dart';
 import 'demo_seed.dart';
 import 'price_watch_repository.dart';
+import 'regret_repository.dart';
 
 /// The open database, or `null` when there isn't one (widget tests, web, or
 /// if opening failed). Features treat `null` as "don't persist" so the app
@@ -34,6 +36,11 @@ final budgetRepositoryProvider = Provider<BudgetRepository?>((ref) {
 final priceWatchRepositoryProvider = Provider<PriceWatchRepository?>((ref) {
   final database = ref.watch(appDatabaseProvider);
   return database == null ? null : PriceWatchRepository(database);
+});
+
+final regretRepositoryProvider = Provider<RegretRepository?>((ref) {
+  final database = ref.watch(appDatabaseProvider);
+  return database == null ? null : RegretRepository(database);
 });
 
 // ── Start-up state ───────────────────────────────────────────────────────
@@ -67,3 +74,9 @@ final initialBudgetProvider = Provider<StoredBudget>(
 /// Watched products (id -> target price) loaded from SQLite at start-up.
 /// Empty by default: nothing is watched on a fresh install.
 final initialWatchlistProvider = Provider<Map<String, double?>>((ref) => {});
+
+/// Regret check-ins loaded from SQLite at start-up.
+final initialRegretCheckinsProvider = Provider<List<RegretCheckin>>(
+  (ref) => <RegretCheckin>[],
+);
+

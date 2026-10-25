@@ -23,7 +23,8 @@ class AppDatabase {
   /// v3: accounts start empty; clears the demo cart, hold and spend that
   ///     v1/v2 databases were seeded with.
   /// v4: checkout records each product by name instead of a lump "Planned".
-  static const int schemaVersion = 4;
+  /// v5: post-purchase Regret Check-ins (`regret_checkins`).
+  static const int schemaVersion = 5;
 
   // Table names, kept in one place so repositories never mistype them.
   static const String cartItemsTable = 'cart_items';
@@ -32,6 +33,7 @@ class AppDatabase {
   static const String spendEntriesTable = 'spend_entries';
   static const String priceObservationsTable = 'price_observations';
   static const String watchlistTable = 'watchlist';
+  static const String regretCheckinsTable = 'regret_checkins';
 
   /// Opens (creating on first launch) the database.
   ///
@@ -121,6 +123,20 @@ class AppDatabase {
       )
     ''');
 
+    // Post-purchase Regret Check-ins.
+    batch.execute('''
+      CREATE TABLE $regretCheckinsTable (
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        spend_id      INTEGER,
+        product_title TEXT    NOT NULL,
+        amount        REAL    NOT NULL CHECK (amount >= 0),
+        rating        TEXT    NOT NULL,
+        tag           TEXT,
+        note          TEXT,
+        checked_in_at INTEGER NOT NULL
+      )
+    ''');
+
     await batch.commit(noResult: true);
   }
 
@@ -156,6 +172,20 @@ class AppDatabase {
         whereArgs: ['Planned'],
       );
     }
+    if (oldV < 5) {
+      await db.execute('''
+        CREATE TABLE $regretCheckinsTable (
+          id            INTEGER PRIMARY KEY AUTOINCREMENT,
+          spend_id      INTEGER,
+          product_title TEXT    NOT NULL,
+          amount        REAL    NOT NULL CHECK (amount >= 0),
+          rating        TEXT    NOT NULL,
+          tag           TEXT,
+          note          TEXT,
+          checked_in_at INTEGER NOT NULL
+        )
+      ''');
+    }
   }
 
   /// Deletes every row (keeps the tables). Handy for resetting a demo.
@@ -168,6 +198,7 @@ class AppDatabase {
       spendEntriesTable,
       priceObservationsTable,
       watchlistTable,
+      regretCheckinsTable,
     ]) {
       batch.delete(table);
     }

@@ -11,6 +11,8 @@ import 'cooldown_repository.dart';
 import 'db_providers.dart';
 import 'price_watch_repository.dart';
 
+import 'regret_repository.dart';
+
 /// One signed-in account's local state: its database (if it opened) and the
 /// provider overrides that seed the app from it.
 typedef UserSession = ({AppDatabase? db, List<Override> overrides});
@@ -34,6 +36,7 @@ Future<UserSession> openUserSession(String userId) async {
     }
     final holds = await CooldownRepository(db).loadAll();
     final watchlist = await priceWatch.loadWatchlist();
+    final regretCheckins = await RegretRepository(db).loadAll();
     // Fire-and-forget: reminders must never delay the app opening.
     NotificationService.syncSession(
       userId: userId,
@@ -53,6 +56,7 @@ Future<UserSession> openUserSession(String userId) async {
           await BudgetRepository(db).load(),
         ),
         initialWatchlistProvider.overrideWithValue(watchlist),
+        initialRegretCheckinsProvider.overrideWithValue(regretCheckins),
       ],
     );
   } catch (error, stack) {

@@ -18,6 +18,7 @@ import '../../tour/app_tour.dart';
 import 'widgets/ceiling_sheet.dart';
 import 'widgets/envelope_card.dart';
 import 'widgets/pending_hold_tile.dart';
+import 'widgets/regret_barometer_card.dart';
 import 'widgets/spend_history.dart';
 
 /// Spending Profile: the envelope over time — what is committed, what is
@@ -103,6 +104,8 @@ class SpendingProfileScreen extends ConsumerWidget {
                   const SizedBox(height: AppSpacing.md),
                 ],
               ],
+              const SizedBox(height: AppSpacing.section),
+              const RegretBarometerCard(),
               const SizedBox(height: AppSpacing.section),
               const SectionHeader(
                 eyebrow: 'History',

@@ -1,13 +1,18 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../core/widgets/dynamic_pill.dart';
 import '../../../../core/widgets/tactile_card.dart';
+import '../../../../data/models/regret_checkin_model.dart';
 import '../../../cart/application/budget_controller.dart';
+import '../../application/regret_controller.dart';
+import 'regret_checkin_sheet.dart';
 
 /// Six months of settled spend as slim columns against the ceiling rule.
 /// Months that broke the ceiling are marked in rose; the current month is
@@ -152,54 +157,129 @@ class _Column extends StatelessWidget {
   }
 }
 
-/// This month's settled spend by category, as ruled rows with hairline bars.
-class CategoryBreakdown extends StatelessWidget {
+/// This month's settled spend by category with Regret Check-in triggers.
+class CategoryBreakdown extends ConsumerWidget {
   const CategoryBreakdown({super.key, required this.budget});
 
   final BudgetState budget;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final total = math.max(budget.spentThisMonth, 1.0);
+    ref.watch(regretControllerProvider);
+    final regretNotifier = ref.watch(regretControllerProvider.notifier);
+
     return Column(
       children: [
         for (final (i, c) in budget.categories.indexed) ...[
           if (i > 0) const Divider(),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(child: Text(c.label, style: AppTypography.label)),
-                    Text(Fmt.inr(c.amount), style: AppTypography.metricSmall),
-                    SizedBox(
-                      width: 44,
-                      child: Text(
-                        Fmt.percent(c.amount / total * 100),
-                        textAlign: TextAlign.right,
-                        style: AppTypography.metricSmall.copyWith(
-                          color: AppColors.textTertiary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                ClipRRect(
-                  borderRadius: AppRadii.pillAll,
-                  child: LinearProgressIndicator(
-                    value: c.amount / total,
-                    minHeight: 2,
-                    backgroundColor: AppColors.hairline,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
+          _CategoryRow(
+            category: c,
+            total: total,
+            checkin: regretNotifier.getCheckin(c.label),
           ),
         ],
       ],
+    );
+  }
+}
+
+class _CategoryRow extends StatelessWidget {
+  const _CategoryRow({
+    required this.category,
+    required this.total,
+    this.checkin,
+  });
+
+  final CategorySpend category;
+  final double total;
+  final RegretCheckin? checkin;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(category.label, style: AppTypography.label),
+                    if (checkin?.note != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        '"${checkin!.note}"',
+                        style: AppTypography.caption.copyWith(
+                          fontStyle: FontStyle.italic,
+                          color: AppColors.textSecondary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              if (checkin != null)
+                DynamicPill(
+                  label: '${checkin!.rating.emoji} ${checkin!.rating.label}',
+                  size: PillSize.compact,
+                  color: checkin!.isWorthIt
+                      ? AppColors.emeraldGlow
+                      : checkin!.isRegretted
+                          ? AppColors.rose
+                          : AppColors.irisGlow,
+                  selected: true,
+                  onTap: () => showRegretCheckinSheet(
+                    context,
+                    productTitle: category.label,
+                    amount: category.amount,
+                  ),
+                )
+              else
+                DynamicPill(
+                  label: 'Check in',
+                  icon: Icons.rate_review_outlined,
+                  size: PillSize.compact,
+                  color: AppColors.irisGlow,
+                  onTap: () => showRegretCheckinSheet(
+                    context,
+                    productTitle: category.label,
+                    amount: category.amount,
+                  ),
+                ),
+              const SizedBox(width: AppSpacing.md),
+              Text(Fmt.inr(category.amount), style: AppTypography.metricSmall),
+              SizedBox(
+                width: 44,
+                child: Text(
+                  Fmt.percent(category.amount / total * 100),
+                  textAlign: TextAlign.right,
+                  style: AppTypography.metricSmall.copyWith(
+                    color: AppColors.textTertiary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          ClipRRect(
+            borderRadius: AppRadii.pillAll,
+            child: LinearProgressIndicator(
+              value: category.amount / total,
+              minHeight: 2,
+              backgroundColor: AppColors.hairline,
+              color: checkin?.isRegretted ?? false
+                  ? AppColors.rose
+                  : AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
