@@ -6,6 +6,8 @@ import '../../../core/widgets/chrome_header.dart';
 import '../../../core/widgets/intent_field.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../data/catalog.dart';
+import '../../../l10n/l10n.dart';
+import '../../browse/presentation/browse_screen.dart';
 import '../../decision/application/watchlist_controller.dart';
 import '../application/intent_controller.dart';
 import 'widgets/fit_stream.dart';
@@ -82,8 +84,10 @@ class IntentHomeScreen extends ConsumerWidget {
           ),
           sliver: SliverToBoxAdapter(
             child: SectionHeader(
-              eyebrow: 'Ranked for you',
-              title: 'Personal Fit Stream',
+              eyebrow: context.l10n.homeRankedEyebrow,
+              title: context.l10n.homeFitStream,
+              actionLabel: context.l10n.browseAll,
+              onAction: () => BrowseScreen.open(context),
             ),
           ),
         ),
@@ -105,8 +109,11 @@ class IntentHomeScreen extends ConsumerWidget {
               top: AppSpacing.section,
               bottom: AppSpacing.md,
             ),
-            sliver: const SliverToBoxAdapter(
-              child: SectionHeader(eyebrow: 'Price memory', title: 'Radar'),
+            sliver: SliverToBoxAdapter(
+              child: SectionHeader(
+                eyebrow: context.l10n.priceMemoryEyebrow,
+                title: context.l10n.radarTitle,
+              ),
             ),
           ),
           SliverPadding(
@@ -122,11 +129,11 @@ class IntentHomeScreen extends ConsumerWidget {
               top: AppSpacing.section,
               bottom: AppSpacing.md,
             ),
-            sliver: const SliverToBoxAdapter(
+            sliver: SliverToBoxAdapter(
               child: SectionHeader(
-                eyebrow: 'Price memory',
-                title: 'Watching',
-                caption: 'Products you are tracking against a target price.',
+                eyebrow: context.l10n.priceMemoryEyebrow,
+                title: context.l10n.watchingTitle,
+                caption: context.l10n.watchingCaption,
               ),
             ),
           ),

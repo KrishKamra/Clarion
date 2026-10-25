@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/notifications/notification_service.dart';
+import '../../core/links/deep_links.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/widgets/floating_nav_capsule.dart';
 import '../../core/widgets/obsidian_canvas.dart';
 import '../../data/catalog.dart';
+import '../../l10n/l10n.dart';
 import '../auth/application/auth_service.dart';
+import '../browse/application/browse_controller.dart';
+import '../browse/presentation/browse_screen.dart';
 import '../cart/application/budget_controller.dart';
 import '../cart/application/cart_controller.dart';
 import '../cart/presentation/smart_cart_screen.dart';
@@ -15,6 +18,8 @@ import '../decision/application/cooldown_controller.dart';
 import '../decision/presentation/compare_matrix_screen.dart';
 import '../decision/presentation/product_decision_screen.dart';
 import '../home/presentation/intent_home_screen.dart';
+import '../orders/application/orders_controller.dart';
+import '../orders/presentation/order_detail_screen.dart';
 import '../profile/application/ceiling_onboarding.dart';
 import '../profile/presentation/spending_profile_screen.dart';
 import '../profile/presentation/widgets/ceiling_sheet.dart';
@@ -37,27 +42,41 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
   @override
   void initState() {
     super.initState();
-    NotificationService.opened.addListener(_openFromNotification);
+    DeepLinks.pending.addListener(_openPendingLink);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // A tap that launched the app goes straight to its product.
-      _openFromNotification();
+      // A link or reminder that launched the app goes straight to its page.
+      _openPendingLink();
       _runOnboarding();
     });
   }
 
   @override
   void dispose() {
-    NotificationService.opened.removeListener(_openFromNotification);
+    DeepLinks.pending.removeListener(_openPendingLink);
     super.dispose();
   }
 
-  /// Opens the product a tapped reminder is about, on top of the current tab.
-  void _openFromNotification() {
-    final id = NotificationService.opened.value;
-    if (id == null || !mounted) return;
-    NotificationService.opened.value = null;
-    final known = ref.read(catalogProvider).products.any((p) => p.id == id);
-    if (known) ProductDecisionScreen.open(context, id);
+  /// Opens what a link or tapped reminder points at, above the current tab.
+  /// Ids come from outside the app, so only known ones open anything.
+  void _openPendingLink() {
+    final link = DeepLinks.pending.value;
+    if (link == null || !mounted) return;
+    DeepLinks.pending.value = null;
+    switch (link) {
+      case ProductLink(:final productId):
+        final known = ref
+            .read(catalogProvider)
+            .products
+            .any((p) => p.id == productId);
+        if (known) ProductDecisionScreen.open(context, productId);
+      case OrderLink(:final orderId):
+        if (ref.read(ordersProvider.notifier).byId(orderId) != null) {
+          OrderDetailScreen.open(context, orderId);
+        }
+      case BrowseLink(:final category):
+        final known = ref.read(categoriesProvider).contains(category);
+        BrowseScreen.open(context, category: known ? category : null);
+    }
   }
 
   /// First-run onboarding, once per account: set the monthly ceiling, then
@@ -91,6 +110,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
     );
     final coolingOff = ref.watch(cooldownProvider.select((m) => m.isNotEmpty));
     final touring = ref.watch(appTourProvider.select((i) => i != null));
+    final l10n = context.l10n;
 
     // The canvas sits outside the Scaffold so the keyboard never resizes it.
     return ObsidianCanvas(
@@ -122,27 +142,27 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
             onSelected: (i) =>
                 ref.read(navigationProvider.notifier).select(AppTab.values[i]),
             destinations: [
-              const NavDestination(
+              NavDestination(
                 icon: Icons.blur_on_outlined,
                 activeIcon: Icons.blur_on_rounded,
-                label: 'Horizon',
+                label: l10n.navHorizon,
               ),
-              const NavDestination(
+              NavDestination(
                 icon: Icons.compare_arrows_outlined,
                 activeIcon: Icons.compare_arrows_rounded,
-                label: 'Compare',
+                label: l10n.navCompare,
               ),
               NavDestination(
                 icon: Icons.shield_outlined,
                 activeIcon: Icons.shield_rounded,
-                label: 'Guardian',
+                label: l10n.navGuardian,
                 badge: cartCount,
                 badgeColor: overBudget ? AppColors.rose : AppColors.iris,
               ),
               NavDestination(
                 icon: Icons.donut_large_outlined,
                 activeIcon: Icons.donut_large_rounded,
-                label: 'Profile',
+                label: l10n.navProfile,
                 dot: coolingOff ? AppColors.rose : null,
               ),
             ],

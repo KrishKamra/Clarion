@@ -8,6 +8,7 @@ import '../../../core/widgets/clarion_button.dart';
 import '../../../core/widgets/dynamic_pill.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../data/catalog.dart';
+import '../../../l10n/l10n.dart';
 import '../application/compare_controller.dart';
 import '../widgets/compare_matrix.dart';
 import '../widgets/sticky_compare_header.dart';
@@ -60,8 +61,11 @@ class _CompareMatrixScreenState extends ConsumerState<CompareMatrixScreen> {
         parent: AlwaysScrollableScrollPhysics(),
       ),
       slivers: [
-        const ChromeSliverHeader(
-          child: ScreenTitle(eyebrow: 'Differential', title: 'Compare Matrix'),
+        ChromeSliverHeader(
+          child: ScreenTitle(
+            eyebrow: context.l10n.compareEyebrow,
+            title: context.l10n.compareTitle,
+          ),
         ),
         section(
           Wrap(
@@ -92,9 +96,9 @@ class _CompareMatrixScreenState extends ConsumerState<CompareMatrixScreen> {
         ),
         section(
           SectionHeader(
-            eyebrow: 'Your priorities',
-            title: 'What matters most?',
-            caption: 'Starred criteria count double toward the verdict.',
+            eyebrow: context.l10n.comparePrioritiesEyebrow,
+            title: context.l10n.comparePrioritiesTitle,
+            caption: context.l10n.comparePrioritiesCaption,
           ),
           top: AppSpacing.xl,
         ),
@@ -110,8 +114,8 @@ class _CompareMatrixScreenState extends ConsumerState<CompareMatrixScreen> {
         section(VerdictCard(result: result), top: AppSpacing.lg),
         section(
           SectionHeader(
-            eyebrow: 'Differences only',
-            title: 'Spec matrix',
+            eyebrow: context.l10n.compareDiffEyebrow,
+            title: context.l10n.compareSpecMatrix,
             caption:
                 '${result.differences.length} of ${result.rows.length} '
                 'criteria differ',
@@ -137,7 +141,7 @@ class _CompareMatrixScreenState extends ConsumerState<CompareMatrixScreen> {
                 if (i == 1) const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: ClarionButton(
-                    label: 'Review ${p.brand}',
+                    label: context.l10n.compareReview(p.brand),
                     tone: leader == p
                         ? ButtonTone.primary
                         : ButtonTone.secondary,

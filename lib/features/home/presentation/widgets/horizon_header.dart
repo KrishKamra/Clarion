@@ -9,6 +9,7 @@ import '../../../../core/widgets/clarion_wordmark.dart';
 import '../../../../core/widgets/pressable.dart';
 import '../../../../core/widgets/progress_ring.dart';
 import '../../../../core/widgets/round_icon_button.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../cart/application/budget_controller.dart';
 import '../../../navigation/navigation_controller.dart';
 
@@ -21,7 +22,14 @@ class HorizonHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Row(
       children: [
-        const ClarionWordmark(size: 24),
+        // At large text sizes the wordmark yields room to the budget.
+        const Flexible(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: ClarionWordmark(size: 24),
+          ),
+        ),
         const SizedBox(width: AppSpacing.md),
         const Expanded(
           child: Align(alignment: Alignment.centerRight, child: BudgetMetric()),
@@ -29,7 +37,7 @@ class HorizonHeader extends ConsumerWidget {
         const SizedBox(width: AppSpacing.md),
         RoundIconButton(
           icon: Icons.person_outline_rounded,
-          semanticLabel: 'Spending profile',
+          semanticLabel: context.l10n.profileEyebrow,
           size: 36,
           onPressed: () =>
               ref.read(navigationProvider.notifier).select(AppTab.profile),
@@ -53,7 +61,8 @@ class BudgetMetric extends ConsumerWidget {
     return Pressable(
       onTap: () => ref.read(navigationProvider.notifier).select(AppTab.cart),
       semanticLabel:
-          'Budget: ${Fmt.inr(b.committed)} of ${Fmt.inr(b.limit)} committed',
+          'Budget: ${Fmt.inr(b.committed)} of ${Fmt.inr(b.limit)} committed, '
+          '${b.isOver ? '${Fmt.inr(b.overBy)} over' : '${Fmt.inr(b.headroom)} left'}',
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

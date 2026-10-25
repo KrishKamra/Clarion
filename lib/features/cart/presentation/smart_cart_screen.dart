@@ -15,7 +15,10 @@ import '../../../data/models/cart_item_model.dart';
 import '../application/budget_controller.dart';
 import '../../decision/application/compare_controller.dart';
 import '../../decision/presentation/product_decision_screen.dart';
+import '../../../l10n/l10n.dart';
 import '../../navigation/navigation_controller.dart';
+import '../../orders/application/orders_controller.dart';
+import '../../orders/presentation/order_detail_screen.dart';
 import '../application/cart_controller.dart';
 import 'widgets/cart_item_tile.dart';
 import 'widgets/guardian_swap_card.dart';
@@ -44,9 +47,9 @@ class _SmartCartScreenState extends ConsumerState<SmartCartScreen> {
   void _swap(SwapSuggestion s) {
     _cart.swap(s.from.id, s.to.id);
     _snack(
-      'Swapped to ${s.to.brand}. ${Fmt.inr(s.savings)} back in your envelope.',
+      context.l10n.swappedTo(s.to.brand, Fmt.inr(s.savings)),
       action: SnackBarAction(
-        label: 'Undo',
+        label: context.l10n.undo,
         onPressed: () => _cart.swap(s.to.id, s.from.id),
       ),
     );
@@ -56,9 +59,9 @@ class _SmartCartScreenState extends ConsumerState<SmartCartScreen> {
     final removed = _cart.remove(line.productId);
     if (removed == null) return;
     _snack(
-      'Removed ${line.product.title}.',
+      context.l10n.removedItem(line.product.title),
       action: SnackBarAction(
-        label: 'Undo',
+        label: context.l10n.undo,
         onPressed: () => _cart.restore(removed.$1, removed.$2),
       ),
     );
@@ -70,29 +73,28 @@ class _SmartCartScreenState extends ConsumerState<SmartCartScreen> {
   }
 
   Future<void> _checkout(BudgetSnapshot budget) async {
+    final l10n = context.l10n;
     if (budget.isOver) {
       final proceed = await showClarionSheet<bool>(
         context: context,
-        eyebrow: 'Mindful checkout',
-        title: '${Fmt.inr(budget.overBy)} past your ceiling',
+        eyebrow: l10n.mindfulCheckoutEyebrow,
+        title: l10n.pastCeilingTitle(Fmt.inr(budget.overBy)),
         builder: (context) => Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Checking out now takes you past your ${Fmt.inr(budget.limit)} '
-              'monthly ceiling. You can still go ahead — Clarion just wants '
-              'it to be a choice, not a reflex.',
+              l10n.mindfulCheckoutBody(Fmt.inr(budget.limit)),
               style: AppTypography.bodySmall,
             ),
             const SizedBox(height: AppSpacing.xxl),
             ClarionButton(
-              label: 'Review swaps first',
+              label: l10n.reviewSwapsFirst,
               onPressed: () => Navigator.of(context).pop(false),
             ),
             const SizedBox(height: AppSpacing.sm),
             ClarionButton(
-              label: 'Proceed anyway',
+              label: l10n.proceedAnyway,
               tone: ButtonTone.secondary,
               onPressed: () => Navigator.of(context).pop(true),
             ),
@@ -106,7 +108,9 @@ class _SmartCartScreenState extends ConsumerState<SmartCartScreen> {
     await Future<void>.delayed(const Duration(milliseconds: 800));
     if (!mounted) return;
 
-    ref.read(budgetProvider.notifier).recordPurchase(ref.read(cartProvider));
+    final lines = ref.read(cartProvider);
+    final order = ref.read(ordersProvider.notifier).place(lines);
+    ref.read(budgetProvider.notifier).recordPurchase(lines);
     _cart.clear();
     HapticFeedback.mediumImpact();
     setState(() => _checkingOut = false);
@@ -114,8 +118,12 @@ class _SmartCartScreenState extends ConsumerState<SmartCartScreen> {
     final after = ref.read(budgetSnapshotProvider);
     _snack(
       after.isOver
-          ? 'Order placed. ${Fmt.inr(after.overBy)} past this month’s ceiling.'
-          : 'Order placed. ${Fmt.inr(after.headroom)} left this month.',
+          ? l10n.orderPlacedOver(Fmt.inr(after.overBy))
+          : l10n.orderPlacedLeft(Fmt.inr(after.headroom)),
+      action: SnackBarAction(
+        label: l10n.track,
+        onPressed: () => OrderDetailScreen.open(context, order.id),
+      ),
     );
   }
 
@@ -133,10 +141,10 @@ class _SmartCartScreenState extends ConsumerState<SmartCartScreen> {
       slivers: [
         ChromeSliverHeader(
           child: ScreenTitle(
-            eyebrow: 'Budget guardian',
-            title: 'Smart Cart',
+            eyebrow: context.l10n.cartEyebrow,
+            title: context.l10n.cartTitle,
             trailing: Text(
-              '$count ${count == 1 ? 'item' : 'items'}',
+              context.l10n.itemCount(count),
               style: AppTypography.metricSmall.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -176,10 +184,8 @@ class _SmartCartScreenState extends ConsumerState<SmartCartScreen> {
           ),
           sliver: SliverToBoxAdapter(
             child: SectionHeader(
-              title: 'Intent cart',
-              caption: lines.isEmpty
-                  ? null
-                  : 'Swipe left to remove · tap to revisit the decision',
+              title: context.l10n.intentCart,
+              caption: lines.isEmpty ? null : context.l10n.cartHint,
             ),
           ),
         ),
@@ -253,6 +259,7 @@ class _Summary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     Widget row(String label, String value, {Color? color}) => Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs + 1),
       child: Row(
@@ -266,16 +273,16 @@ class _Summary extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        row('Cart total', Fmt.inr(budget.cart)),
-        row('Pickup', 'Free · same day', color: AppColors.textSecondary),
+        row(l10n.cartTotal, Fmt.inr(budget.cart)),
+        row(l10n.pickupLabel, l10n.pickupFree, color: AppColors.textSecondary),
         row(
-          budget.isOver ? 'Past ceiling by' : 'Left after checkout',
+          budget.isOver ? l10n.pastCeilingBy : l10n.leftAfterCheckout,
           Fmt.inr(budget.isOver ? budget.overBy : budget.headroom),
           color: budget.isOver ? AppColors.rose : AppColors.emeraldGlow,
         ),
         const SizedBox(height: AppSpacing.lg),
         ClarionButton(
-          label: 'Checkout mindfully · ${Fmt.inr(budget.cart)}',
+          label: l10n.checkoutMindfully(Fmt.inr(budget.cart)),
           icon: Icons.lock_outline_rounded,
           isLoading: loading,
           onPressed: onCheckout,
@@ -297,19 +304,16 @@ class _EmptyCart extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.xxl),
       child: Column(
         children: [
-          Text(
-            'Nothing here — and that’s fine',
-            style: AppTypography.titleSmall,
-          ),
+          Text(context.l10n.emptyCartTitle, style: AppTypography.titleSmall),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            'Add items only when they serve an intent. Your envelope is safe.',
+            context.l10n.emptyCartBody,
             textAlign: TextAlign.center,
             style: AppTypography.bodySmall,
           ),
           const SizedBox(height: AppSpacing.xl),
           ClarionButton(
-            label: 'Return to the horizon',
+            label: context.l10n.returnToHorizon,
             tone: ButtonTone.secondary,
             onPressed: onExplore,
           ),

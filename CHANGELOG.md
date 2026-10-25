@@ -4,6 +4,16 @@ All notable changes to Clarion are documented here. Format based on [Keep a Chan
 
 ## [Unreleased]
 
+### Added — orders, returns, browse, reviews, sharing, Hindi, accessibility audit
+- **Orders and tracking**: checkout places an order with a short reference (`CLR-…`). Profile → Orders lists them, and each has a tracking timeline (placed → packed → ready for pickup → picked up, simulated until a fulfilment backend reports it) and a "Track" link in the checkout snackbar. Saved per account (schema v6: `orders`, `order_lines`).
+- **Returns**: any item can be cancelled before pickup or returned within 7 days after, with one reason and no retention tricks. The amount goes straight back to the month's envelope (a refund only touches the month the order was placed in).
+- **Browse**: the whole catalogue from "Browse all" on Home, with category chips, filters (maximum price, rating, pickup nearby, below the 30-day average) and sort (best fit by default, price, rating, biggest dip). Fit stays on every row.
+- **Owner reviews**: a rating breakdown and written reviews on every product, each with how long the owner had it. Buyers can write, edit or delete their own, marked as a verified purchase (schema v6: `reviews`).
+- **Sharing and deep links**: a share button on each product sends price, fit and any dip, with a link. `clarion://` and `https://clarion-e08f0.web.app/…` links open products, orders and Browse (`app_links`). Notification taps use the same path. See `docs/DEEP_LINKS.md`.
+- **Localization**: English and Hindi (`flutter_localizations`, ARB files in `lib/l10n/`), with a language picker in Profile. Covers navigation, the four tabs' headers, the cart, profile settings and every new screen. Product data and the remaining screens are still English.
+- **Accessibility audit** (`docs/ACCESSIBILITY.md`, `test/accessibility_test.dart`): every screen in both themes is checked in CI for 48dp tap targets, labels, text contrast and 200 % text size. Fixes include: no more double-read labels; controls are their own semantics node; 48dp hit areas on every control; a spoken spending barometer; dark iris and tertiary text lifted to pass 4.5:1; fixed-height chrome that grows with the text size.
+- Notifications were already in place, so nothing was added there.
+
 ### Fixed — review of the Regret Check-in, verification and deletion work
 - **Account deletion** deletes the Firebase account *first*, then the local data. Before, it wiped SQLite and reminders first, so when Firebase refused with `requires-recent-login` (common), the user lost their data and still had an account. Deletion now also removes the account's saved settings (`*_<uid>` preferences).
 - **Email verification card** follows the result of each status check. Before, it read the `User` object from session start, so after verifying it still showed "Unverified" until the next launch. It's now shown only to accounts that still need verifying. Removed the unused `isEmailVerifiedProvider`, which had the same stale source.

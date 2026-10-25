@@ -100,17 +100,21 @@ class _SpendingBarometerState extends State<SpendingBarometer> {
         children: [
           Text('SPENDING BAROMETER', style: AppTypography.overline),
           const SizedBox(height: AppSpacing.md),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
+          // Wraps rather than overflows at large text sizes.
+          Wrap(
+            spacing: AppSpacing.sm,
+            crossAxisAlignment: WrapCrossAlignment.end,
             children: [
-              AnimatedMetric(
-                value: b.committed,
-                format: Fmt.inr,
-                style: AppTypography.metricXL,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: AnimatedMetric(
+                  value: b.committed,
+                  format: Fmt.inr,
+                  style: AppTypography.metricXL,
+                ),
               ),
-              const SizedBox(width: AppSpacing.sm),
-              Flexible(
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
                 child: Text(
                   '/ ${Fmt.inr(b.limit)}',
                   maxLines: 1,
@@ -132,31 +136,44 @@ class _SpendingBarometerState extends State<SpendingBarometer> {
           ),
           const SizedBox(height: AppSpacing.xl),
           LayoutBuilder(
-            builder: (context, c) => GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onHorizontalDragStart: (d) =>
-                  _touch(d.localPosition.dx, c.maxWidth, segments),
-              onHorizontalDragUpdate: (d) =>
-                  _touch(d.localPosition.dx, c.maxWidth, segments),
-              onHorizontalDragEnd: (_) => _release(),
-              onHorizontalDragCancel: _release,
-              onTapDown: (d) =>
-                  _touch(d.localPosition.dx, c.maxWidth, segments),
-              onTapUp: (_) => _release(),
-              onTapCancel: _release,
-              child: RepaintBoundary(
-                child: TweenAnimationBuilder<double>(
-                  tween: Tween(begin: 0, end: 1),
-                  duration: AppMotion.reveal,
-                  curve: AppMotion.standard,
-                  builder: (context, reveal, _) => CustomPaint(
-                    size: Size(c.maxWidth, 40),
-                    painter: _BarometerPainter(
-                      segments: segments,
-                      limit: b.limit,
-                      scale: _scale,
-                      reveal: reveal,
-                      selected: _selected,
+            // Scrubbing is a touch nicety; a screen reader hears every
+            // segment at once instead.
+            builder: (context, c) => Semantics(
+              label: [
+                for (final s in segments) '${s.label} ${Fmt.inr(s.amount)}',
+              ].join(', '),
+              excludeSemantics: true,
+              child: GestureDetector(
+                excludeFromSemantics: true,
+                behavior: HitTestBehavior.opaque,
+                onHorizontalDragStart: (d) =>
+                    _touch(d.localPosition.dx, c.maxWidth, segments),
+                onHorizontalDragUpdate: (d) =>
+                    _touch(d.localPosition.dx, c.maxWidth, segments),
+                onHorizontalDragEnd: (_) => _release(),
+                onHorizontalDragCancel: _release,
+                onTapDown: (d) =>
+                    _touch(d.localPosition.dx, c.maxWidth, segments),
+                onTapUp: (_) => _release(),
+                onTapCancel: _release,
+                // A 48dp band to touch around the 40dp bar.
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: RepaintBoundary(
+                    child: TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0, end: 1),
+                      duration: AppMotion.reveal,
+                      curve: AppMotion.standard,
+                      builder: (context, reveal, _) => CustomPaint(
+                        size: Size(c.maxWidth, 40),
+                        painter: _BarometerPainter(
+                          segments: segments,
+                          limit: b.limit,
+                          scale: _scale,
+                          reveal: reveal,
+                          selected: _selected,
+                        ),
+                      ),
                     ),
                   ),
                 ),

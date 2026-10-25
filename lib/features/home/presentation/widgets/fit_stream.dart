@@ -12,6 +12,7 @@ import '../../../../core/widgets/tour_target.dart';
 import '../../../../core/widgets/tactile_card.dart';
 import '../../../../data/models/product_model.dart';
 import '../../../../data/models/trade_off_item.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../decision/presentation/product_decision_screen.dart';
 import '../../application/intent_controller.dart';
 
@@ -96,7 +97,11 @@ class FitStreamCard extends ConsumerWidget {
       height: height,
       child: TactileCard(
         onTap: onTap,
-        semanticLabel: '${p.title}, ${fit.score} percent fit',
+        semanticLabel: context.l10n.productSummary(
+          '${p.brand} ${p.title}',
+          Fmt.inr(p.price),
+          fit.score,
+        ),
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

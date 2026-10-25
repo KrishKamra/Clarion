@@ -8,15 +8,18 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/db/user_session.dart';
+import 'core/links/deep_links.dart';
 import 'core/notifications/notification_service.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/locale_controller.dart';
 import 'core/theme/theme_mode_controller.dart';
 import 'features/auth/application/auth_service.dart';
 import 'features/auth/presentation/sign_in_screen.dart';
 import 'features/navigation/main_scaffold.dart';
 import 'features/tour/app_tour.dart';
 import 'firebase_options.dart';
+import 'l10n/app_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +29,9 @@ Future<void> main() async {
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await ThemeModeController.load();
+  await LocaleController.load();
   await NotificationService.init();
+  DeepLinks.init();
 
   runApp(const AuthGate());
 }
@@ -150,6 +155,9 @@ class _ClarionAppState extends ConsumerState<ClarionApp>
     return MaterialApp(
       title: 'Clarion',
       debugShowCheckedModeBanner: false,
+      locale: ref.watch(localeProvider),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.current,
       // Tokens swap in one frame; don't let stock widgets lerp behind them.
       themeAnimationDuration: Duration.zero,

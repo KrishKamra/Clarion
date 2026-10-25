@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/theme/locale_controller.dart';
 import '../../../core/theme/theme_mode_controller.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/chrome_header.dart';
@@ -13,7 +14,10 @@ import '../../../core/widgets/section_header.dart';
 import '../../../core/widgets/tactile_card.dart';
 import '../../cart/application/budget_controller.dart';
 import '../../auth/application/auth_service.dart';
+import '../../../l10n/l10n.dart';
 import '../../decision/application/cooldown_controller.dart';
+import '../../orders/application/orders_controller.dart';
+import '../../orders/presentation/orders_screen.dart';
 import '../../tour/app_tour.dart';
 import 'widgets/ceiling_sheet.dart';
 import 'widgets/delete_account_sheet.dart';
@@ -33,6 +37,8 @@ class SpendingProfileScreen extends ConsumerWidget {
     final budget = ref.watch(budgetProvider);
     final snapshot = ref.watch(budgetSnapshotProvider);
     final holds = ref.watch(cooldownProvider);
+    final orders = ref.watch(ordersProvider);
+    final l10n = context.l10n;
     ref.watch(clockProvider); // refresh countdowns
 
     return CustomScrollView(
@@ -40,8 +46,11 @@ class SpendingProfileScreen extends ConsumerWidget {
         parent: AlwaysScrollableScrollPhysics(),
       ),
       slivers: [
-        const ChromeSliverHeader(
-          child: ScreenTitle(eyebrow: 'Spending profile', title: 'This month'),
+        ChromeSliverHeader(
+          child: ScreenTitle(
+            eyebrow: l10n.profileEyebrow,
+            title: l10n.profileTitle,
+          ),
         ),
         SliverPadding(
           padding: AppSpacing.screenPadding.copyWith(top: AppSpacing.lg),
@@ -49,7 +58,10 @@ class SpendingProfileScreen extends ConsumerWidget {
             children: [
               // Account and appearance live at the top, like most apps.
               if (ref.watch(currentUserProvider) case final user?) ...[
-                const SectionHeader(eyebrow: 'Signed in', title: 'Account'),
+                SectionHeader(
+                  eyebrow: l10n.signedInEyebrow,
+                  title: l10n.account,
+                ),
                 const SizedBox(height: AppSpacing.md),
                 _AccountCard(
                   label: user.email ?? user.displayName ?? 'Clarion account',
@@ -62,14 +74,33 @@ class SpendingProfileScreen extends ConsumerWidget {
                 ],
                 const SizedBox(height: AppSpacing.section),
               ],
-              const SectionHeader(eyebrow: 'Display', title: 'Appearance'),
+              SectionHeader(
+                eyebrow: l10n.ordersEyebrow,
+                title: l10n.ordersTitle,
+                actionLabel: orders.isEmpty ? null : l10n.seeAll,
+                onAction: () => OrdersScreen.open(context),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              if (orders.isEmpty)
+                Text(l10n.noOrders, style: AppTypography.bodySmall)
+              else
+                OrderCard(order: orders.first),
+              const SizedBox(height: AppSpacing.section),
+              SectionHeader(
+                eyebrow: l10n.displayEyebrow,
+                title: l10n.appearance,
+              ),
               const SizedBox(height: AppSpacing.md),
               const _AppearancePicker(),
               const SizedBox(height: AppSpacing.section),
-              const SectionHeader(eyebrow: 'Help', title: 'App tour'),
+              SectionHeader(eyebrow: l10n.displayEyebrow, title: l10n.language),
+              const SizedBox(height: AppSpacing.md),
+              const _LanguagePicker(),
+              const SizedBox(height: AppSpacing.section),
+              SectionHeader(eyebrow: l10n.helpEyebrow, title: l10n.appTour),
               const SizedBox(height: AppSpacing.md),
               DynamicPill(
-                label: 'Replay the tour',
+                label: l10n.replayTour,
                 icon: Icons.explore_outlined,
                 size: PillSize.regular,
                 color: AppColors.irisGlow,
@@ -86,14 +117,14 @@ class SpendingProfileScreen extends ConsumerWidget {
                   Expanded(
                     child: _Win(
                       value: '${budget.impulseBuysAvoided}',
-                      label: 'Impulse buys let go',
+                      label: l10n.impulseLetGo,
                     ),
                   ),
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: _Win(
                       value: Fmt.inrCompact(budget.savedViaCooldown),
-                      label: 'Kept by cooling off',
+                      label: l10n.keptByCoolingOff,
                       color: AppColors.emeraldGlow,
                     ),
                   ),
@@ -101,10 +132,10 @@ class SpendingProfileScreen extends ConsumerWidget {
               ),
               if (holds.isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.section),
-                const SectionHeader(
-                  eyebrow: 'Anti-impulse',
-                  title: 'Cooling off',
-                  caption: 'Parked for 24h. Decide once the urge has passed.',
+                SectionHeader(
+                  eyebrow: l10n.antiImpulseEyebrow,
+                  title: l10n.coolingOffTitle,
+                  caption: l10n.coolingOffCaption,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 for (final entry in holds.entries) ...[
@@ -115,10 +146,10 @@ class SpendingProfileScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.section),
               const RegretBarometerCard(),
               const SizedBox(height: AppSpacing.section),
-              const SectionHeader(
-                eyebrow: 'History',
-                title: 'Six-month trend',
-                caption: 'Settled spend against your ceiling.',
+              SectionHeader(
+                eyebrow: l10n.historyEyebrow,
+                title: l10n.sixMonthTrend,
+                caption: l10n.sixMonthCaption,
               ),
               const SizedBox(height: AppSpacing.md),
               SixMonthTrend(
@@ -126,7 +157,10 @@ class SpendingProfileScreen extends ConsumerWidget {
                 limit: budget.monthlyLimit,
               ),
               const SizedBox(height: AppSpacing.section),
-              const SectionHeader(eyebrow: 'Breakdown', title: 'Where it went'),
+              SectionHeader(
+                eyebrow: l10n.breakdownEyebrow,
+                title: l10n.whereItWent,
+              ),
               const SizedBox(height: AppSpacing.xs),
               CategoryBreakdown(budget: budget),
               SizedBox(height: AppSpacing.navBarClearance(context)),
@@ -169,20 +203,20 @@ class _Win extends StatelessWidget {
 class _AppearancePicker extends ConsumerWidget {
   const _AppearancePicker();
 
-  static const _options = [
-    (ThemeMode.system, 'System', Icons.brightness_auto_outlined),
-    (ThemeMode.light, 'Light', Icons.light_mode_outlined),
-    (ThemeMode.dark, 'Dark', Icons.dark_mode_outlined),
-  ];
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final mode = ref.watch(themeModeProvider);
+    final l10n = context.l10n;
+    final options = [
+      (ThemeMode.system, l10n.themeSystem, Icons.brightness_auto_outlined),
+      (ThemeMode.light, l10n.themeLight, Icons.light_mode_outlined),
+      (ThemeMode.dark, l10n.themeDark, Icons.dark_mode_outlined),
+    ];
     return Wrap(
       spacing: AppSpacing.sm,
       runSpacing: AppSpacing.sm,
       children: [
-        for (final (value, label, icon) in _options)
+        for (final (value, label, icon) in options)
           DynamicPill(
             label: label,
             icon: icon,
@@ -190,6 +224,36 @@ class _AppearancePicker extends ConsumerWidget {
             color: AppColors.irisGlow,
             selected: mode == value,
             onTap: () => ref.read(themeModeProvider.notifier).select(value),
+          ),
+      ],
+    );
+  }
+}
+
+class _LanguagePicker extends ConsumerWidget {
+  const _LanguagePicker();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locale = ref.watch(localeProvider);
+    // Each language is named in itself, so it can be found from any other.
+    final options = [
+      (null, context.l10n.themeSystem),
+      (const Locale('en'), 'English'),
+      (const Locale('hi'), 'हिन्दी'),
+    ];
+    return Wrap(
+      spacing: AppSpacing.sm,
+      runSpacing: AppSpacing.sm,
+      children: [
+        for (final (value, label) in options)
+          DynamicPill(
+            label: label,
+            icon: value == null ? Icons.language_rounded : null,
+            size: PillSize.regular,
+            color: AppColors.irisGlow,
+            selected: locale == value,
+            onTap: () => ref.read(localeProvider.notifier).select(value),
           ),
       ],
     );
@@ -219,14 +283,14 @@ class _AccountCard extends StatelessWidget {
           ),
           Pressable(
             onTap: AuthService.signOut,
-            semanticLabel: 'Sign out',
+            semanticLabel: context.l10n.signOut,
             child: Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.xs,
                 vertical: AppSpacing.xs,
               ),
               child: Text(
-                'Sign out',
+                context.l10n.signOut,
                 style: AppTypography.caption.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -236,14 +300,14 @@ class _AccountCard extends StatelessWidget {
           const SizedBox(width: AppSpacing.sm),
           Pressable(
             onTap: () => showDeleteAccountSheet(context),
-            semanticLabel: 'Delete account',
+            semanticLabel: context.l10n.deleteAccountShort,
             child: Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.xs,
                 vertical: AppSpacing.xs,
               ),
               child: Text(
-                'Delete',
+                context.l10n.deleteAccountShort,
                 style: AppTypography.caption.copyWith(color: AppColors.rose),
               ),
             ),

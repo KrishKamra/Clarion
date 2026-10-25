@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import '../../data/models/product_model.dart';
+import '../links/deep_links.dart';
 import '../utils/formatters.dart';
 
 /// On-device reminders that bring Clarion's slow decisions back to the user:
@@ -18,9 +19,6 @@ import '../utils/formatters.dart';
 abstract final class NotificationService {
   static final _plugin = FlutterLocalNotificationsPlugin();
   static bool _ready = false;
-
-  /// The product a tapped notification is about, until the shell opens it.
-  static final ValueNotifier<String?> opened = ValueNotifier(null);
 
   static const _iris = Color(0xFF4F46E5);
 
@@ -51,11 +49,11 @@ abstract final class NotificationService {
         settings: const InitializationSettings(
           android: AndroidInitializationSettings('ic_stat_clarion'),
         ),
-        onDidReceiveNotificationResponse: (r) => opened.value = r.payload,
+        onDidReceiveNotificationResponse: (r) => _open(r.payload),
       );
       final launch = await _plugin.getNotificationAppLaunchDetails();
       if (launch?.didNotificationLaunchApp ?? false) {
-        opened.value = launch!.notificationResponse?.payload;
+        _open(launch!.notificationResponse?.payload);
       }
       _ready = true;
     });
@@ -147,6 +145,11 @@ abstract final class NotificationService {
       hash = ((hash ^ unit) * 0x01000193) & 0xffffffff;
     }
     return hash & 0x7fffffff;
+  }
+
+  /// A tapped reminder opens its product, the same way a shared link does.
+  static void _open(String? productId) {
+    if (productId != null) DeepLinks.pending.value = ProductLink(productId);
   }
 
   static Future<void> _whenReady(Future<void> Function() action) async {

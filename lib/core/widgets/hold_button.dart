@@ -100,7 +100,8 @@ class _HoldButtonState extends State<HoldButton>
                   final holding = t > 0;
                   final remaining = (seconds * (1 - t)).clamp(0, seconds);
                   return Container(
-                    height: widget.height,
+                    // Label and detail lines (~34px) grow with text size.
+                    height: widget.height + AppSpacing.textGrowth(context, 34),
                     color: AppColors.vellumActive,
                     child: Stack(
                       children: [

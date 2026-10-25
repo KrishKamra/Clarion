@@ -10,6 +10,7 @@ import '../../../core/widgets/frosted_chrome.dart';
 import '../../../core/widgets/pressable.dart';
 import '../../../core/widgets/product_artwork.dart';
 import '../../../data/models/product_model.dart';
+import '../../../l10n/l10n.dart';
 import '../../home/application/intent_controller.dart';
 import '../presentation/product_decision_screen.dart';
 
@@ -37,26 +38,37 @@ class StickyCompareHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliverPersistentHeader(
       pinned: true,
-      delegate: _Delegate(left: left, right: right, leader: leader),
+      delegate: _Delegate(
+        left: left,
+        right: right,
+        leader: leader,
+        // The three lines of each candidate (~56px) grow with text size.
+        compact: 76 + AppSpacing.textGrowth(context, 56),
+      ),
     );
   }
 }
 
 class _Delegate extends SliverPersistentHeaderDelegate {
-  _Delegate({required this.left, required this.right, this.leader});
+  _Delegate({
+    required this.left,
+    required this.right,
+    required this.compact,
+    this.leader,
+  });
 
   final Product left;
   final Product right;
   final Product? leader;
 
-  static const double _compact = 76;
+  final double compact;
   static const double _stage = 128;
 
   @override
-  double get minExtent => _compact;
+  double get minExtent => compact;
 
   @override
-  double get maxExtent => _compact + _stage;
+  double get maxExtent => compact + _stage;
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlaps) {
@@ -81,7 +93,7 @@ class _Delegate extends SliverPersistentHeaderDelegate {
             ),
           ),
           SizedBox(
-            height: _compact,
+            height: compact,
             child: Row(
               children: [
                 Expanded(
@@ -124,7 +136,10 @@ class _Delegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(_Delegate old) =>
-      old.left != left || old.right != right || old.leader != leader;
+      old.left != left ||
+      old.right != right ||
+      old.leader != leader ||
+      old.compact != compact;
 }
 
 class _Stage extends StatelessWidget {
@@ -157,7 +172,11 @@ class _Candidate extends ConsumerWidget {
     final fit = ref.watch(fitProvider(product.id)).score;
     return Pressable(
       onTap: () => ProductDecisionScreen.open(context, product.id),
-      semanticLabel: 'Open ${product.title}',
+      semanticLabel: context.l10n.productSummary(
+        '${product.brand} ${product.title}',
+        Fmt.inr(product.price),
+        fit,
+      ),
       child: Row(
         children: [
           Expanded(

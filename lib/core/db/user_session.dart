@@ -9,8 +9,10 @@ import 'budget_repository.dart';
 import 'cart_repository.dart';
 import 'cooldown_repository.dart';
 import 'db_providers.dart';
+import 'order_repository.dart';
 import 'price_watch_repository.dart';
 import 'regret_repository.dart';
+import 'review_repository.dart';
 
 /// One signed-in account's local state: its database (if it opened) and the
 /// provider overrides that seed the app from it.
@@ -56,6 +58,12 @@ Future<UserSession> openUserSession(String userId) async {
         ),
         initialWatchlistProvider.overrideWithValue(watchlist),
         initialRegretCheckinsProvider.overrideWithValue(regretCheckins),
+        initialOrdersProvider.overrideWithValue(
+          await OrderRepository(db).loadAll(),
+        ),
+        initialReviewsProvider.overrideWithValue(
+          await ReviewRepository(db).loadAll(),
+        ),
       ],
     );
   } catch (error, stack) {

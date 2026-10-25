@@ -29,6 +29,29 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Deep links (app_links): clarion://product/<id>, orders/<id>,
+                 browse?category=… always open the app. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="clarion"/>
+            </intent-filter>
+            <!-- Shared https links open the app once the domain is verified
+                 (assetlinks.json, see docs/DEEP_LINKS.md); until then they
+                 open in the browser. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https"/>
+                <data android:host="clarion-e08f0.web.app"/>
+                <data android:pathPrefix="/p/"/>
+                <data android:pathPrefix="/orders/"/>
+                <data android:path="/browse"/>
+            </intent-filter>
+            <!-- Links are routed by app_links, not Flutter's Navigator. -->
+            <meta-data android:name="flutter_deeplinking_enabled" android:value="false"/>
         </activity>
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">

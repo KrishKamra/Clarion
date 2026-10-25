@@ -17,7 +17,7 @@
 Clarion is an intent-driven e-commerce **decision-support system** — *e-commerce that helps you buy better, not buy more.* Instead of infinite feeds and opaque recommendations, you state a goal, see exactly why each product fits (or doesn't), compare only what differs, and stay inside a monthly envelope that the app guards for you.
 
 > [!NOTE]
-> Products come from a mock catalogue and checkout is simulated. Sign-in is real (Firebase Authentication), and each account's cart, cooling-off holds, budget and watchlist are saved on the device in SQLite. See [Roadmap](#️-roadmap).
+> Products and reviews come from a mock catalogue, and checkout and order fulfilment are simulated. Sign-in is real (Firebase Authentication), and each account's cart, cooling-off holds, budget, watchlist, orders and reviews are saved on the device in SQLite. See [Roadmap](#️-roadmap).
 
 ---
 
@@ -30,6 +30,9 @@ Clarion is an intent-driven e-commerce **decision-support system** — *e-commer
 | ⚖️ **Differential compare** | Head-to-head that hides identical specs, marks each criterion's winner, and lets you star priorities that count double. |
 | 🛡️ **Budget Guardian** | A live barometer of settled spend + cart against your ceiling, with verified, cheaper swaps (and their spec parity) when you go over. |
 | ⏳ **Anti-impulse friction** | A press-and-hold **24h Cooling Off**, a mindful check before over-ceiling adds, and price memory that informs without urgency. |
+| 📦 **Orders and returns** | Track each order to the pickup counter; cancel or return any item and the money goes back to your envelope. |
+| 🗂️ **Browse and reviews** | The whole catalogue with filters and sort (best fit first), and owner reviews that say how long they had it. |
+| ♿ **For everyone** | English and हिन्दी, 48dp targets, screen-reader labels and AA contrast, checked in CI. |
 
 ## 🧭 How a decision flows
 
@@ -78,6 +81,9 @@ flowchart TD
 | State | [`flutter_riverpod`](https://pub.dev/packages/flutter_riverpod) 3.x — `Notifier`s + derived `Provider`s |
 | Data | Mock catalogue behind `catalogProvider`; per-account local persistence in SQLite ([`sqflite`](https://pub.dev/packages/sqflite)) |
 | Auth | [Firebase Authentication](https://firebase.google.com/docs/auth): email/password and Google ([`google_sign_in`](https://pub.dev/packages/google_sign_in)) |
+| Notifications | [`flutter_local_notifications`](https://pub.dev/packages/flutter_local_notifications): cooling-off and price-watch reminders |
+| Sharing & links | [`share_plus`](https://pub.dev/packages/share_plus) and [`app_links`](https://pub.dev/packages/app_links) (see `docs/DEEP_LINKS.md`) |
+| Localization | `flutter_localizations` + ARB files: English and हिन्दी |
 | Brand | SVG logo and banner in `assets/brand/`, rendered with [`flutter_svg`](https://pub.dev/packages/flutter_svg) |
 | Typography | Schibsted Grotesk + Geist Mono (OFL-1.1, bundled) |
 
@@ -87,21 +93,27 @@ flowchart TD
 lib/
 ├── core/
 │   ├── db/            # SQLite schema, repositories, per-account session loading
+│   ├── links/         # Deep links (clarion:// and https) → products, orders, Browse
 │   ├── theme/         # app_colors · app_typography · app_decorations · app_spacing · app_theme
 │   ├── utils/         # INR (Indian grouping), signed weights, dates, countdowns
 │   └── widgets/       # tactile_card · fit_score_gauge · intent_field · dynamic_pill ·
 │                      # floating_nav_capsule · hold_button · price_band_chart · frosted_chrome …
 ├── data/
-│   ├── models/        # product_model · cart_item_model · trade_off_item
+│   ├── models/        # product · cart_item · trade_off_item · order · review
 │   ├── catalog.dart   # Read-only Catalog + catalogProvider (the backend seam)
-│   └── mock_catalog.dart
+│   ├── mock_catalog.dart
+│   └── mock_reviews.dart
 ├── features/
 │   ├── auth/          # Firebase sign-in (email/password, Google) · sign-in screen
 │   ├── home/          # Intent parsing & ranking · Intent Horizon (fit stream, price radar)
 │   ├── decision/      # Decision canvas · Compare Matrix · cooldowns · compare scoring
+│   ├── browse/        # Catalogue with filters and sort
 │   ├── cart/          # Cart + budget state, Guardian Swap Engine · Smart Cart
+│   ├── orders/        # Order history, tracking timeline, cancellations and returns
+│   ├── reviews/       # Owner reviews, rating breakdown, writing your own
 │   ├── profile/       # Spending Profile (envelope, cooling-off queue, history)
 │   └── navigation/    # AppTab controller & MainScaffold shell
+├── l10n/              # ARB strings (English, Hindi) and generated AppLocalizations
 └── main.dart          # Firebase init, AuthGate (per-account scopes), MaterialApp
 ```
 
@@ -156,9 +168,13 @@ The mock state is tuned so the headline numbers fall out of real arithmetic:
 - [x] Notifications: cooling-off ending, price-watch targets
 - [x] Regret Check-in and "Buy now or wait?" price-dip predictions
 - [x] Email verification and in-app account deletion
+- [x] Order history, tracking and returns
+- [x] Browse with filters and sort, owner reviews
+- [x] Sharing and deep links
+- [x] Localization (English, Hindi) and an accessibility audit in CI
 - [ ] Cloud sync of account data (Firestore)
 - [ ] A real catalogue/decision-engine backend
-- [ ] Payments and order history
+- [ ] Payments
 
 ## 👥 Team
 

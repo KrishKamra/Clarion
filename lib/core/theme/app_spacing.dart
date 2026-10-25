@@ -28,6 +28,13 @@ abstract final class AppSpacing {
   /// Scroll padding a tab body needs so its last item clears the island.
   static double navBarClearance(BuildContext context) =>
       navBarHeight + navBarMargin * 2 + MediaQuery.paddingOf(context).bottom;
+
+  /// How much taller [textHeight] worth of text becomes at the user's text
+  /// size, so fixed-height chrome can grow with it instead of overflowing.
+  static double textGrowth(BuildContext context, double textHeight) {
+    final grown = MediaQuery.textScalerOf(context).scale(textHeight);
+    return grown > textHeight ? grown - textHeight : 0;
+  }
 }
 
 /// Corner radii. Concentric surfaces step down by their padding so nested

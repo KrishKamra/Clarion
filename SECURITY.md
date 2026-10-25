@@ -20,6 +20,8 @@ In scope:
 - **Per-account local data** (`lib/core/db/`): one SQLite file per account (`clarion_<uid>.db`), isolation between accounts on a shared device, and wiping on account deletion.
 - **Notifications** (`lib/core/notifications/`): scheduled reminders and their payloads; clearing them on sign-out.
 - **Intent parsing** (`lib/features/home/application/intent_controller.dart`): untrusted free-text input.
+- **Deep links** (`lib/core/links/deep_links.dart`, intent filters in `AndroidManifest.xml`): untrusted URIs from other apps. Only known hosts and paths are accepted, and ids are checked against the catalogue and the account's own orders before anything opens.
+- **Orders, returns and reviews** (`lib/features/orders/`, `lib/features/reviews/`): per-account records and user-written review text.
 - **Firebase configuration** (`lib/firebase_options.dart`, `android/app/google-services.json`): these identify the project and are public by design. Access is enforced by Firebase Auth, not by hiding them.
 - **Bundled assets** (`assets/`): supply-chain integrity of shipped files.
 - **Dependencies** declared in `pubspec.yaml` / `pubspec.lock`.

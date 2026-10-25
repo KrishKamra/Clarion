@@ -5,7 +5,8 @@ import 'package:sqflite/sqflite.dart';
 ///
 /// One file on the device (`clarion.db`) holds everything that must survive an
 /// app restart: the cart, 24h cooling-off holds, the monthly budget envelope,
-/// settled spending, and the price memory (observations + watchlist).
+/// settled spending, the price memory (observations + watchlist), orders and
+/// the account's own reviews.
 ///
 /// Times are stored as Unix epoch milliseconds (INTEGER); money as REAL rupees.
 class AppDatabase {
@@ -24,7 +25,9 @@ class AppDatabase {
   ///     v1/v2 databases were seeded with.
   /// v4: checkout records each product by name instead of a lump "Planned".
   /// v5: post-purchase Regret Check-ins (`regret_checkins`).
-  static const int schemaVersion = 5;
+  /// v6: orders with tracking and returns (`orders`, `order_lines`) and the
+  ///     account's own product reviews (`reviews`).
+  static const int schemaVersion = 6;
 
   // Table names, kept in one place so repositories never mistype them.
   static const String cartItemsTable = 'cart_items';
@@ -34,6 +37,9 @@ class AppDatabase {
   static const String priceObservationsTable = 'price_observations';
   static const String watchlistTable = 'watchlist';
   static const String regretCheckinsTable = 'regret_checkins';
+  static const String ordersTable = 'orders';
+  static const String orderLinesTable = 'order_lines';
+  static const String reviewsTable = 'reviews';
 
   /// Opens (creating on first launch) the database.
   ///
@@ -124,6 +130,7 @@ class AppDatabase {
     ''');
 
     batch.execute(_createRegretCheckins);
+    _v6.forEach(batch.execute);
 
     await batch.commit(noResult: true);
   }
@@ -143,6 +150,42 @@ class AppDatabase {
       checked_in_at INTEGER NOT NULL
     )
   ''';
+
+  /// Orders, their lines (with any return) and the account's own reviews.
+  /// Shared by fresh installs and the v6 upgrade.
+  static const List<String> _v6 = [
+    '''
+    CREATE TABLE $ordersTable (
+      id           TEXT    PRIMARY KEY,
+      placed_at    INTEGER NOT NULL,
+      pickup_area  TEXT,
+      collected_at INTEGER
+    )
+    ''',
+    '''
+    CREATE TABLE $orderLinesTable (
+      order_id      TEXT    NOT NULL,
+      product_id    TEXT    NOT NULL,
+      title         TEXT    NOT NULL,
+      price         REAL    NOT NULL CHECK (price >= 0),
+      quantity      INTEGER NOT NULL CHECK (quantity > 0),
+      position      INTEGER NOT NULL,
+      return_reason TEXT,
+      returned_at   INTEGER,
+      before_pickup INTEGER NOT NULL DEFAULT 0,
+      PRIMARY KEY (order_id, product_id)
+    )
+    ''',
+    '''
+    CREATE TABLE $reviewsTable (
+      product_id TEXT    PRIMARY KEY,
+      rating     INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+      title      TEXT,
+      body       TEXT    NOT NULL,
+      created_at INTEGER NOT NULL
+    )
+    ''',
+  ];
 
   static Future<void> _onUpgrade(Database db, int oldV, int newV) async {
     if (oldV < 2) {
@@ -179,6 +222,11 @@ class AppDatabase {
     if (oldV < 5) {
       await db.execute(_createRegretCheckins);
     }
+    if (oldV < 6) {
+      for (final sql in _v6) {
+        await db.execute(sql);
+      }
+    }
   }
 
   /// Deletes every row (keeps the tables). Handy for resetting a demo.
@@ -192,6 +240,9 @@ class AppDatabase {
       priceObservationsTable,
       watchlistTable,
       regretCheckinsTable,
+      ordersTable,
+      orderLinesTable,
+      reviewsTable,
     ]) {
       batch.delete(table);
     }

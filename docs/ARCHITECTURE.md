@@ -179,5 +179,7 @@ Seed state: ceiling ₹5,000, settled ₹2,000, cart ₹1,200 (lamp + cable kit)
 
 `test/widget_test.dart` covers formatting, intent parsing and budget filtering, catalogue integrity (weights, 30-day means, references, radar), seed budget arithmetic, the swap engine and intent priorities, plus widget tests that render every tab and the decision canvas, perform the 24h cooling-off hold, open the spec disclosure, and resolve an over-budget cart in one tap.
 
+`test/commerce_test.dart` covers order tracking, cancellations and refunds to the envelope, Browse filters and sorts, deep-link parsing (including rejected links), review data and the rating spread, and the Hindi locale. `test/accessibility_test.dart` audits every screen in both themes for tap targets, labels, contrast and 200 % text size (see `docs/ACCESSIBILITY.md`).
+
 > [!NOTE]
 > Widget tests use Flutter's wide test font, so any `RenderFlex` overflow fails the suite — a deliberate stress test for long labels and large text settings.

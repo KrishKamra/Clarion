@@ -19,7 +19,8 @@ class ChromeSliverHeader extends StatelessWidget {
       pinned: true,
       delegate: _HeaderDelegate(
         child: child,
-        height: height,
+        // The eyebrow and title (~44px of text) grow with the text size.
+        height: height + AppSpacing.textGrowth(context, 44),
         topInset: MediaQuery.paddingOf(context).top,
       ),
     );
@@ -103,7 +104,12 @@ class ScreenTitle extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(eyebrow.toUpperCase(), style: AppTypography.overline),
+              Text(
+                eyebrow.toUpperCase(),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.overline,
+              ),
               const SizedBox(height: 3),
               Text(
                 title,
@@ -114,7 +120,11 @@ class ScreenTitle extends StatelessWidget {
             ],
           ),
         ),
-        ?trailing,
+        // At large text sizes the trailing figure gives way to the title.
+        if (trailing case final trailing?)
+          Flexible(
+            child: FittedBox(fit: BoxFit.scaleDown, child: trailing),
+          ),
       ],
     );
   }

@@ -108,6 +108,23 @@ class BudgetController extends Notifier<BudgetState> {
     state = state.copyWith(categories: categories);
   }
 
+  /// Gives a returned or cancelled purchase back to the envelope. Only a
+  /// purchase made this month was counted against it.
+  void recordRefund(String label, double amount, {required DateTime boughtAt}) {
+    final now = DateTime.now();
+    if (boughtAt.year != now.year || boughtAt.month != now.month) return;
+    state = state.copyWith(
+      categories: [
+        for (final c in state.categories)
+          if (c.label != label)
+            c
+          else if (c.amount - amount > 0)
+            CategorySpend(label, c.amount - amount),
+      ],
+    );
+    _persist(ref.read(budgetRepositoryProvider)?.refund(label, amount));
+  }
+
   /// Credits a product the user decided against after a cooldown.
   void recordImpulseAvoided(double amount) {
     state = state.copyWith(

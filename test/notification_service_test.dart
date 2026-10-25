@@ -1,3 +1,4 @@
+import 'package:clarion/core/links/deep_links.dart';
 import 'package:clarion/core/notifications/notification_service.dart';
 import 'package:clarion/data/mock_catalog.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -28,6 +29,6 @@ void main() {
       products: {product.id: product},
     );
     await NotificationService.cancelAll();
-    expect(NotificationService.opened.value, isNull);
+    expect(DeepLinks.pending.value, isNull);
   });
 }

@@ -50,7 +50,9 @@ abstract final class AppColors {
   // ── Accents (one meaning each) ────────────────────────────────────────────
   /// Iris: primary actions, focus, the active tab.
   static Color get iris => const Color(0xFF4F46E5);
-  static Color get irisGlow => _pick(0xFF6366F1, 0xFF4F46E5);
+
+  /// Lifted from #6366F1 so iris text clears 4.5:1 on the dark canvas.
+  static Color get irisGlow => _pick(0xFF6B6EF3, 0xFF4F46E5);
 
   /// Botanical emerald: optimal fit, within budget, a criterion won.
   static Color get emerald => _pick(0xFF10B981, 0xFF059669);
@@ -69,8 +71,9 @@ abstract final class AppColors {
   /// Explanations and specs.
   static Color get textSecondary => _pick(0xFFA3B0C2, 0xFF475569);
 
-  /// Micro labels and inactive states — still ≥ 4.5:1 on the canvas.
-  static Color get textTertiary => _pick(0xFF7D8899, 0xFF5B6678);
+  /// Micro labels and inactive states — still ≥ 4.5:1 on the canvas and on
+  /// raised cards.
+  static Color get textTertiary => _pick(0xFF8792A3, 0xFF5B6678);
 
   /// Text placed on a solid accent fill.
   static Color get onAccent => const Color(0xFFFFFFFF);

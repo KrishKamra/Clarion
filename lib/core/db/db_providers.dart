@@ -1,13 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/models/order_model.dart';
 import '../../data/models/regret_checkin_model.dart';
 import 'app_database.dart';
 import 'budget_repository.dart';
 import 'cart_repository.dart';
 import 'cooldown_repository.dart';
 import 'demo_seed.dart';
+import 'order_repository.dart';
 import 'price_watch_repository.dart';
 import 'regret_repository.dart';
+import 'review_repository.dart';
 
 /// The open database, or `null` when there isn't one (widget tests, web, or
 /// if opening failed). Features treat `null` as "don't persist" so the app
@@ -41,6 +44,16 @@ final priceWatchRepositoryProvider = Provider<PriceWatchRepository?>((ref) {
 final regretRepositoryProvider = Provider<RegretRepository?>((ref) {
   final database = ref.watch(appDatabaseProvider);
   return database == null ? null : RegretRepository(database);
+});
+
+final orderRepositoryProvider = Provider<OrderRepository?>((ref) {
+  final database = ref.watch(appDatabaseProvider);
+  return database == null ? null : OrderRepository(database);
+});
+
+final reviewRepositoryProvider = Provider<ReviewRepository?>((ref) {
+  final database = ref.watch(appDatabaseProvider);
+  return database == null ? null : ReviewRepository(database);
 });
 
 // ── Start-up state ───────────────────────────────────────────────────────
@@ -79,3 +92,9 @@ final initialWatchlistProvider = Provider<Map<String, double?>>((ref) => {});
 final initialRegretCheckinsProvider = Provider<List<RegretCheckin>>(
   (ref) => <RegretCheckin>[],
 );
+
+/// Orders loaded from SQLite at start-up, newest first.
+final initialOrdersProvider = Provider<List<Order>>((ref) => const []);
+
+/// The account's own reviews loaded from SQLite at start-up.
+final initialReviewsProvider = Provider<List<SavedReview>>((ref) => const []);

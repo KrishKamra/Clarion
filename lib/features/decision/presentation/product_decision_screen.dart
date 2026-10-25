@@ -13,10 +13,14 @@ import '../../../core/widgets/product_artwork.dart';
 import '../../../core/widgets/round_icon_button.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../core/widgets/tactile_card.dart';
+import '../../../core/widgets/sub_page.dart';
 import '../../../core/widgets/tour_target.dart';
+import '../../../l10n/l10n.dart';
 import '../../home/application/intent_controller.dart';
 import '../../navigation/navigation_controller.dart';
+import '../../reviews/presentation/reviews_section.dart';
 import '../application/compare_controller.dart';
+import '../application/share_product.dart';
 import '../widgets/buy_or_wait_card.dart';
 import '../widgets/decision_drawer.dart';
 import '../widgets/explainability_card.dart';
@@ -46,28 +50,8 @@ class ProductDecisionScreen extends ConsumerWidget {
     Object? heroTag,
     bool replace = false,
   }) {
-    final route = PageRouteBuilder<void>(
-      transitionDuration: AppMotion.slow,
-      reverseTransitionDuration: AppMotion.medium,
-      pageBuilder: (_, _, _) =>
-          ProductDecisionScreen(productId: productId, heroTag: heroTag),
-      transitionsBuilder: (_, animation, _, child) {
-        final curved = CurvedAnimation(
-          parent: animation,
-          curve: AppMotion.standard,
-          reverseCurve: Curves.easeInCubic,
-        );
-        return FadeTransition(
-          opacity: curved,
-          child: SlideTransition(
-            position: Tween(
-              begin: const Offset(0, 0.03),
-              end: Offset.zero,
-            ).animate(curved),
-            child: child,
-          ),
-        );
-      },
+    final route = fadeRiseRoute<void>(
+      ProductDecisionScreen(productId: productId, heroTag: heroTag),
     );
     final nav = Navigator.of(context);
     return replace ? nav.pushReplacement(route) : nav.push(route);
@@ -128,12 +112,14 @@ class ProductDecisionScreen extends ConsumerWidget {
                       const SizedBox(height: AppSpacing.md),
                       PriceBandCard(product: product),
                       const SizedBox(height: AppSpacing.section),
-                      const SectionHeader(title: 'Specifications'),
+                      SectionHeader(title: context.l10n.specifications),
                       const SizedBox(height: AppSpacing.xs),
                       SpecList(specs: product.specs),
+                      const SizedBox(height: AppSpacing.section),
+                      ReviewsSection(productId: product.id),
                       if (pair != null) ...[
                         const SizedBox(height: AppSpacing.section),
-                        const SectionHeader(title: 'Also considered'),
+                        SectionHeader(title: context.l10n.alsoConsidered),
                         const SizedBox(height: AppSpacing.md),
                         _AlternativeRow(
                           product: product,
@@ -156,18 +142,32 @@ class ProductDecisionScreen extends ConsumerWidget {
                 children: [
                   RoundIconButton(
                     icon: Icons.arrow_back_rounded,
-                    semanticLabel: 'Back',
+                    semanticLabel: context.l10n.back,
                     frosted: true,
                     onPressed: () => Navigator.of(context).maybePop(),
                   ),
                   const Spacer(),
-                  if (pair != null)
+                  Builder(
+                    builder: (context) => RoundIconButton(
+                      icon: Icons.ios_share_rounded,
+                      semanticLabel: context.l10n.share,
+                      frosted: true,
+                      onPressed: () => shareProduct(
+                        context,
+                        product,
+                        fit: ref.read(fitProvider(product.id)).score,
+                      ),
+                    ),
+                  ),
+                  if (pair != null) ...[
+                    const SizedBox(width: AppSpacing.sm),
                     RoundIconButton(
                       icon: Icons.compare_arrows_rounded,
-                      semanticLabel: 'Open in Compare Matrix',
+                      semanticLabel: context.l10n.openInCompare,
                       frosted: true,
                       onPressed: openCompare,
                     ),
+                  ],
                 ],
               ),
             ),
@@ -202,20 +202,31 @@ class _TitleBlock extends ConsumerWidget {
               Text(product.title, style: AppTypography.headline),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                '${product.rating}★  ·  ${product.reviewCount} verified owners',
+                '${product.rating}★  ·  '
+                '${context.l10n.verifiedOwners(product.reviewCount)}',
+                semanticsLabel:
+                    '${context.l10n.ratedOutOfFive('${product.rating}')}, '
+                    '${context.l10n.verifiedOwners(product.reviewCount)}',
                 style: AppTypography.metricSmall.copyWith(
                   color: AppColors.textSecondary,
                 ),
               ),
               const SizedBox(height: AppSpacing.lg),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
+              // Wraps rather than overflows at large text sizes.
+              Wrap(
+                spacing: AppSpacing.md,
+                crossAxisAlignment: WrapCrossAlignment.end,
                 children: [
-                  Text(Fmt.inr(product.price), style: AppTypography.metricXL),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      Fmt.inr(product.price),
+                      style: AppTypography.metricXL,
+                    ),
+                  ),
                   if (pct.abs() >= 1) ...[
-                    const SizedBox(width: AppSpacing.md),
-                    Flexible(
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
                       child: Text(
                         '${pct > 0 ? '−' : '+'}${Fmt.percent(pct.abs())} vs 30d avg',
                         maxLines: 1,

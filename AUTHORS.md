@@ -4,7 +4,7 @@ Clarion is built by a team of three. All three hold the copyright together, unde
 
 | Name | GitHub | Contributions |
 | :--- | :--- | :--- |
-| **Krish Kamra** | [@KrishKamra](https://github.com/KrishKamra) | Project lead and repository maintainer. App foundation and architecture; the design system (Obsidian and Porcelain themes, typography, materials, motion, microinteractions); the core decision screens; Firebase authentication with per-account data; brand identity (logo, banner, app icon, splash); notifications; CI. |
+| **Krish Kamra** | [@KrishKamra](https://github.com/KrishKamra) | Project lead and repository maintainer. App foundation and architecture; the design system (Obsidian and Porcelain themes, typography, materials, motion, microinteractions); the core decision screens; Firebase authentication with per-account data; brand identity (logo, banner, app icon, splash); notifications; CI; orders, returns, Browse, owner reviews, sharing and deep links; English and Hindi localization; the accessibility audit. |
 | **Aaryesh Pathare** | [@Aaryupat10](https://github.com/Aaryupat10) | The SQLite persistence layer (schema, repositories, migrations); the Price Memory Watcher (watchlist, target prices, price history); the Heuristic Fit Engine; first-run onboarding and the hands-on app tour; the expanded catalogue. |
 | **Jash Kankariya** | [@jashkankariya](https://github.com/jashkankariya) | Post-purchase Regret Check-in and the Mindful Barometer; the "Buy now or wait?" price-dip prediction; Firebase email verification; in-app account deletion. |
 

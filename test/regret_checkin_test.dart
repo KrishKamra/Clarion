@@ -216,6 +216,9 @@ void main() {
       expect(find.text('Desk Lamp'), findsOneWidget);
       expect(find.text('WAS THIS PURCHASE WORTH IT?'), findsOneWidget);
 
+      // The sheet scrolls on a short screen.
+      await tester.ensureVisible(find.text('Save Reflection'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Save Reflection'));
       await tester.pumpAndSettle();
 

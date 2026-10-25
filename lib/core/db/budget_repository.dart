@@ -63,7 +63,7 @@ class BudgetRepository {
       'SELECT category, SUM(amount) AS total '
       'FROM ${AppDatabase.spendEntriesTable} '
       'WHERE spent_at >= ? '
-      'GROUP BY category ORDER BY MIN(id)',
+      'GROUP BY category HAVING total > 0 ORDER BY MIN(id)',
       [monthStart],
     );
 
@@ -95,6 +95,20 @@ class BudgetRepository {
       'amount': amount,
       'spent_at': DateTime.now().millisecondsSinceEpoch,
     });
+  }
+
+  /// Takes a refund back off the newest entry recorded this month under
+  /// [category], never below zero. A refund for an earlier month leaves this
+  /// month's spend alone.
+  Future<void> refund(String category, double amount) async {
+    final now = DateTime.now();
+    await _db.rawUpdate(
+      'UPDATE ${AppDatabase.spendEntriesTable} '
+      'SET amount = MAX(amount - ?, 0) '
+      'WHERE id = (SELECT id FROM ${AppDatabase.spendEntriesTable} '
+      'WHERE category = ? AND spent_at >= ? ORDER BY id DESC LIMIT 1)',
+      [amount, category, DateTime(now.year, now.month).millisecondsSinceEpoch],
+    );
   }
 
   /// Credits one impulse buy avoided and the money it would have cost.

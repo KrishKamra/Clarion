@@ -343,7 +343,7 @@ void main() {
           .first,
     );
     // Lift it clear of the decision bar before tapping.
-    await tester.drag(canvas, const Offset(0, -260));
+    await Scrollable.ensureVisible(tester.element(reveal), alignment: 0.4);
     await tester.pump(const Duration(seconds: 1));
     expect(find.text('Harness'), findsNothing);
     await tester.tap(reveal);
