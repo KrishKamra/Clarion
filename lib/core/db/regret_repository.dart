@@ -38,6 +38,8 @@ class RegretRepository {
           checkedInAt: DateTime.fromMillisecondsSinceEpoch(
             row['checked_in_at']! as int,
           ),
+          productId: row['product_id'] as String?,
+          category: row['category'] as String?,
         ),
     ];
   }
@@ -55,6 +57,8 @@ class RegretRepository {
       'tag': checkin.tag?.name,
       'note': checkin.note,
       'checked_in_at': checkin.checkedInAt.millisecondsSinceEpoch,
+      'product_id': checkin.productId,
+      'category': checkin.category,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
     return checkin.copyWith(id: id);
   }

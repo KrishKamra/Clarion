@@ -66,6 +66,25 @@ class CompareController extends Notifier<CompareState> {
     return true;
   }
 
+  /// Opens a shared comparison that may not be one of the catalogue pairs.
+  /// [CompareState.pairIndex] is −1 so the catalogue chips stay unselected.
+  void openPair(Product left, Product right) {
+    final keys = <String>['price'];
+    for (final spec in [...left.specs, ...right.specs]) {
+      if (!keys.contains(spec.key)) keys.add(spec.key);
+    }
+    state = CompareState(
+      pairIndex: -1,
+      pair: ComparePair(
+        label: '${left.brand} · ${right.brand}',
+        leftId: left.id,
+        rightId: right.id,
+        priorityKeys: keys,
+      ),
+      priorities: const {'price'},
+    );
+  }
+
   void togglePriority(String key) {
     final next = {...state.priorities};
     if (!next.remove(key)) next.add(key);

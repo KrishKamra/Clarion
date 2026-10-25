@@ -18,15 +18,23 @@ import '../../../core/widgets/tour_target.dart';
 import '../../../l10n/l10n.dart';
 import '../../home/application/intent_controller.dart';
 import '../../navigation/navigation_controller.dart';
+import '../../profile/application/opportunity_cost.dart';
 import '../../reviews/presentation/reviews_section.dart';
 import '../application/compare_controller.dart';
+import '../application/impulse_risk.dart';
+import '../application/ownership_guard.dart';
 import '../application/share_product.dart';
 import '../widgets/buy_or_wait_card.dart';
 import '../widgets/decision_drawer.dart';
 import '../widgets/explainability_card.dart';
+import '../widgets/impulse_risk_card.dart';
 import '../widgets/matte_stage.dart';
+import '../widgets/opportunity_card.dart';
+import '../widgets/ownership_cost_card.dart';
+import '../widgets/ownership_warning_card.dart';
 import '../widgets/price_band_card.dart';
 import '../widgets/spec_list.dart';
+import '../widgets/value_paths_card.dart';
 
 /// The explainable decision canvas that replaces a classic product page.
 ///
@@ -101,6 +109,7 @@ class ProductDecisionScreen extends ConsumerWidget {
                   ),
                   sliver: SliverList.list(
                     children: [
+                      _BrowsePing(productId: product.id),
                       _TitleBlock(product: product),
                       const SizedBox(height: AppSpacing.xxl),
                       TourTargetBox(
@@ -109,6 +118,22 @@ class ProductDecisionScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: AppSpacing.md),
                       BuyOrWaitCard(product: product),
+                      const SizedBox(height: AppSpacing.md),
+                      OwnershipCostCard(product: product),
+                      const SizedBox(height: AppSpacing.md),
+                      ImpulseRiskCard(product: product),
+                      if (ref.watch(ownershipWarningProvider(product.id))
+                          case final warning?) ...[
+                        const SizedBox(height: AppSpacing.md),
+                        OwnershipWarningCard(warning: warning),
+                      ],
+                      if (ref.watch(opportunityProvider(product.id))
+                          case final opportunity?) ...[
+                        const SizedBox(height: AppSpacing.md),
+                        OpportunityCard(cost: opportunity),
+                      ],
+                      const SizedBox(height: AppSpacing.md),
+                      ValuePathsCard(product: product),
                       const SizedBox(height: AppSpacing.md),
                       PriceBandCard(product: product),
                       const SizedBox(height: AppSpacing.section),
@@ -176,6 +201,32 @@ class ProductDecisionScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// Records one browse when the canvas opens. A single view is not enough
+/// to count as late-night browsing, so the hold stays at its baseline.
+class _BrowsePing extends ConsumerStatefulWidget {
+  const _BrowsePing({required this.productId});
+
+  final String productId;
+
+  @override
+  ConsumerState<_BrowsePing> createState() => _BrowsePingState();
+}
+
+class _BrowsePingState extends ConsumerState<_BrowsePing> {
+  @override
+  void initState() {
+    super.initState();
+    final id = widget.productId;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(impulseProvider.notifier).noteBrowse(id);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => const SizedBox.shrink();
 }
 
 class _TitleBlock extends ConsumerWidget {

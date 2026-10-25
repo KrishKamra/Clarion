@@ -1,10 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/models/clarity_models.dart';
 import '../../data/models/order_model.dart';
 import '../../data/models/regret_checkin_model.dart';
 import 'app_database.dart';
 import 'budget_repository.dart';
 import 'cart_repository.dart';
+import 'clarity_repository.dart';
 import 'cooldown_repository.dart';
 import 'demo_seed.dart';
 import 'order_repository.dart';
@@ -56,6 +58,11 @@ final reviewRepositoryProvider = Provider<ReviewRepository?>((ref) {
   return database == null ? null : ReviewRepository(database);
 });
 
+final clarityRepositoryProvider = Provider<ClarityRepository?>((ref) {
+  final database = ref.watch(appDatabaseProvider);
+  return database == null ? null : ClarityRepository(database);
+});
+
 // ── Start-up state ───────────────────────────────────────────────────────
 //
 // `main()` loads these from SQLite before the first frame and overrides them.
@@ -63,6 +70,12 @@ final reviewRepositoryProvider = Provider<ReviewRepository?>((ref) {
 
 final initialCooldownsProvider = Provider<Map<String, DateTime>>(
   (ref) => <String, DateTime>{},
+);
+
+/// When each cooling-off hold began. Empty when the hold was seeded without
+/// a start, in which case the UI treats it as a 24-hour hold.
+final initialCooldownStartsProvider = Provider<Map<String, DateTime>>(
+  (ref) => const {},
 );
 
 final initialCartProvider = Provider<List<SavedCartLine>>(
@@ -98,3 +111,19 @@ final initialOrdersProvider = Provider<List<Order>>((ref) => const []);
 
 /// The account's own reviews loaded from SQLite at start-up.
 final initialReviewsProvider = Provider<List<SavedReview>>((ref) => const []);
+
+final initialSavingsGoalsProvider = Provider<List<SavingsGoal>>(
+  (ref) => const [],
+);
+
+final initialCategoryBudgetsProvider = Provider<List<CategoryBudget>>(
+  (ref) => const [],
+);
+
+final initialImpulseEventsProvider = Provider<List<ImpulseEvent>>(
+  (ref) => const [],
+);
+
+final initialFriendVotesProvider = Provider<List<FriendVote>>(
+  (ref) => const [],
+);

@@ -10,6 +10,7 @@ import 'cart_repository.dart';
 import 'cooldown_repository.dart';
 import 'db_providers.dart';
 import 'order_repository.dart';
+import 'clarity_repository.dart';
 import 'price_watch_repository.dart';
 import 'regret_repository.dart';
 import 'review_repository.dart';
@@ -35,9 +36,12 @@ Future<UserSession> openUserSession(String userId) async {
         stackTrace: stack,
       );
     }
-    final holds = await CooldownRepository(db).loadAll();
+    final cooldowns = CooldownRepository(db);
+    final holds = await cooldowns.loadAll();
+    final holdStarts = await cooldowns.loadStarts();
     final watchlist = await priceWatch.loadWatchlist();
     final regretCheckins = await RegretRepository(db).loadAll();
+    final clarity = ClarityRepository(db);
     // Fire-and-forget: reminders must never delay the app opening.
     NotificationService.syncSession(
       userId: userId,
@@ -50,6 +54,7 @@ Future<UserSession> openUserSession(String userId) async {
       overrides: [
         appDatabaseProvider.overrideWithValue(db),
         initialCooldownsProvider.overrideWithValue(holds),
+        initialCooldownStartsProvider.overrideWithValue(holdStarts),
         initialCartProvider.overrideWithValue(
           await CartRepository(db).loadAll(),
         ),
@@ -64,6 +69,16 @@ Future<UserSession> openUserSession(String userId) async {
         initialReviewsProvider.overrideWithValue(
           await ReviewRepository(db).loadAll(),
         ),
+        initialSavingsGoalsProvider.overrideWithValue(
+          await clarity.loadGoals(),
+        ),
+        initialCategoryBudgetsProvider.overrideWithValue(
+          await clarity.loadCategoryBudgets(),
+        ),
+        initialImpulseEventsProvider.overrideWithValue(
+          await clarity.loadImpulseEvents(),
+        ),
+        initialFriendVotesProvider.overrideWithValue(await clarity.loadVotes()),
       ],
     );
   } catch (error, stack) {

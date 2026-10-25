@@ -10,6 +10,7 @@ import '../../../core/widgets/section_header.dart';
 import '../../../data/catalog.dart';
 import '../../../l10n/l10n.dart';
 import '../application/compare_controller.dart';
+import '../widgets/ask_friend_card.dart';
 import '../widgets/compare_matrix.dart';
 import '../widgets/sticky_compare_header.dart';
 import '../widgets/verdict_card.dart';
@@ -112,6 +113,10 @@ class _CompareMatrixScreenState extends ConsumerState<CompareMatrixScreen> {
           top: AppSpacing.md,
         ),
         section(VerdictCard(result: result), top: AppSpacing.lg),
+        section(
+          AskFriendCard(left: result.left, right: result.right),
+          top: AppSpacing.lg,
+        ),
         section(
           SectionHeader(
             eyebrow: context.l10n.compareDiffEyebrow,

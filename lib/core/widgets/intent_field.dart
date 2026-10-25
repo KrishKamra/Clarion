@@ -23,10 +23,14 @@ class IntentField extends StatefulWidget {
     this.capsules = const [],
     this.activeIntent,
     this.hint = 'What are you seeking to accomplish?',
+    this.onVoice,
   });
 
   final ValueChanged<String> onSubmitted;
   final VoidCallback? onCleared;
+
+  /// Speaks a goal into the field. Null hides the microphone.
+  final Future<String?> Function()? onVoice;
 
   /// Curated suggestions shown as pills beneath the field.
   final List<String> capsules;
@@ -74,6 +78,15 @@ class _IntentFieldState extends State<IntentField> {
     if (haptic) HapticFeedback.lightImpact();
     _focus.unfocus();
     widget.onSubmitted(text);
+  }
+
+  Future<void> _speak() async {
+    final words = await widget.onVoice?.call();
+    if (!mounted) return;
+    final spoken = words?.trim();
+    if (spoken == null || spoken.isEmpty) return;
+    _controller.text = spoken;
+    _submit(spoken);
   }
 
   void _clear() {
@@ -136,6 +149,7 @@ class _IntentFieldState extends State<IntentField> {
                     hasText: hasText,
                     onSubmit: _submit,
                     onClear: _clear,
+                    onSpeak: widget.onVoice == null ? null : _speak,
                   ),
                 ),
                 Positioned(
@@ -208,6 +222,7 @@ class _Field extends StatelessWidget {
     required this.hasText,
     required this.onSubmit,
     required this.onClear,
+    this.onSpeak,
   });
 
   final TextEditingController controller;
@@ -216,6 +231,7 @@ class _Field extends StatelessWidget {
   final bool hasText;
   final ValueChanged<String> onSubmit;
   final VoidCallback onClear;
+  final VoidCallback? onSpeak;
 
   // Intent sits in the display band (24–28px) — the prompt is the hero.
   static TextStyle get _style => AppTypography.display.copyWith(
@@ -271,6 +287,18 @@ class _Field extends StatelessWidget {
                   ),
                 ),
               ),
+            if (onSpeak != null) ...[
+              const SizedBox(width: AppSpacing.xs),
+              Pressable(
+                onTap: onSpeak,
+                semanticLabel: 'Speak your goal',
+                child: Icon(
+                  Icons.mic_none_rounded,
+                  size: 18,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
             const SizedBox(width: AppSpacing.xs),
             _SubmitButton(
               enabled: hasText,

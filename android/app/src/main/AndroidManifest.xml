@@ -4,6 +4,10 @@
          after a reboot or app update. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <!-- In-store barcode scan. The camera is optional so the app still
+         installs on a device without one; lookup by typing stays available. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <application
         android:label="Clarion"
         android:name="${applicationName}"
@@ -49,10 +53,24 @@
                 <data android:pathPrefix="/p/"/>
                 <data android:pathPrefix="/orders/"/>
                 <data android:path="/browse"/>
+                <data android:pathPrefix="/compare/"/>
+                <data android:pathPrefix="/vote/"/>
+                <data android:pathPrefix="/scan/"/>
             </intent-filter>
             <!-- Links are routed by app_links, not Flutter's Navigator. -->
             <meta-data android:name="flutter_deeplinking_enabled" android:value="false"/>
         </activity>
+        <receiver
+            android:name=".ClarionWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_description">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/clarion_widget_info"/>
+        </receiver>
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
             <intent-filter>
@@ -77,6 +95,11 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- System speech sheet for goal voice input. No RECORD_AUDIO:
+             the recognizer UI owns the microphone. -->
+        <intent>
+            <action android:name="android.speech.action.RECOGNIZE_SPEECH"/>
         </intent>
     </queries>
 </manifest>

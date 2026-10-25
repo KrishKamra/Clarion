@@ -18,6 +18,7 @@ import '../../cart/application/budget_controller.dart';
 import '../../cart/application/cart_controller.dart';
 import '../../navigation/navigation_controller.dart';
 import '../application/cooldown_controller.dart';
+import '../application/impulse_risk.dart';
 import '../presentation/product_decision_screen.dart';
 import 'mindful_check_sheet.dart';
 
@@ -99,8 +100,11 @@ class _DecisionDrawerState extends ConsumerState<DecisionDrawer> {
   }
 
   void _coolOff() {
+    final hours = ref.read(impulseAssessmentProvider(product.id)).hold.inHours;
     ref.read(cooldownProvider.notifier).hold(product.id);
-    _snack('Cooling off for 24h. If you still want it tomorrow, it’s here.');
+    _snack(
+      'Cooling off for ${hours}h. If you still want it when the hold ends, it’s here.',
+    );
   }
 
   void _release() {
@@ -115,6 +119,9 @@ class _DecisionDrawerState extends ConsumerState<DecisionDrawer> {
       cartProvider.select((l) => l.any((x) => x.productId == product.id)),
     );
     final holdUntil = ref.watch(cooldownProvider.select((m) => m[product.id]));
+    final holdLabel = ref
+        .watch(impulseAssessmentProvider(product.id))
+        .holdLabel;
     ref.watch(clockProvider); // refresh the countdown
 
     final bottom = MediaQuery.paddingOf(context).bottom;
@@ -143,11 +150,17 @@ class _DecisionDrawerState extends ConsumerState<DecisionDrawer> {
                       ? TourTargetBox(
                           id: TourTarget.coolOff,
                           child: HoldButton(
-                            label: '24h Cooling Off',
+                            label: holdLabel,
                             onConfirmed: inCart ? null : _coolOff,
                           ),
                         )
-                      : _CoolingOffStatus(until: holdUntil, onEnd: _release),
+                      : _CoolingOffStatus(
+                          until: holdUntil,
+                          span: ref
+                              .read(cooldownProvider.notifier)
+                              .spanOf(product.id),
+                          onEnd: _release,
+                        ),
                 ),
                 const SizedBox(width: AppSpacing.sm + 2),
                 Expanded(
@@ -248,19 +261,23 @@ class _BudgetImpact extends StatelessWidget {
 /// The cooling-off period in progress: a live countdown over a thin rose
 /// timeline of the 24 hours. Tapping ends it early.
 class _CoolingOffStatus extends StatelessWidget {
-  const _CoolingOffStatus({required this.until, required this.onEnd});
+  const _CoolingOffStatus({
+    required this.until,
+    required this.span,
+    required this.onEnd,
+  });
 
   final DateTime until;
+  final Duration span;
   final VoidCallback onEnd;
 
   @override
   Widget build(BuildContext context) {
     final remaining = until.difference(DateTime.now());
-    final elapsed =
-        (1 - remaining.inSeconds / CooldownController.period.inSeconds).clamp(
-          0.0,
-          1.0,
-        );
+    final totalSeconds = span.inSeconds <= 0
+        ? CooldownController.period.inSeconds
+        : span.inSeconds;
+    final elapsed = (1 - remaining.inSeconds / totalSeconds).clamp(0.0, 1.0);
     const radius = AppRadii.mdAll;
 
     return Pressable(

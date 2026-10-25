@@ -4,6 +4,21 @@ All notable changes to Clarion are documented here. Format based on [Keep a Chan
 
 ## [Unreleased]
 
+### Added — the clarity loop
+- **Regret check-in, 14–30 days on**: kept purchases in that window ask "Still glad you bought it?". The answers nudge fit scores in that category and the Mindful Barometer shows a personal regret rate. Schema v7 stores the product and category on each check-in.
+- **Cost per use**: the decision canvas states a year of use, consumables and accessories.
+- **Adaptive cooling-off**: rapid adds, late-night browsing and large purchases lengthen the hold; a small, calm one shortens it. With no signals it stays 24 hours.
+- **Already owned**: a warning before buying the same product, or one that shares a distinctive intent with something kept.
+- **Budget-optimal set**: a goal with a ceiling gets the best-fitting combination under it, one item per category.
+- **Savings goals**: each product can show what share of a named goal, and of a category ceiling, its price is.
+- **Refurbished and repair**: separate from the Guardian's verified swap, with the saving, parity and a sustainability score.
+- **Clarity report**: a shareable month of impulse buys avoided, money kept, regret rate and best decisions.
+- **Warranty vault**: return-window and warranty-expiry reminders, and a vault of kept lines.
+- **Ask a friend**: a comparison link a friend votes on by opening a reply link. Votes stay on the device.
+- **Home-screen widget**: budget left and the soonest cooling-off timer.
+- **Goal reading**: an on-device reading of a free-form goal, replaced by grok-4.7 when `XAI_API_KEY` is compiled in, plus Android voice input.
+- **In-store scan**: a barcode shows fit, price history and pickup. Typing the code works without the camera.
+
 ### Added — orders, returns, browse, reviews, sharing, Hindi, accessibility audit
 - **Orders and tracking**: checkout places an order with a short reference (`CLR-…`). Profile → Orders lists them, and each has a tracking timeline (placed → packed → ready for pickup → picked up, simulated until a fulfilment backend reports it) and a "Track" link in the checkout snackbar. Saved per account (schema v6: `orders`, `order_lines`).
 - **Returns**: any item can be cancelled before pickup or returned within 7 days after, with one reason and no retention tricks. The amount goes straight back to the month's envelope (a refund only touches the month the order was placed in).

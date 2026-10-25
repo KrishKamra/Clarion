@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#16181F"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:letterSpacing="0.12"
+        android:text="CLARION"
+        android:textColor="#8E8A99"
+        android:textSize="11sp" />
+
+    <TextView
+        android:id="@+id/widget_budget"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Budget"
+        android:textColor="#F4F1EA"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/widget_hold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="No cooling-off hold"
+        android:textColor="#C8C4B8"
+        android:textSize="13sp" />
+</LinearLayout>

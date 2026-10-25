@@ -13,6 +13,18 @@ class CooldownRepository {
 
   Database get _db => _database.db;
 
+  /// Every saved hold as productId -> moment it started. Used to keep an
+  /// adaptive hold's progress bar honest after a restart.
+  Future<Map<String, DateTime>> loadStarts() async {
+    final rows = await _db.query(AppDatabase.cooldownHoldsTable);
+    return {
+      for (final row in rows)
+        row['product_id']! as String: DateTime.fromMillisecondsSinceEpoch(
+          row['started_at']! as int,
+        ),
+    };
+  }
+
   /// Every saved hold as productId -> moment the hold expires.
   Future<Map<String, DateTime>> loadAll() async {
     final rows = await _db.query(AppDatabase.cooldownHoldsTable);

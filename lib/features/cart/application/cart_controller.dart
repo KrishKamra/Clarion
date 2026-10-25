@@ -7,6 +7,7 @@ import '../../../core/db/db_providers.dart';
 import '../../../data/catalog.dart';
 import '../../../data/models/cart_item_model.dart';
 import '../../../data/models/product_model.dart';
+import '../../decision/application/impulse_risk.dart';
 
 /// The Intent Cart. State starts from what was saved in SQLite and every
 /// change is written back, so the cart (including each item's priority)
@@ -60,7 +61,9 @@ class CartController extends Notifier<List<CartItem>> {
 
   void add(String productId) {
     if (contains(productId)) return;
-    _set([...state, CartItem(_catalog.byId(productId))]);
+    final product = _catalog.byId(productId);
+    _set([...state, CartItem(product)]);
+    ref.read(impulseProvider.notifier).noteAdd(productId, product.price);
   }
 
   /// Removes an item and returns it with its index so callers can undo.

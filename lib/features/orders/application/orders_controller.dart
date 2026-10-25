@@ -3,8 +3,11 @@ import 'dart:developer' as developer;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/db/db_providers.dart';
+import '../../../core/notifications/notification_service.dart';
+import '../../../data/catalog.dart';
 import '../../../data/models/cart_item_model.dart';
 import '../../../data/models/order_model.dart';
+import '../../../data/models/product_model.dart';
 import '../../cart/application/budget_controller.dart';
 
 /// Order history, newest first. Placing, collecting and returning update
@@ -42,6 +45,7 @@ class OrdersController extends Notifier<List<Order>> {
     );
     state = [order, ...state];
     _persist(ref.read(orderRepositoryProvider)?.insert(order));
+    _scheduleVault(order);
     return order;
   }
 
@@ -49,6 +53,16 @@ class OrdersController extends Notifier<List<Order>> {
     final now = DateTime.now();
     _update(orderId, (o) => o.copyWith(collectedAt: now));
     _persist(ref.read(orderRepositoryProvider)?.markCollected(orderId, now));
+    final order = byId(orderId);
+    if (order != null) _scheduleVault(order);
+  }
+
+  void _scheduleVault(Order order) {
+    final products = <String, Product>{
+      for (final product in ref.read(catalogProvider).products)
+        product.id: product,
+    };
+    NotificationService.scheduleVault(order, products);
   }
 
   /// Cancels (before pickup) or returns (after) one line, and gives its cost

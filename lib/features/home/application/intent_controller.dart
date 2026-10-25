@@ -5,6 +5,8 @@ import '../../../data/catalog.dart';
 import '../../../data/models/product_model.dart';
 import '../../cart/application/budget_controller.dart';
 import '../../decision/application/fit_engine.dart';
+import '../../profile/application/regret_controller.dart';
+import '../../profile/application/regret_window.dart';
 
 /// A parsed shopping intent, e.g. "Daily EDC for College < ₹2,500".
 ///
@@ -99,6 +101,11 @@ class IntentController extends Notifier<IntentQuery?> {
     state = input.trim().isEmpty ? null : IntentQuery.parse(input);
   }
 
+  /// Applies a reading that may have come from the on-device parser or a model.
+  void apply(IntentQuery query) {
+    state = query.raw.trim().isEmpty ? null : query;
+  }
+
   void clear() => state = null;
 }
 
@@ -109,9 +116,11 @@ final intentProvider = NotifierProvider<IntentController, IntentQuery?>(
 /// The Heuristic Fit Engine's verdict for one product, recomputed whenever
 /// the stated goal or the monthly budget changes.
 final fitProvider = Provider.family<FitResult, String>((ref, productId) {
-  final product = ref.watch(catalogProvider).byId(productId);
+  final catalog = ref.watch(catalogProvider);
+  final product = catalog.byId(productId);
   final intent = ref.watch(intentProvider);
   final budget = ref.watch(budgetProvider);
+  final checkins = ref.watch(regretControllerProvider);
   return FitEngine.evaluate(
     product,
     FitContext(
@@ -119,6 +128,11 @@ final fitProvider = Provider.family<FitResult, String>((ref, productId) {
       intentBudget: intent?.budget,
       monthlyLimit: budget.monthlyLimit,
       spentThisMonth: budget.spentThisMonth,
+      regretNudge: RegretWindow.nudge(
+        product: product,
+        checkins: checkins,
+        catalog: catalog.products,
+      ),
     ),
   );
 });

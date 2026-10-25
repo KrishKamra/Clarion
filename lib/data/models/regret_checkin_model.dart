@@ -39,6 +39,8 @@ class RegretCheckin {
     this.tag,
     this.note,
     required this.checkedInAt,
+    this.productId,
+    this.category,
   });
 
   final int? id;
@@ -49,6 +51,11 @@ class RegretCheckin {
   final RegretTag? tag;
   final String? note;
   final DateTime checkedInAt;
+
+  /// Catalogue id and category, when the check-in was made from an order.
+  /// Older rows leave these null and are matched by title.
+  final String? productId;
+  final String? category;
 
   bool get isWorthIt => rating == RegretRating.worthIt;
   bool get isRegretted => rating == RegretRating.regretted;
@@ -63,6 +70,8 @@ class RegretCheckin {
     RegretTag? tag,
     String? note,
     DateTime? checkedInAt,
+    String? productId,
+    String? category,
   }) {
     return RegretCheckin(
       id: id ?? this.id,
@@ -73,6 +82,8 @@ class RegretCheckin {
       tag: tag ?? this.tag,
       note: note ?? this.note,
       checkedInAt: checkedInAt ?? this.checkedInAt,
+      productId: productId ?? this.productId,
+      category: category ?? this.category,
     );
   }
 }

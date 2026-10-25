@@ -13,6 +13,7 @@ import '../../../core/widgets/sub_page.dart';
 import '../../../core/widgets/tactile_card.dart';
 import '../../../data/catalog.dart';
 import '../../../data/models/order_model.dart';
+import '../application/warranty_vault.dart';
 import '../../../l10n/l10n.dart';
 import '../../decision/application/cooldown_controller.dart';
 import '../../decision/presentation/product_decision_screen.dart';
@@ -44,6 +45,10 @@ class OrderDetailScreen extends ConsumerWidget {
       return SubPage(eyebrow: l10n.orderEyebrow, title: orderId, slivers: []);
     }
     final canReturn = order.canReturn(now);
+    final vault = WarrantyVault.entries(
+      orders: [order],
+      catalog: ref.watch(catalogProvider).products,
+    );
 
     return SubPage(
       eyebrow: l10n.orderEyebrow,
@@ -70,12 +75,51 @@ class OrderDetailScreen extends ConsumerWidget {
               ],
               const SizedBox(height: AppSpacing.lg),
               _Totals(order: order),
+              if (vault.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.section),
+                const SectionHeader(title: 'Receipt and warranty'),
+                const SizedBox(height: AppSpacing.sm),
+                for (final entry in vault)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                    child: Text(
+                      _vaultSentence(context, entry, now),
+                      style: AppTypography.bodySmall,
+                    ),
+                  ),
+              ],
             ],
           ),
         ),
       ],
     );
   }
+}
+
+String _vaultSentence(BuildContext context, VaultEntry entry, DateTime now) {
+  final title = entry.line.title;
+  final closes = entry.returnCloses;
+  if (closes != null) {
+    final days = closes.difference(now).inDays;
+    if (days >= 0 && days <= 3) {
+      return '$title: return window closes in $days days. Still happy?';
+    }
+  }
+  final years = WarrantyVault.warrantyYears(entry.product);
+  final stated = entry.product?.spec('warranty')?.display;
+  if (years == null) {
+    return stated == null
+        ? '$title: warranty not stated.'
+        : '$title: $stated warranty.';
+  }
+  final expires = entry.warrantyExpires;
+  if (expires == null) return '$title: $years-year warranty.';
+  final when = MaterialLocalizations.of(context).formatMediumDate(expires);
+  final lead = expires.difference(now).inDays;
+  if (lead >= 0 && lead <= 30) {
+    return '$title: warranty expires in $lead days ($when).';
+  }
+  return '$title: $years-year warranty, expires $when.';
 }
 
 class _Tracking extends ConsumerWidget {

@@ -27,7 +27,9 @@ class AppDatabase {
   /// v5: post-purchase Regret Check-ins (`regret_checkins`).
   /// v6: orders with tracking and returns (`orders`, `order_lines`) and the
   ///     account's own product reviews (`reviews`).
-  static const int schemaVersion = 6;
+  /// v7: savings goals, category budgets, impulse signals, friend votes,
+  ///     and the product a regret check-in refers to.
+  static const int schemaVersion = 7;
 
   // Table names, kept in one place so repositories never mistype them.
   static const String cartItemsTable = 'cart_items';
@@ -40,6 +42,10 @@ class AppDatabase {
   static const String ordersTable = 'orders';
   static const String orderLinesTable = 'order_lines';
   static const String reviewsTable = 'reviews';
+  static const String savingsGoalsTable = 'savings_goals';
+  static const String categoryBudgetsTable = 'category_budgets';
+  static const String impulseEventsTable = 'impulse_events';
+  static const String friendVotesTable = 'friend_votes';
 
   /// Opens (creating on first launch) the database.
   ///
@@ -131,13 +137,14 @@ class AppDatabase {
 
     batch.execute(_createRegretCheckins);
     _v6.forEach(batch.execute);
+    _v7.forEach(batch.execute);
 
     await batch.commit(noResult: true);
   }
 
-  /// Post-purchase Regret Check-ins. Shared by fresh installs and the v5
-  /// upgrade, so the two can never drift apart.
-  static const String _createRegretCheckins =
+  /// Post-purchase Regret Check-ins as v5 created them. The v7 upgrade adds
+  /// `product_id` and `category`. Fresh installs use [_createRegretCheckins].
+  static const String _createRegretCheckinsV5 =
       '''
     CREATE TABLE $regretCheckinsTable (
       id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -150,6 +157,60 @@ class AppDatabase {
       checked_in_at INTEGER NOT NULL
     )
   ''';
+
+  static const String _createRegretCheckins =
+      '''
+    CREATE TABLE $regretCheckinsTable (
+      id            INTEGER PRIMARY KEY AUTOINCREMENT,
+      spend_id      INTEGER,
+      product_title TEXT    NOT NULL,
+      amount        REAL    NOT NULL CHECK (amount >= 0),
+      rating        TEXT    NOT NULL,
+      tag           TEXT,
+      note          TEXT,
+      checked_in_at INTEGER NOT NULL,
+      product_id    TEXT,
+      category      TEXT
+    )
+  ''';
+
+  static const List<String> _v7 = [
+    '''
+    CREATE TABLE $savingsGoalsTable (
+      id            TEXT PRIMARY KEY,
+      name          TEXT NOT NULL,
+      target_amount REAL NOT NULL CHECK (target_amount >= 0),
+      saved_amount  REAL NOT NULL DEFAULT 0,
+      created_at    INTEGER NOT NULL
+    )
+    ''',
+    '''
+    CREATE TABLE $categoryBudgetsTable (
+      category      TEXT PRIMARY KEY,
+      monthly_limit REAL NOT NULL CHECK (monthly_limit >= 0)
+    )
+    ''',
+    '''
+    CREATE TABLE $impulseEventsTable (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      kind        TEXT NOT NULL,
+      product_id  TEXT,
+      amount      REAL NOT NULL DEFAULT 0,
+      occurred_at INTEGER NOT NULL
+    )
+    ''',
+    '''
+    CREATE TABLE $friendVotesTable (
+      ballot_id   TEXT NOT NULL,
+      choice_id   TEXT NOT NULL,
+      voter_label TEXT NOT NULL,
+      left_id     TEXT NOT NULL,
+      right_id    TEXT NOT NULL,
+      voted_at    INTEGER NOT NULL,
+      PRIMARY KEY (ballot_id, voter_label)
+    )
+    ''',
+  ];
 
   /// Orders, their lines (with any return) and the account's own reviews.
   /// Shared by fresh installs and the v6 upgrade.
@@ -220,10 +281,21 @@ class AppDatabase {
       );
     }
     if (oldV < 5) {
-      await db.execute(_createRegretCheckins);
+      await db.execute(_createRegretCheckinsV5);
     }
     if (oldV < 6) {
       for (final sql in _v6) {
+        await db.execute(sql);
+      }
+    }
+    if (oldV < 7) {
+      await db.execute(
+        'ALTER TABLE $regretCheckinsTable ADD COLUMN product_id TEXT',
+      );
+      await db.execute(
+        'ALTER TABLE $regretCheckinsTable ADD COLUMN category TEXT',
+      );
+      for (final sql in _v7) {
         await db.execute(sql);
       }
     }
@@ -243,6 +315,10 @@ class AppDatabase {
       ordersTable,
       orderLinesTable,
       reviewsTable,
+      savingsGoalsTable,
+      categoryBudgetsTable,
+      impulseEventsTable,
+      friendVotesTable,
     ]) {
       batch.delete(table);
     }

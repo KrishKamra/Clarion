@@ -18,6 +18,8 @@ Future<void> showRegretCheckinSheet(
   required String productTitle,
   required double amount,
   int? spendId,
+  String? productId,
+  String? category,
 }) {
   return showClarionSheet<void>(
     context: context,
@@ -27,6 +29,8 @@ Future<void> showRegretCheckinSheet(
       productTitle: productTitle,
       amount: amount,
       spendId: spendId,
+      productId: productId,
+      category: category,
     ),
   );
 }
@@ -36,11 +40,15 @@ class _RegretCheckinForm extends ConsumerStatefulWidget {
     required this.productTitle,
     required this.amount,
     this.spendId,
+    this.productId,
+    this.category,
   });
 
   final String productTitle;
   final double amount;
   final int? spendId;
+  final String? productId;
+  final String? category;
 
   @override
   ConsumerState<_RegretCheckinForm> createState() => _RegretCheckinFormState();
@@ -80,6 +88,8 @@ class _RegretCheckinFormState extends ConsumerState<_RegretCheckinForm> {
           note: _noteController.text.trim().isEmpty
               ? null
               : _noteController.text.trim(),
+          productId: widget.productId,
+          category: widget.category,
         );
 
     Navigator.of(context).pop();
@@ -108,6 +118,13 @@ class _RegretCheckinFormState extends ConsumerState<_RegretCheckinForm> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text(
+                'Still glad you bought it?',
+                style: AppTypography.body.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
               Text(
                 widget.productTitle,
                 style: AppTypography.title,

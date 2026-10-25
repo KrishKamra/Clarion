@@ -14,6 +14,7 @@ class FitContext {
     required this.spentThisMonth,
     this.keywords = const {},
     this.intentBudget,
+    this.regretNudge = 0,
   });
 
   /// Words from the stated goal, e.g. {college, setup}. Empty = no goal.
@@ -25,6 +26,10 @@ class FitContext {
   /// The monthly envelope and what is already settled against it.
   final double monthlyLimit;
   final double spentThisMonth;
+
+  /// Points from regret check-ins in this product's category. Zero when
+  /// the user has no history, so existing scores stay put.
+  final int regretNudge;
 
   double get envelopeLeft => monthlyLimit - spentThisMonth;
 }
@@ -113,6 +118,7 @@ abstract final class FitEngine {
   static const String overBudgetTitle = 'Over your budget';
   static const String overCeilingTitle = 'Above your price limit';
   static const String fewReviewsTitle = 'Few reviews';
+  static const String regretTitle = 'Your past calls';
 
   static const int maxIntent = 35;
   static const int maxBudget = 25;
@@ -259,6 +265,28 @@ abstract final class FitEngine {
     }
     if (p.reviewCount < thinReviews) {
       penalise(fewReviewsTitle, 'Only ${p.reviewCount} owner reviews', 4);
+    }
+    if (c.regretNudge < 0) {
+      penalise(
+        regretTitle,
+        'You have regretted similar purchases',
+        -c.regretNudge,
+      );
+    } else if (c.regretNudge > 0) {
+      final room = math.max(0, 100 - remaining);
+      final bonus = math.min(c.regretNudge, room);
+      if (bonus > 0) {
+        remaining += bonus;
+        items.add(
+          TradeOffItem(
+            title: regretTitle,
+            detail: 'Similar purchases were worth it for you',
+            weight: bonus,
+            verdict: 'Strong',
+            max: 8,
+          ),
+        );
+      }
     }
 
     final score = items.fold<int>(0, (sum, t) => sum + t.weight);

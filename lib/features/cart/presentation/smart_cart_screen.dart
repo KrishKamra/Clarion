@@ -11,8 +11,11 @@ import '../../../core/widgets/clarion_button.dart';
 import '../../../core/widgets/clarion_sheet.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../core/widgets/tactile_card.dart';
+import '../../../data/catalog.dart';
 import '../../../data/models/cart_item_model.dart';
+import '../../decision/widgets/value_paths_card.dart';
 import '../application/budget_controller.dart';
+import '../application/value_alternatives.dart';
 import '../../decision/application/compare_controller.dart';
 import '../../decision/presentation/product_decision_screen.dart';
 import '../../../l10n/l10n.dart';
@@ -133,6 +136,13 @@ class _SmartCartScreenState extends ConsumerState<SmartCartScreen> {
     final budget = ref.watch(budgetSnapshotProvider);
     final swaps = ref.watch(swapSuggestionsProvider);
     final count = ref.watch(cartCountProvider);
+    final catalog = ref.watch(catalogProvider);
+    final valueProducts = [
+      for (final line in lines)
+        if (ValueAlternatives.forProduct(catalog.byId(line.productId))
+            .isNotEmpty)
+          catalog.byId(line.productId),
+    ];
 
     return CustomScrollView(
       physics: const BouncingScrollPhysics(
@@ -225,6 +235,18 @@ class _SmartCartScreenState extends ConsumerState<SmartCartScreen> {
               },
             ),
           ),
+          if (valueProducts.isNotEmpty)
+            SliverPadding(
+              padding: AppSpacing.screenPadding.copyWith(top: AppSpacing.lg),
+              sliver: SliverList.list(
+                children: [
+                  for (final product in valueProducts) ...[
+                    ValuePathsCard(product: product),
+                    const SizedBox(height: AppSpacing.md),
+                  ],
+                ],
+              ),
+            ),
           SliverPadding(
             padding: AppSpacing.screenPadding.copyWith(top: AppSpacing.xl),
             sliver: SliverToBoxAdapter(

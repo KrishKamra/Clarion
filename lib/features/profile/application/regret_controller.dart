@@ -31,6 +31,12 @@ class RegretStats {
     if (totalCheckedIn == 0) return 100;
     return ((worthItCount / totalCheckedIn) * 100).round();
   }
+
+  /// Share of check-ins marked regretted, 0–100. Zero when nothing is rated.
+  int get regretRate {
+    if (totalCheckedIn == 0) return 0;
+    return ((regrettedCount / totalCheckedIn) * 100).round();
+  }
 }
 
 /// Manages post-purchase Regret Check-ins.
@@ -59,13 +65,16 @@ class RegretController extends Notifier<List<RegretCheckin>> {
     required RegretRating rating,
     RegretTag? tag,
     String? note,
+    String? productId,
+    String? category,
   }) async {
     final now = DateTime.now();
     final existingIndex = state.indexWhere(
       (c) => c.productTitle == productTitle,
     );
+    final previous = existingIndex >= 0 ? state[existingIndex] : null;
     final newCheckin = RegretCheckin(
-      id: existingIndex >= 0 ? state[existingIndex].id : null,
+      id: previous?.id,
       spendId: spendId,
       productTitle: productTitle,
       amount: amount,
@@ -73,6 +82,8 @@ class RegretController extends Notifier<List<RegretCheckin>> {
       tag: tag,
       note: note,
       checkedInAt: now,
+      productId: productId ?? previous?.productId,
+      category: category ?? previous?.category,
     );
 
     if (existingIndex >= 0) {

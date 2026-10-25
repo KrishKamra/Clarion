@@ -77,6 +77,15 @@ class RegretBarometerCard extends ConsumerWidget {
                 : '${stats.worthItCount} of $total evaluated purchases brought lasting value.',
             style: AppTypography.body.copyWith(color: AppColors.textSecondary),
           ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            total == 0
+                ? 'Personal regret rate appears after the first check-in.'
+                : 'Personal regret rate ${stats.regretRate}%.',
+            style: AppTypography.bodySmall.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
           const SizedBox(height: AppSpacing.md),
           // Multi-color progress barometer
           ClipRRect(

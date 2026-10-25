@@ -4,9 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/links/deep_links.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../core/utils/formatters.dart';
+import '../../core/widget/home_widget_bridge.dart';
 import '../../core/widgets/floating_nav_capsule.dart';
 import '../../core/widgets/obsidian_canvas.dart';
 import '../../data/catalog.dart';
+import '../../data/models/product_model.dart';
 import '../../l10n/l10n.dart';
 import '../auth/application/auth_service.dart';
 import '../browse/application/browse_controller.dart';
@@ -14,7 +17,10 @@ import '../browse/presentation/browse_screen.dart';
 import '../cart/application/budget_controller.dart';
 import '../cart/application/cart_controller.dart';
 import '../cart/presentation/smart_cart_screen.dart';
+import '../decision/application/compare_controller.dart';
 import '../decision/application/cooldown_controller.dart';
+import '../decision/application/friend_ballot.dart';
+import '../decision/presentation/barcode_scan_screen.dart';
 import '../decision/presentation/compare_matrix_screen.dart';
 import '../decision/presentation/product_decision_screen.dart';
 import '../home/presentation/intent_home_screen.dart';
@@ -47,6 +53,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
       // A link or reminder that launched the app goes straight to its page.
       _openPendingLink();
       _runOnboarding();
+      _publishWidget();
     });
   }
 
@@ -76,7 +83,65 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
       case BrowseLink(:final category):
         final known = ref.read(categoriesProvider).contains(category);
         BrowseScreen.open(context, category: known ? category : null);
+      case CompareLink(:final leftId, :final rightId):
+        _showComparison(leftId, rightId);
+      case VoteLink(
+        :final ballotId,
+        :final choiceId,
+        :final leftId,
+        :final rightId,
+      ):
+        if (leftId.isEmpty || rightId.isEmpty || choiceId.isEmpty) break;
+        ref
+            .read(friendBallotProvider.notifier)
+            .cast(
+              ballotId: ballotId,
+              choiceId: choiceId,
+              leftId: leftId,
+              rightId: rightId,
+            );
+        _showComparison(leftId, rightId);
+      case BarcodeLink(:final code):
+        BarcodeScanScreen.open(context, code: code);
     }
+  }
+
+  /// Opens a shared comparison on the Compare tab, when both products exist.
+  void _showComparison(String leftId, String rightId) {
+    if (!mounted) return;
+    final left = _product(leftId);
+    final right = _product(rightId);
+    if (left == null || right == null) return;
+    ref.read(compareProvider.notifier).openPair(left, right);
+    ref.read(navigationProvider.notifier).select(AppTab.compare);
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
+  Product? _product(String id) {
+    for (final product in ref.read(catalogProvider).products) {
+      if (product.id == id) return product;
+    }
+    return null;
+  }
+
+  /// Budget left and the soonest cooling-off timer, for the home-screen widget.
+  void _publishWidget() {
+    if (!mounted) return;
+    final snapshot = ref.read(budgetSnapshotProvider);
+    final holds = ref.read(cooldownProvider);
+    String? title;
+    DateTime? ends;
+    for (final entry in holds.entries) {
+      if (ends != null && !entry.value.isBefore(ends)) continue;
+      ends = entry.value;
+      title = _product(entry.key)?.title ?? 'Cooling off';
+    }
+    final left = snapshot.headroom;
+    HomeWidgetBridge.publish(
+      budget: left < 0 ? '${Fmt.inr(-left)} over' : '${Fmt.inr(left)} left',
+      holdTitle: title ?? 'No cooling-off hold',
+      holdEnds: ends,
+    );
   }
 
   /// First-run onboarding, once per account: set the monthly ceiling, then
@@ -103,6 +168,8 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(budgetSnapshotProvider, (_, _) => _publishWidget());
+    ref.listen(cooldownProvider, (_, _) => _publishWidget());
     final tab = ref.watch(navigationProvider);
     final cartCount = ref.watch(cartCountProvider);
     final overBudget = ref.watch(

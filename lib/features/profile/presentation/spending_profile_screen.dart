@@ -18,13 +18,17 @@ import '../../../l10n/l10n.dart';
 import '../../decision/application/cooldown_controller.dart';
 import '../../orders/application/orders_controller.dart';
 import '../../orders/presentation/orders_screen.dart';
+import '../../orders/presentation/warranty_vault_screen.dart';
 import '../../tour/app_tour.dart';
+import 'clarity_report_screen.dart';
 import 'widgets/ceiling_sheet.dart';
 import 'widgets/delete_account_sheet.dart';
+import 'widgets/due_regret_card.dart';
 import 'widgets/email_verification_card.dart';
 import 'widgets/envelope_card.dart';
 import 'widgets/pending_hold_tile.dart';
 import 'widgets/regret_barometer_card.dart';
+import 'widgets/savings_goals_card.dart';
 import 'widgets/spend_history.dart';
 
 /// Spending Profile: the envelope over time — what is committed, what is
@@ -143,6 +147,30 @@ class SpendingProfileScreen extends ConsumerWidget {
                   const SizedBox(height: AppSpacing.md),
                 ],
               ],
+              const SizedBox(height: AppSpacing.section),
+              const DueRegretSection(),
+              const SavingsGoalsCard(),
+              const SizedBox(height: AppSpacing.md),
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
+                children: [
+                  DynamicPill(
+                    label: 'Clarity report',
+                    icon: Icons.auto_awesome_outlined,
+                    size: PillSize.regular,
+                    color: AppColors.irisGlow,
+                    onTap: () => ClarityReportScreen.open(context),
+                  ),
+                  DynamicPill(
+                    label: 'Warranty vault',
+                    icon: Icons.inventory_2_outlined,
+                    size: PillSize.regular,
+                    color: AppColors.irisGlow,
+                    onTap: () => WarrantyVaultScreen.open(context),
+                  ),
+                ],
+              ),
               const SizedBox(height: AppSpacing.section),
               const RegretBarometerCard(),
               const SizedBox(height: AppSpacing.section),

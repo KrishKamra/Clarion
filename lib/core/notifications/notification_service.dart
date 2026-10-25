@@ -6,6 +6,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 
+import '../../data/models/order_model.dart';
 import '../../data/models/product_model.dart';
 import '../links/deep_links.dart';
 import '../utils/formatters.dart';
@@ -27,6 +28,15 @@ abstract final class NotificationService {
       'cooling_off',
       'Cooling-off reminders',
       channelDescription: 'When a 24h cooling-off hold ends.',
+      color: _iris,
+    ),
+  );
+
+  static const _vault = NotificationDetails(
+    android: AndroidNotificationDetails(
+      'warranty_vault',
+      'Receipts and warranty',
+      channelDescription: 'When a return window is about to close, or a warranty is about to expire.',
       color: _iris,
     ),
   );
@@ -91,6 +101,57 @@ abstract final class NotificationService {
   static Future<void> cancelCoolingOff(String productId) =>
       _whenReady(() => _plugin.cancel(id: idFor('hold', productId)));
 
+  /// Reminds the buyer three days before the return window closes, and
+  /// thirty days before a finite warranty expires.
+  static Future<void> scheduleVault(
+    Order order,
+    Map<String, Product> products,
+  ) => _whenReady(() async {
+    final now = DateTime.now();
+    final returnAt = (order.collectedAt ?? order.placedAt)
+        .add(Order.returnWindow)
+        .subtract(const Duration(days: 3));
+    if (returnAt.isAfter(now)) {
+      final title = order.lines.isEmpty
+          ? 'your order'
+          : order.lines.first.title;
+      await _plugin.zonedSchedule(
+        id: idFor('return', order.id),
+        scheduledDate: tz.TZDateTime.from(returnAt, tz.UTC),
+        notificationDetails: _vault,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        title: 'Return window closes in 3 days',
+        body: 'Still happy with the $title?',
+        payload: 'order:${order.id}',
+      );
+    }
+    for (final line in order.lines) {
+      if (line.returned != null) continue;
+      final product = products[line.productId];
+      final yearsValue = product?.spec('warranty')?.value;
+      if (yearsValue == null || yearsValue >= 90) continue;
+      final years = yearsValue.round();
+      if (years <= 0) continue;
+      final expires = DateTime(
+        order.placedAt.year + years,
+        order.placedAt.month,
+        order.placedAt.day,
+      );
+      final remind = expires.subtract(const Duration(days: 30));
+      if (!remind.isAfter(now)) continue;
+      await _plugin.zonedSchedule(
+        id: idFor('warranty', '${order.id}:${line.productId}'),
+        scheduledDate: tz.TZDateTime.from(remind, tz.UTC),
+        notificationDetails: _vault,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        title: 'Warranty ending soon',
+        body:
+            'The warranty on ${line.title} expires on ${Fmt.shortDate(expires)}.',
+        payload: line.productId,
+      );
+    }
+  });
+
   /// Re-arms one account's reminders when its session opens: reschedules its
   /// holds, and announces watched products that have newly reached their
   /// target since the last check (each target is announced once).
@@ -147,9 +208,14 @@ abstract final class NotificationService {
     return hash & 0x7fffffff;
   }
 
-  /// A tapped reminder opens its product, the same way a shared link does.
-  static void _open(String? productId) {
-    if (productId != null) DeepLinks.pending.value = ProductLink(productId);
+  /// A tapped reminder opens its product, or the order for a vault reminder.
+  static void _open(String? payload) {
+    if (payload == null || payload.isEmpty) return;
+    if (payload.startsWith('order:')) {
+      DeepLinks.pending.value = OrderLink(payload.substring('order:'.length));
+      return;
+    }
+    DeepLinks.pending.value = ProductLink(payload);
   }
 
   static Future<void> _whenReady(Future<void> Function() action) async {

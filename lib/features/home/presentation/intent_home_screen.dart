@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/chrome_header.dart';
+import '../../../core/widgets/dynamic_pill.dart';
 import '../../../core/widgets/intent_field.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../data/catalog.dart';
 import '../../../l10n/l10n.dart';
 import '../../browse/presentation/browse_screen.dart';
 import '../../decision/application/watchlist_controller.dart';
+import '../../decision/presentation/barcode_scan_screen.dart';
+import '../application/bundle_planner.dart';
+import '../application/goal_reader.dart';
 import '../application/intent_controller.dart';
+import '../application/voice_input.dart';
+import 'widgets/bundle_card.dart';
 import 'widgets/fit_stream.dart';
 import 'widgets/horizon_header.dart';
 import 'widgets/intent_summary.dart';
@@ -30,6 +38,8 @@ class IntentHomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final intent = ref.watch(intentProvider);
+    final reading = ref.watch(goalExplanationProvider);
+    final plan = ref.watch(bundlePlanProvider);
     final picks = ref.watch(fitPicksProvider);
     final radar = ref.watch(catalogProvider.select((c) => c.priceRadar));
     final controller = ref.read(intentProvider.notifier);
@@ -50,11 +60,29 @@ class IntentHomeScreen extends ConsumerWidget {
         SliverPadding(
           padding: AppSpacing.screenPadding.copyWith(top: AppSpacing.xl),
           sliver: SliverToBoxAdapter(
-            child: IntentField(
-              capsules: capsules,
-              activeIntent: intent?.raw,
-              onSubmitted: controller.submit,
-              onCleared: controller.clear,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                IntentField(
+                  capsules: capsules,
+                  activeIntent: intent?.raw,
+                  onSubmitted: (text) =>
+                      ref.read(goalExplanationProvider.notifier).explain(text),
+                  onCleared: () {
+                    controller.clear();
+                    ref.read(goalExplanationProvider.notifier).clear();
+                  },
+                  onVoice: VoiceInput.listen,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                DynamicPill(
+                  label: 'Scan in store',
+                  icon: Icons.qr_code_scanner_rounded,
+                  size: PillSize.regular,
+                  color: AppColors.irisGlow,
+                  onTap: () => BarcodeScanScreen.open(context),
+                ),
+              ],
             ),
           ),
         ),
@@ -72,7 +100,10 @@ class IntentHomeScreen extends ConsumerWidget {
                     child: IntentSummary(
                       intent: intent,
                       matches: picks.length,
-                      onClear: controller.clear,
+                      onClear: () {
+                        controller.clear();
+                        ref.read(goalExplanationProvider.notifier).clear();
+                      },
                     ),
                   ),
           ),
@@ -103,6 +134,23 @@ class IntentHomeScreen extends ConsumerWidget {
             ),
           ),
         ),
+        if (reading != null)
+          SliverPadding(
+            padding: AppSpacing.screenPadding.copyWith(top: AppSpacing.lg),
+            sliver: SliverToBoxAdapter(
+              child: Text(
+                reading.explanation,
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
+          ),
+        if (plan != null)
+          SliverPadding(
+            padding: AppSpacing.screenPadding.copyWith(top: AppSpacing.md),
+            sliver: SliverToBoxAdapter(child: BundleCard(plan: plan)),
+          ),
         if (radar.isNotEmpty) ...[
           SliverPadding(
             padding: AppSpacing.screenPadding.copyWith(
