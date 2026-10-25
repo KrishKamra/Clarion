@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import '../../../core/db/app_database.dart';
 import '../../../core/notifications/notification_service.dart';
 
 /// The signed-in account, or `null` outside a session (and in widget tests).
@@ -84,6 +85,31 @@ abstract final class AuthService {
     await _auth.signOut();
   }
 
+  /// Permanently deletes the signed-in user's Firebase Auth account and wipes
+  /// local account state from SQLite.
+  static Future<void> deleteAccount({AppDatabase? db}) => _guard(() async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    await NotificationService.cancelAll();
+
+    if (db != null) {
+      try {
+        await db.resetAll();
+      } catch (e) {
+        debugPrint('Could not reset local database during account deletion: $e');
+      }
+    }
+
+    if (!kIsWeb && _googleReady != null) {
+      try {
+        await GoogleSignIn.instance.signOut();
+      } catch (_) {}
+    }
+
+    await user.delete();
+  });
+
   static Future<void> _guard(Future<void> Function() action) async {
     try {
       await action();
@@ -104,6 +130,8 @@ abstract final class AuthService {
     'too-many-requests' => 'Too many attempts. Try again in a few minutes.',
     'network-request-failed' => 'No connection. Check your network.',
     'operation-not-allowed' => 'This sign-in method isn’t enabled yet.',
+    'requires-recent-login' =>
+      'For security, please sign out and sign in again before deleting your account.',
     _ => 'Something went wrong. Please try again.',
   };
 }

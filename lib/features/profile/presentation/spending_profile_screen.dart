@@ -16,6 +16,7 @@ import '../../auth/application/auth_service.dart';
 import '../../decision/application/cooldown_controller.dart';
 import '../../tour/app_tour.dart';
 import 'widgets/ceiling_sheet.dart';
+import 'widgets/delete_account_sheet.dart';
 import 'widgets/email_verification_card.dart';
 import 'widgets/envelope_card.dart';
 import 'widgets/pending_hold_tile.dart';
@@ -216,10 +217,30 @@ class _AccountCard extends StatelessWidget {
             onTap: AuthService.signOut,
             semanticLabel: 'Sign out',
             child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.xs),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.xs,
+                vertical: AppSpacing.xs,
+              ),
               child: Text(
                 'Sign out',
-                style: AppTypography.label.copyWith(color: AppColors.rose),
+                style: AppTypography.caption.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Pressable(
+            onTap: () => showDeleteAccountSheet(context),
+            semanticLabel: 'Delete account',
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.xs,
+                vertical: AppSpacing.xs,
+              ),
+              child: Text(
+                'Delete',
+                style: AppTypography.caption.copyWith(color: AppColors.rose),
               ),
             ),
           ),
