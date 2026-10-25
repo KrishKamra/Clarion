@@ -17,6 +17,7 @@ import '../../../core/widgets/tour_target.dart';
 import '../../home/application/intent_controller.dart';
 import '../../navigation/navigation_controller.dart';
 import '../application/compare_controller.dart';
+import '../widgets/buy_or_wait_card.dart';
 import '../widgets/decision_drawer.dart';
 import '../widgets/explainability_card.dart';
 import '../widgets/matte_stage.dart';
@@ -122,6 +123,8 @@ class ProductDecisionScreen extends ConsumerWidget {
                         id: TourTarget.ledger,
                         child: ExplainabilityCard(product: product),
                       ),
+                      const SizedBox(height: AppSpacing.md),
+                      BuyOrWaitCard(product: product),
                       const SizedBox(height: AppSpacing.md),
                       PriceBandCard(product: product),
                       const SizedBox(height: AppSpacing.section),
