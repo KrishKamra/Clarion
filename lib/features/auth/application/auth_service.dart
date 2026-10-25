@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/db/app_database.dart';
 import '../../../core/notifications/notification_service.dart';
@@ -10,12 +11,6 @@ import '../../../core/notifications/notification_service.dart';
 ///
 /// `AuthGate` overrides this for each account's provider scope.
 final currentUserProvider = Provider<User?>((ref) => null);
-
-/// Helper provider returning true if the currently signed-in user's email is verified.
-final isEmailVerifiedProvider = Provider<bool>((ref) {
-  final user = ref.watch(currentUserProvider);
-  return user?.emailVerified ?? false;
-});
 
 /// Thin wrapper over Firebase Auth. Every method throws [AuthFailure] with a
 /// message fit to show the user; a dismissed Google picker returns quietly.
@@ -28,13 +23,14 @@ abstract final class AuthService {
     () => _auth.signInWithEmailAndPassword(email: email, password: password),
   );
 
-  static Future<void> register(String email, String password) => _guard(() async {
-    final cred = await _auth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-    await cred.user?.sendEmailVerification();
-  });
+  static Future<void> register(String email, String password) =>
+      _guard(() async {
+        final cred = await _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        await cred.user?.sendEmailVerification();
+      });
 
   static Future<void> sendEmailVerification() => _guard(() async {
     final user = _auth.currentUser;
@@ -85,29 +81,33 @@ abstract final class AuthService {
     await _auth.signOut();
   }
 
-  /// Permanently deletes the signed-in user's Firebase Auth account and wipes
-  /// local account state from SQLite.
+  /// Permanently deletes the signed-in account, then everything this device
+  /// holds for it: its SQLite data, its reminders and its saved settings.
+  ///
+  /// The Firebase account goes first. Firebase often refuses with
+  /// `requires-recent-login`; when it does, nothing local has been touched,
+  /// so the user keeps their data and can retry after signing in again.
   static Future<void> deleteAccount({AppDatabase? db}) => _guard(() async {
     final user = _auth.currentUser;
     if (user == null) return;
-
-    await NotificationService.cancelAll();
-
-    if (db != null) {
-      try {
-        await db.resetAll();
-      } catch (e) {
-        debugPrint('Could not reset local database during account deletion: $e');
-      }
-    }
-
-    if (!kIsWeb && _googleReady != null) {
-      try {
-        await GoogleSignIn.instance.signOut();
-      } catch (_) {}
-    }
+    final uid = user.uid;
 
     await user.delete();
+
+    await NotificationService.cancelAll();
+    try {
+      await db?.resetAll();
+      final prefs = await SharedPreferences.getInstance();
+      for (final key in prefs.getKeys().where((k) => k.endsWith('_$uid'))) {
+        await prefs.remove(key);
+      }
+      if (!kIsWeb && _googleReady != null) {
+        await GoogleSignIn.instance.signOut();
+      }
+    } catch (error) {
+      // The account is already gone; leftovers here are harmless.
+      debugPrint('Account deleted, but local cleanup failed: $error');
+    }
   });
 
   static Future<void> _guard(Future<void> Function() action) async {
@@ -130,8 +130,7 @@ abstract final class AuthService {
     'too-many-requests' => 'Too many attempts. Try again in a few minutes.',
     'network-request-failed' => 'No connection. Check your network.',
     'operation-not-allowed' => 'This sign-in method isn’t enabled yet.',
-    'requires-recent-login' =>
-      'For security, please sign out and sign in again before deleting your account.',
+    'requires-recent-login' => 'For security, please sign out and sign in again before deleting your account.',
     _ => 'Something went wrong. Please try again.',
   };
 }

@@ -69,7 +69,9 @@ class _RegretCheckinFormState extends ConsumerState<_RegretCheckinForm> {
   }
 
   void _save() {
-    ref.read(regretControllerProvider.notifier).recordCheckin(
+    ref
+        .read(regretControllerProvider.notifier)
+        .recordCheckin(
           spendId: widget.spendId,
           productTitle: widget.productTitle,
           amount: widget.amount,
@@ -85,8 +87,7 @@ class _RegretCheckinFormState extends ConsumerState<_RegretCheckinForm> {
     final message = switch (_rating) {
       RegretRating.worthIt =>
         'Reflection saved: ${widget.productTitle} was worth it!',
-      RegretRating.neutral =>
-        'Reflection saved for ${widget.productTitle}.',
+      RegretRating.neutral => 'Reflection saved for ${widget.productTitle}.',
       RegretRating.regretted =>
         'Regret recorded for ${widget.productTitle}. Kept in mind for future decisions.',
     };
@@ -190,10 +191,7 @@ class _RegretCheckinFormState extends ConsumerState<_RegretCheckinForm> {
           ),
         ),
         const SizedBox(height: AppSpacing.xl),
-        ClarionButton(
-          label: 'Save Reflection',
-          onPressed: _save,
-        ),
+        ClarionButton(label: 'Save Reflection', onPressed: _save),
       ],
     );
   }

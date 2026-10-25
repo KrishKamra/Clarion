@@ -1,4 +1,3 @@
-import 'package:clarion/features/auth/application/auth_service.dart';
 import 'package:clarion/features/profile/presentation/widgets/email_verification_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -16,28 +15,6 @@ class MockUser extends Fake implements User {
 }
 
 void main() {
-  group('isEmailVerifiedProvider', () {
-    test('returns false when no user is signed in', () {
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-
-      expect(container.read(isEmailVerifiedProvider), isFalse);
-    });
-
-    test('returns true when current user is verified', () {
-      final container = ProviderContainer(
-        overrides: [
-          currentUserProvider.overrideWithValue(
-            MockUser(emailVerified: true, email: 'user@example.com'),
-          ),
-        ],
-      );
-      addTearDown(container.dispose);
-
-      expect(container.read(isEmailVerifiedProvider), isTrue);
-    });
-  });
-
   group('EmailVerificationCard', () {
     testWidgets('renders unverified state with action buttons', (tester) async {
       final user = MockUser(emailVerified: false, email: 'test@clarion.app');

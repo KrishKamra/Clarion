@@ -231,8 +231,8 @@ class _CategoryRow extends StatelessWidget {
                   color: checkin!.isWorthIt
                       ? AppColors.emeraldGlow
                       : checkin!.isRegretted
-                          ? AppColors.rose
-                          : AppColors.irisGlow,
+                      ? AppColors.rose
+                      : AppColors.irisGlow,
                   selected: true,
                   onTap: () => showRegretCheckinSheet(
                     context,

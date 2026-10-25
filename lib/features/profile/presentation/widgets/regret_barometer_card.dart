@@ -45,10 +45,11 @@ class RegretBarometerCard extends ConsumerWidget {
                   vertical: AppSpacing.xs,
                 ),
                 decoration: BoxDecoration(
-                  color: (stats.mindfulScore >= 75
-                          ? AppColors.emeraldGlow
-                          : AppColors.rose)
-                      .withValues(alpha: 0.15),
+                  color:
+                      (stats.mindfulScore >= 75
+                              ? AppColors.emeraldGlow
+                              : AppColors.rose)
+                          .withValues(alpha: 0.15),
                   borderRadius: AppRadii.pillAll,
                   border: Border.all(
                     color: stats.mindfulScore >= 75
@@ -74,9 +75,7 @@ class RegretBarometerCard extends ConsumerWidget {
             total == 0
                 ? 'Check in on settled purchases below to see your purchase satisfaction rate.'
                 : '${stats.worthItCount} of $total evaluated purchases brought lasting value.',
-            style: AppTypography.body.copyWith(
-              color: AppColors.textSecondary,
-            ),
+            style: AppTypography.body.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.md),
           // Multi-color progress barometer
@@ -121,18 +120,11 @@ class RegretBarometerCard extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      'Regretted purchases',
-                      style: AppTypography.caption,
-                    ),
+                    Text('Regretted purchases', style: AppTypography.caption),
                   ],
                 ),
               ),
-              Container(
-                height: 32,
-                width: 1,
-                color: AppColors.hairline,
-              ),
+              Container(height: 32, width: 1, color: AppColors.hairline),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Column(

@@ -22,9 +22,12 @@ class EmailVerificationCard extends ConsumerStatefulWidget {
       _EmailVerificationCardState();
 }
 
-class _EmailVerificationCardState
-    extends ConsumerState<EmailVerificationCard> {
+class _EmailVerificationCardState extends ConsumerState<EmailVerificationCard> {
   bool _busy = false;
+
+  /// Starts from the session's user, then follows each reload: the session
+  /// `User` object never changes after sign-in, so it can't be the source.
+  late bool _verified = widget.user.emailVerified;
 
   Future<void> _resendEmail() async {
     setState(() => _busy = true);
@@ -48,7 +51,9 @@ class _EmailVerificationCardState
           ..showSnackBar(
             SnackBar(
               content: Text(
-                e is AuthFailure ? e.message : 'Could not send verification email.',
+                e is AuthFailure
+                    ? e.message
+                    : 'Could not send verification email.',
               ),
             ),
           );
@@ -64,15 +69,13 @@ class _EmailVerificationCardState
       await AuthService.reloadUser();
       if (mounted) {
         final verified = AuthService.isEmailVerified;
-        setState(() {}); // trigger rebuild
+        setState(() => _verified = verified);
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
           ..showSnackBar(
             SnackBar(
               content: Text(
-                verified
-                    ? 'Email verified successfully!'
-                    : 'Email not verified yet. Please click the link sent to your inbox.',
+                verified ? 'Email verified successfully!' : 'Email not verified yet. Please click the link sent to your inbox.',
               ),
             ),
           );
@@ -94,7 +97,7 @@ class _EmailVerificationCardState
 
   @override
   Widget build(BuildContext context) {
-    final verified = widget.user.emailVerified;
+    final verified = _verified;
     final email = widget.user.email ?? 'Account Email';
 
     return TactileCard(
@@ -105,7 +108,10 @@ class _EmailVerificationCardState
           Row(
             children: [
               Expanded(
-                child: Text('EMAIL VERIFICATION', style: AppTypography.overline),
+                child: Text(
+                  'EMAIL VERIFICATION',
+                  style: AppTypography.overline,
+                ),
               ),
               DynamicPill(
                 label: verified ? 'Verified' : 'Unverified',

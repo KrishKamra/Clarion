@@ -59,10 +59,14 @@ representative at an online or offline event.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the community leaders responsible for enforcement by contacting the
-project maintainer, [@KrishKamra](https://github.com/KrishKamra), through
-GitHub. If a report involves sensitive details, ask the maintainer for a private
-channel first rather than posting them publicly.
+reported to the community leaders responsible for enforcement: the project
+team listed in [`AUTHORS.md`](AUTHORS.md) (Krish Kamra,
+[@KrishKamra](https://github.com/KrishKamra); Aaryesh Pathare,
+[@Aaryupat10](https://github.com/Aaryupat10); and Jash Kankariya,
+[@jashkankariya](https://github.com/jashkankariya)). Contact any
+of them through GitHub. If a report involves a team member, contact one of the
+others. If a report involves sensitive details, ask for a private channel
+first rather than posting them publicly.
 
 All complaints will be reviewed and investigated promptly and fairly.
 

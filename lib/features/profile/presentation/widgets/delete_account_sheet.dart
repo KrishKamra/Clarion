@@ -76,7 +76,11 @@ class _DeleteAccountFormState extends ConsumerState<_DeleteAccountForm> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.warning_amber_rounded, color: AppColors.rose, size: 24),
+              Icon(
+                Icons.warning_amber_rounded,
+                color: AppColors.rose,
+                size: 24,
+              ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Column(

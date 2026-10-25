@@ -139,9 +139,7 @@ void main() {
     test('adds new check-in via controller', () async {
       final repository = FakeRegretRepository();
       final container = ProviderContainer(
-        overrides: [
-          regretRepositoryProvider.overrideWithValue(repository),
-        ],
+        overrides: [regretRepositoryProvider.overrideWithValue(repository)],
       );
       addTearDown(container.dispose);
 
@@ -189,7 +187,9 @@ void main() {
       expect(find.text('Regretted purchases'), findsOneWidget);
     });
 
-    testWidgets('opens RegretCheckinSheet and saves reflection', (tester) async {
+    testWidgets('opens RegretCheckinSheet and saves reflection', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(

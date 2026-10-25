@@ -79,13 +79,17 @@ These are non-negotiable; they're what keeps the interface quiet. Full reference
 
 ## Pull request checklist
 
-- [ ] `dart format`, `flutter analyze` and `flutter test` are clean
+- [ ] `dart format lib test`, `flutter analyze` and `flutter test` are clean. CI runs the same checks and fails the build on any of them; formatting is the most common miss, so turn on format-on-save in your IDE
 - [ ] Tests added or updated for behaviour changes
-- [ ] Screenshots or a short recording for UI changes (phone width, dark canvas)
+- [ ] Screenshots or a short recording for UI changes (phone width, light and dark)
 - [ ] Design-system rules above respected
 - [ ] `CHANGELOG.md` updated under **[Unreleased]**
 - [ ] Docs updated if architecture or tokens changed
 
+## Credit
+
+Everyone who builds Clarion is listed in [`AUTHORS.md`](AUTHORS.md). In your first pull request, add a row with your name, GitHub handle and what you worked on, and update it as your contributions grow.
+
 ## Licensing
 
-Contributions are accepted under the project's [MIT License](LICENSE). Bundled fonts remain under the SIL Open Font License 1.1.
+Contributions are accepted under the project's [MIT License](LICENSE), and contributors share its copyright (see [`AUTHORS.md`](AUTHORS.md)). Bundled fonts remain under the SIL Open Font License 1.1.

@@ -4,6 +4,26 @@ All notable changes to Clarion are documented here. Format based on [Keep a Chan
 
 ## [Unreleased]
 
+### Fixed — review of the Regret Check-in, verification and deletion work
+- **Account deletion** deletes the Firebase account *first*, then the local data. Before, it wiped SQLite and reminders first, so when Firebase refused with `requires-recent-login` (common), the user lost their data and still had an account. Deletion now also removes the account's saved settings (`*_<uid>` preferences).
+- **Email verification card** follows the result of each status check. Before, it read the `User` object from session start, so after verifying it still showed "Unverified" until the next launch. It's now shown only to accounts that still need verifying. Removed the unused `isEmailVerifiedProvider`, which had the same stale source.
+- **Regret Check-in edits** update their saved row instead of adding a duplicate each time (`replace` needs the row `id`). Before, duplicates double-counted in the Mindful Barometer after a restart.
+- "Buy now or wait?": "1 week" instead of "~1 weeks", an explanation that adds information instead of repeating the headline, and the confidence label raised to the 11px minimum.
+- The regret table's SQL is defined once and shared by fresh installs and the v5 upgrade.
+- Formatted the four commits CI rejected; it fails on unformatted code.
+
+### Added — Regret Check-in, price-dip predictions, email verification, account deletion (Jash Kankariya)
+- **Regret Check-in**: rate a purchase "Worth it", "Neutral" or "Regretted", with a reflection tag and note, from the spend breakdown. The **Mindful Barometer** on the Spending Profile shows the share of purchases you were glad about. Saved per account (schema v5, `regret_checkins`).
+- **"Buy now or wait?"** on the decision canvas: a verdict from the price history (position in the 30-day band, volatility, recent dips) with estimated savings, wait time and confidence.
+- **Email verification**: a link is sent on sign-up, and a Spending Profile card can resend it or check its status.
+- **Account deletion** from Profile → Account, with a confirmation sheet.
+
+### Added — persistence, Price Memory Watcher, fit engine, onboarding (Aaryesh Pathare)
+- **SQLite persistence** for the cart, cooling-off holds, budget and spend (schema, repositories, migrations).
+- **Price Memory Watcher**: watch products, set target prices, and see recorded price history.
+- **Heuristic Fit Engine**: fit scores computed from the product and your intent, explained in plain language.
+- **First-run onboarding** (set your monthly ceiling) and a **hands-on app tour**, once per account, plus a larger catalogue with support for product photos.
+
 ### Added — reminders, app icon, splash and CI
 - **Notifications** (`flutter_local_notifications`, Android): a cooling-off reminder is scheduled for the moment each 24h hold ends and survives reboots; a price-watch alert fires when a watched product reaches its target (once per target). Tapping either opens the product. Permission is asked when a reminder first becomes useful (holding a product or setting a target), never at launch. Reminders are re-armed per account when its session opens and cleared on sign-out. Calm copy, no countdowns.
 - **App icon**: an adaptive icon (the lens over the aurora canvas), a themed monochrome icon for Android 13+, a legacy icon and web icons, all generated from `assets/brand/icon/` (`flutter_launcher_icons.yaml`). The app is now labelled "Clarion".
@@ -29,7 +49,7 @@ All notable changes to Clarion are documented here. Format based on [Keep a Chan
 - **Light mode** ("Porcelain"): every colour token now has a light value; Appearance (System / Light / Dark) lives in Spending Profile and persists via `shared_preferences`. Switching is live and keeps scroll and widget state.
 - **Legibility**: body 15px / 1.5, bodySmall 13.5px, captions 12.5px, labels 14px, mono micro labels 11px; no text below 10px. Dark `textSecondary` / `textTertiary` lifted to `#A3B0C2` / `#7D8899` (tertiary was ~2.6:1, now ≥ 4.5:1).
 
-### Changed — Home declutter (from `Clarion_Home_Declutter_README.md`)
+### Changed — Home declutter (from the team's Home declutter proposal)
 - Adopted: dropped the "STATE AN INTENT" eyebrow and shortened the hint (A); header budget is one figure, "₹1,800 left" (B); Home section headers lose their captions (D); intent suggestions hide while the field has text (G).
 - Not adopted: slimming Fit Stream cards (C — the top two weighted factors are core explainability), merging Radar into a sheet (E — hides content behind a tap), a new accent rule (F — accents already carry one meaning each), two-state Home (H) and the Compare follow-up — overkill for the problem.
 

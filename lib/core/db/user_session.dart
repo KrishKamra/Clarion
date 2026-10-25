@@ -10,7 +10,6 @@ import 'cart_repository.dart';
 import 'cooldown_repository.dart';
 import 'db_providers.dart';
 import 'price_watch_repository.dart';
-
 import 'regret_repository.dart';
 
 /// One signed-in account's local state: its database (if it opened) and the

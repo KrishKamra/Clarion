@@ -16,7 +16,9 @@ void main() {
   });
 
   group('DeleteAccountSheet Widget', () {
-    testWidgets('renders warning messages and confirmation buttons', (tester) async {
+    testWidgets('renders warning messages and confirmation buttons', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(

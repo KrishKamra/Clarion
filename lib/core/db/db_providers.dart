@@ -79,4 +79,3 @@ final initialWatchlistProvider = Provider<Map<String, double?>>((ref) => {});
 final initialRegretCheckinsProvider = Provider<List<RegretCheckin>>(
   (ref) => <RegretCheckin>[],
 );
-

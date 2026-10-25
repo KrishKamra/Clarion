@@ -109,7 +109,7 @@ abstract final class PricePredictionEngine {
 
       // Category / festival awareness text
       final category = product.category;
-      final categoryText = _getCategoryTrendNote(category, waitWeeks);
+      final categoryText = _getCategoryTrendNote(category);
 
       final confidencePct = volatilityRatio > 0.05 || dipCount >= 3
           ? (78 + (pos * 12)).round()
@@ -122,9 +122,10 @@ abstract final class PricePredictionEngine {
       return PriceDipVerdict(
         recommendation: BuyOrWaitRecommendation.wait,
         headline:
-            'Waiting ~$waitWeeks weeks likely saves ${Fmt.inr(estimatedSavings)}',
+            'Waiting ~${_weeks(waitWeeks)} likely saves ${Fmt.inr(estimatedSavings)}',
         explanation:
-            '$categoryText Waiting ~$waitWeeks weeks likely saves ${Fmt.inr(estimatedSavings)} when price returns to historical dip levels.',
+            '$categoryText Waiting ~${_weeks(waitWeeks)} should bring it back '
+            'toward ${Fmt.inr(expectedDipTarget)}, its usual dip level.',
         estimatedSavings: estimatedSavings,
         estimatedWaitWeeks: waitWeeks,
         confidence: confidenceLevel,
@@ -166,7 +167,9 @@ abstract final class PricePredictionEngine {
     return (raw / 100).round() * 100.0;
   }
 
-  static String _getCategoryTrendNote(String category, int waitWeeks) {
+  static String _weeks(int n) => n == 1 ? '1 week' : '$n weeks';
+
+  static String _getCategoryTrendNote(String category) {
     switch (category.toLowerCase()) {
       case 'audio':
       case 'electronics':

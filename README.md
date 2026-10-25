@@ -153,9 +153,16 @@ The mock state is tuned so the headline numbers fall out of real arithmetic:
 - [x] Riverpod state with derived business rules and tests
 - [x] Local persistence (cart, holds, envelope history, watchlist)
 - [x] Authentication (Firebase: email/password and Google)
+- [x] Notifications: cooling-off ending, price-watch targets
+- [x] Regret Check-in and "Buy now or wait?" price-dip predictions
+- [x] Email verification and in-app account deletion
+- [ ] Cloud sync of account data (Firestore)
 - [ ] A real catalogue/decision-engine backend
 - [ ] Payments and order history
-- [ ] Notifications when a cooling-off period ends
+
+## 👥 Team
+
+Clarion is built by **Krish Kamra** ([@KrishKamra](https://github.com/KrishKamra)), **Aaryesh Pathare** ([@Aaryupat10](https://github.com/Aaryupat10)) and **Jash Kankariya** ([@jashkankariya](https://github.com/jashkankariya)). Who built what: [`AUTHORS.md`](AUTHORS.md).
 
 ## 🤝 Contributing
 
@@ -166,4 +173,4 @@ Contributions are welcome — read [`CONTRIBUTING.md`](CONTRIBUTING.md) and the 
 
 ## 📄 License
 
-[MIT](LICENSE) © 2026 Krish Kamra. Bundled fonts are licensed separately under the SIL Open Font License 1.1 (see `assets/fonts/`).
+[MIT](LICENSE) © 2026 Krish Kamra, Aaryesh Pathare and Jash Kankariya ([`AUTHORS.md`](AUTHORS.md)). Bundled fonts are licensed separately under the SIL Open Font License 1.1 (see `assets/fonts/`).

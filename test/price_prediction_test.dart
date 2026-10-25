@@ -21,7 +21,9 @@ void main() {
 
     test('recommends Wait when product price is above average in its band', () {
       // bp_metro: price 1749 vs avg 1720
-      final product = MockCatalog.products.firstWhere((p) => p.id == 'bp_metro');
+      final product = MockCatalog.products.firstWhere(
+        (p) => p.id == 'bp_metro',
+      );
       final verdict = PricePredictionEngine.analyze(product);
 
       expect(verdict.shouldWait, isTrue);
@@ -34,7 +36,9 @@ void main() {
   });
 
   group('BuyOrWaitCard Widget', () {
-    testWidgets('renders BuyOrWaitCard with verdict and confidence meter', (tester) async {
+    testWidgets('renders BuyOrWaitCard with verdict and confidence meter', (
+      tester,
+    ) async {
       final product = MockCatalog.products.firstWhere((p) => p.id == 'hp_pro');
 
       await tester.pumpWidget(

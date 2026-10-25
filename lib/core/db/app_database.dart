@@ -123,22 +123,26 @@ class AppDatabase {
       )
     ''');
 
-    // Post-purchase Regret Check-ins.
-    batch.execute('''
-      CREATE TABLE $regretCheckinsTable (
-        id            INTEGER PRIMARY KEY AUTOINCREMENT,
-        spend_id      INTEGER,
-        product_title TEXT    NOT NULL,
-        amount        REAL    NOT NULL CHECK (amount >= 0),
-        rating        TEXT    NOT NULL,
-        tag           TEXT,
-        note          TEXT,
-        checked_in_at INTEGER NOT NULL
-      )
-    ''');
+    batch.execute(_createRegretCheckins);
 
     await batch.commit(noResult: true);
   }
+
+  /// Post-purchase Regret Check-ins. Shared by fresh installs and the v5
+  /// upgrade, so the two can never drift apart.
+  static const String _createRegretCheckins =
+      '''
+    CREATE TABLE $regretCheckinsTable (
+      id            INTEGER PRIMARY KEY AUTOINCREMENT,
+      spend_id      INTEGER,
+      product_title TEXT    NOT NULL,
+      amount        REAL    NOT NULL CHECK (amount >= 0),
+      rating        TEXT    NOT NULL,
+      tag           TEXT,
+      note          TEXT,
+      checked_in_at INTEGER NOT NULL
+    )
+  ''';
 
   static Future<void> _onUpgrade(Database db, int oldV, int newV) async {
     if (oldV < 2) {
@@ -173,18 +177,7 @@ class AppDatabase {
       );
     }
     if (oldV < 5) {
-      await db.execute('''
-        CREATE TABLE $regretCheckinsTable (
-          id            INTEGER PRIMARY KEY AUTOINCREMENT,
-          spend_id      INTEGER,
-          product_title TEXT    NOT NULL,
-          amount        REAL    NOT NULL CHECK (amount >= 0),
-          rating        TEXT    NOT NULL,
-          tag           TEXT,
-          note          TEXT,
-          checked_in_at INTEGER NOT NULL
-        )
-      ''');
+      await db.execute(_createRegretCheckins);
     }
   }
 

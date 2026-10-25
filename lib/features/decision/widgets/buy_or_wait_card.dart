@@ -46,7 +46,8 @@ class BuyOrWaitCard extends ConsumerWidget {
               Flexible(
                 child: DynamicPill(
                   label: verdict.shouldWait
-                      ? '${verdict.recommendation.emoji} WAIT ~${verdict.estimatedWaitWeeks} WKS'
+                      ? '${verdict.recommendation.emoji} WAIT ~${verdict.estimatedWaitWeeks} '
+                            '${verdict.estimatedWaitWeeks == 1 ? 'WK' : 'WKS'}'
                       : '${verdict.recommendation.emoji} BUY NOW',
                   color: statusColor,
                   selected: true,
@@ -84,7 +85,7 @@ class BuyOrWaitCard extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         'PREDICTION CONFIDENCE',
-                        style: AppTypography.overline.copyWith(fontSize: 10),
+                        style: AppTypography.overline,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),

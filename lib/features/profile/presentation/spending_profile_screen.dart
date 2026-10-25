@@ -54,8 +54,12 @@ class SpendingProfileScreen extends ConsumerWidget {
                 _AccountCard(
                   label: user.email ?? user.displayName ?? 'Clarion account',
                 ),
-                const SizedBox(height: AppSpacing.md),
-                EmailVerificationCard(user: user),
+                // Only accounts that still need it; Google accounts arrive
+                // verified.
+                if (!user.emailVerified) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  EmailVerificationCard(user: user),
+                ],
                 const SizedBox(height: AppSpacing.section),
               ],
               const SectionHeader(eyebrow: 'Display', title: 'Appearance'),

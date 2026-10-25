@@ -42,21 +42,20 @@ class RegretRepository {
     ];
   }
 
-  /// Inserts a new check-in or replaces an existing one for the same spend/title.
+  /// Inserts a new check-in, or updates the saved one when [checkin] carries
+  /// its row `id` (`replace` only matches on the primary key, so the id must
+  /// be written or every edit would add a duplicate row).
   Future<RegretCheckin> addCheckin(RegretCheckin checkin) async {
-    final id = await _db.insert(
-      AppDatabase.regretCheckinsTable,
-      {
-        if (checkin.spendId != null) 'spend_id': checkin.spendId,
-        'product_title': checkin.productTitle,
-        'amount': checkin.amount,
-        'rating': checkin.rating.name,
-        'tag': checkin.tag?.name,
-        'note': checkin.note,
-        'checked_in_at': checkin.checkedInAt.millisecondsSinceEpoch,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    final id = await _db.insert(AppDatabase.regretCheckinsTable, {
+      if (checkin.id != null) 'id': checkin.id,
+      if (checkin.spendId != null) 'spend_id': checkin.spendId,
+      'product_title': checkin.productTitle,
+      'amount': checkin.amount,
+      'rating': checkin.rating.name,
+      'tag': checkin.tag?.name,
+      'note': checkin.note,
+      'checked_in_at': checkin.checkedInAt.millisecondsSinceEpoch,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
     return checkin.copyWith(id: id);
   }
 

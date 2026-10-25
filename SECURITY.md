@@ -12,15 +12,19 @@ Clarion is pre-1.0 and ships from `main`. Only the latest commit on `main` recei
 ## Current attack surface
 
 > [!NOTE]
-> Clarion currently runs entirely on-device against an in-memory mock catalogue. There is **no backend, no network calls, no authentication, no payments and no persistent storage** yet. Checkout is simulated.
+> Clarion signs people in with **Firebase Authentication** and keeps each account's data **on the device** in its own SQLite file. Products come from a mock catalogue, there is no app backend or payments yet, and checkout is simulated.
 
-That keeps today's surface small, but the following areas are in scope and will grow as the roadmap lands:
+In scope:
 
-- **Intent parsing** (`lib/features/home/application/intent_controller.dart`) — untrusted free-text input.
-- **Bundled assets** (`assets/fonts/`) — supply-chain integrity of shipped files.
+- **Authentication** (`lib/features/auth/`): email/password and Google sign-in, email verification, password reset, account deletion.
+- **Per-account local data** (`lib/core/db/`): one SQLite file per account (`clarion_<uid>.db`), isolation between accounts on a shared device, and wiping on account deletion.
+- **Notifications** (`lib/core/notifications/`): scheduled reminders and their payloads; clearing them on sign-out.
+- **Intent parsing** (`lib/features/home/application/intent_controller.dart`): untrusted free-text input.
+- **Firebase configuration** (`lib/firebase_options.dart`, `android/app/google-services.json`): these identify the project and are public by design. Access is enforced by Firebase Auth, not by hiding them.
+- **Bundled assets** (`assets/`): supply-chain integrity of shipped files.
 - **Dependencies** declared in `pubspec.yaml` / `pubspec.lock`.
 - **Platform configuration** under `android/` and `web/`.
-- Any future persistence, auth, payment or network code.
+- Any future backend, sync, payment or network code.
 
 ## Reporting a vulnerability
 
@@ -50,6 +54,7 @@ flowchart LR
   D -- "No" --> G["Closed with explanation"]
 ```
 
+- Reports are handled by the project team listed in [`AUTHORS.md`](AUTHORS.md).
 - You'll be kept informed throughout, and credited in the advisory unless you prefer otherwise.
 - Please allow a fix to ship before disclosing publicly. We aim to resolve confirmed issues within 90 days.
 
