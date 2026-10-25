@@ -106,9 +106,7 @@ class _SmartCartScreenState extends ConsumerState<SmartCartScreen> {
     await Future<void>.delayed(const Duration(milliseconds: 800));
     if (!mounted) return;
 
-    ref
-        .read(budgetProvider.notifier)
-        .recordPurchase(ref.read(cartTotalProvider));
+    ref.read(budgetProvider.notifier).recordPurchase(ref.read(cartProvider));
     _cart.clear();
     HapticFeedback.mediumImpact();
     setState(() => _checkingOut = false);

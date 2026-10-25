@@ -8,6 +8,7 @@ import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/dynamic_pill.dart';
 import '../../../../core/widgets/fit_score_gauge.dart';
 import '../../../../core/widgets/product_artwork.dart';
+import '../../../../core/widgets/tour_target.dart';
 import '../../../../core/widgets/tactile_card.dart';
 import '../../../../data/models/product_model.dart';
 import '../../../../data/models/trade_off_item.dart';
@@ -20,19 +21,27 @@ import '../../application/intent_controller.dart';
 /// line of rationale and the top two weighted factors. The full ledger and
 /// specifications live one tap away on the decision canvas.
 class FitStream extends StatelessWidget {
-  const FitStream({super.key, required this.products, this.budget});
+  const FitStream({
+    super.key,
+    required this.products,
+    this.budget,
+    this.query,
+  });
 
   final List<Product> products;
 
   /// The intent's ceiling, if any — used for the empty state.
   final double? budget;
 
+  /// What the user typed, if anything — used for the empty state.
+  final String? query;
+
   @override
   Widget build(BuildContext context) {
     if (products.isEmpty) {
       return Padding(
         padding: AppSpacing.screenPadding,
-        child: _Empty(budget: budget),
+        child: _Empty(budget: budget, query: query),
       );
     }
 
@@ -48,13 +57,17 @@ class FitStream extends StatelessWidget {
         itemBuilder: (context, i) {
           final p = products[i];
           final tag = 'stream-${p.id}';
-          return FitStreamCard(
+          final card = FitStreamCard(
             key: ValueKey(p.id),
             product: p,
             heroTag: tag,
             onTap: () =>
                 ProductDecisionScreen.open(context, p.id, heroTag: tag),
           );
+          // The top pick is what the app tour asks the user to open.
+          return i == 0
+              ? TourTargetBox(id: TourTarget.firstProduct, child: card)
+              : card;
         },
       ),
     );
@@ -209,27 +222,37 @@ class _FactorLine extends StatelessWidget {
 }
 
 class _Empty extends StatelessWidget {
-  const _Empty({this.budget});
+  const _Empty({this.budget, this.query});
 
   final double? budget;
+  final String? query;
 
   @override
   Widget build(BuildContext context) {
+    // A goal whose words match nothing, versus one that is simply too cheap.
+    final words = query == null ? null : IntentQuery.parse(query!).keywords;
+    final noMatch = words != null && words.isNotEmpty;
     return TactileCard(
       material: CardMaterial.vellum,
       padding: const EdgeInsets.all(AppSpacing.xxl),
       child: Column(
         children: [
           Text(
-            budget == null
+            noMatch
+                ? 'No matches found'
+                : budget == null
                 ? 'Nothing fits that yet'
                 : 'Nothing fits ${Fmt.inr(budget!)} yet',
             style: AppTypography.titleSmall,
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            'Clarion won’t stretch your limits to show you something. '
-            'Try loosening one constraint.',
+            noMatch
+                ? 'Nothing in the catalogue matches “${query!}”'
+                      '${budget == null ? '' : ' within ${Fmt.inr(budget!)}'}. '
+                      'Try another word, like backpack, headphones or desk.'
+                : 'Clarion won’t stretch your limits to show you something. '
+                      'Try loosening one constraint.',
             textAlign: TextAlign.center,
             style: AppTypography.bodySmall,
           ),

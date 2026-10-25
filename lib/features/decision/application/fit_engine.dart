@@ -96,7 +96,7 @@ class FitResult {
 /// | Rule (shown as)      | Max | Looks at                                  |
 /// |----------------------|-----|-------------------------------------------|
 /// | Matches your goal    |  35 | goal words that match the product's tags  |
-/// | Fits your budget     |  25 | money left this month after buying        |
+/// | Fits your budget     |  25 | share of your ceiling left after buying   |
 /// | Good price right now |  20 | price against its 30-day average          |
 /// | Owner reviews        |  20 | star rating                               |
 ///
@@ -151,7 +151,7 @@ abstract final class FitEngine {
       intentDetail = 'You have not stated a goal yet';
       intentVerdict = 'Neutral';
     } else {
-      final matched = c.keywords.where(p.intentTags.contains).toList()..sort();
+      final matched = c.keywords.where(p.matchesKeyword).toList()..sort();
       final needed = math.min(c.keywords.length, 3);
       final ratio = math.min(1.0, matched.length / needed);
       intentPoints = (maxIntent * ratio).round();
@@ -162,18 +162,22 @@ abstract final class FitEngine {
     }
 
     // 2. Budget Safety (and the "over your limit" penalty)
+    //
+    // Measured against the whole ceiling, not a fixed slice of it, so every
+    // change to the ceiling moves the score: the more of the ceiling a
+    // purchase leaves untouched, the more points it earns.
     final left = c.envelopeLeft - p.price;
-    final scale = c.monthlyLimit <= 0 ? 0.0 : 0.3 * c.monthlyLimit;
+    final limit = c.monthlyLimit;
     final int budgetPoints;
     final String budgetDetail;
     int overLimitPenalty = 0;
     if (left >= 0) {
-      final share = scale == 0 ? 0.0 : math.min(1.0, left / scale);
-      budgetPoints = 10 + (15 * share).round();
+      final share = limit <= 0 ? 0.0 : math.min(1.0, left / limit);
+      budgetPoints = 5 + (20 * share).round();
       budgetDetail =
           'Leaves ${Fmt.inr(left)} of your ${Fmt.inr(c.monthlyLimit)} monthly budget';
     } else {
-      final share = scale == 0 ? 1.0 : math.min(1.0, -left / scale);
+      final share = limit <= 0 ? 1.0 : math.min(1.0, -left / limit);
       budgetPoints = 0;
       overLimitPenalty = 10 + (15 * share).round();
       budgetDetail = 'More than what is left of your monthly budget';

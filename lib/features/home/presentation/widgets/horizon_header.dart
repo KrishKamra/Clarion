@@ -12,8 +12,8 @@ import '../../../../core/widgets/round_icon_button.dart';
 import '../../../cart/application/budget_controller.dart';
 import '../../../navigation/navigation_controller.dart';
 
-/// Quiet header: monogram, the live monthly budget indicator and the
-/// profile node.
+/// Quiet header: the Clarion mark and name, the live monthly budget
+/// indicator and the profile node.
 class HorizonHeader extends ConsumerWidget {
   const HorizonHeader({super.key});
 
@@ -21,7 +21,7 @@ class HorizonHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Row(
       children: [
-        const ClarionWordmark(size: 22, showName: false),
+        const ClarionWordmark(size: 24),
         const SizedBox(width: AppSpacing.md),
         const Expanded(
           child: Align(alignment: Alignment.centerRight, child: BudgetMetric()),

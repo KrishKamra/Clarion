@@ -8,6 +8,7 @@ import '../../../../core/widgets/pressable.dart';
 import '../../../../core/widgets/progress_ring.dart';
 import '../../../../core/widgets/tactile_card.dart';
 import '../../../cart/application/budget_controller.dart';
+import 'ceiling_sheet.dart';
 
 /// The month's envelope: a backlit ring (outer = committed incl. cart,
 /// inner = settled) beside the ceiling and its parts.
@@ -69,20 +70,38 @@ class EnvelopeCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Pressable(
-                  onTap: onEditCeiling,
-                  semanticLabel: 'Edit monthly ceiling',
-                  child: Row(
-                    children: [
-                      Text('CEILING', style: AppTypography.overline),
-                      const SizedBox(width: AppSpacing.xs),
-                      Icon(
-                        Icons.edit_outlined,
-                        size: 12,
-                        color: AppColors.textTertiary,
+                Row(
+                  children: [
+                    Pressable(
+                      onTap: onEditCeiling,
+                      semanticLabel: 'Edit monthly ceiling',
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('CEILING', style: AppTypography.overline),
+                          const SizedBox(width: AppSpacing.xs),
+                          Icon(
+                            Icons.edit_outlined,
+                            size: 12,
+                            color: AppColors.textTertiary,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Pressable(
+                      onTap: () => showCeilingInfoSheet(context),
+                      semanticLabel: 'What is a ceiling?',
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppSpacing.xs),
+                        child: Icon(
+                          Icons.info_outline_rounded,
+                          size: 15,
+                          color: AppColors.irisGlow,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 3),
                 Text(Fmt.inr(s.limit), style: AppTypography.metricLarge),

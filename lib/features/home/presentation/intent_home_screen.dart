@@ -95,6 +95,7 @@ class IntentHomeScreen extends ConsumerWidget {
               key: ValueKey(intent?.raw),
               products: picks,
               budget: intent?.budget,
+              query: intent?.raw,
             ),
           ),
         ),

@@ -14,6 +14,7 @@ import '../../../core/widgets/tactile_card.dart';
 import '../../cart/application/budget_controller.dart';
 import '../../auth/application/auth_service.dart';
 import '../../decision/application/cooldown_controller.dart';
+import '../../tour/app_tour.dart';
 import 'widgets/ceiling_sheet.dart';
 import 'widgets/envelope_card.dart';
 import 'widgets/pending_hold_tile.dart';
@@ -43,6 +44,29 @@ class SpendingProfileScreen extends ConsumerWidget {
           padding: AppSpacing.screenPadding.copyWith(top: AppSpacing.lg),
           sliver: SliverList.list(
             children: [
+              // Account and appearance live at the top, like most apps.
+              if (ref.watch(currentUserProvider) case final user?) ...[
+                const SectionHeader(eyebrow: 'Signed in', title: 'Account'),
+                const SizedBox(height: AppSpacing.md),
+                _AccountCard(
+                  label: user.email ?? user.displayName ?? 'Clarion account',
+                ),
+                const SizedBox(height: AppSpacing.section),
+              ],
+              const SectionHeader(eyebrow: 'Display', title: 'Appearance'),
+              const SizedBox(height: AppSpacing.md),
+              const _AppearancePicker(),
+              const SizedBox(height: AppSpacing.section),
+              const SectionHeader(eyebrow: 'Help', title: 'App tour'),
+              const SizedBox(height: AppSpacing.md),
+              DynamicPill(
+                label: 'Replay the tour',
+                icon: Icons.explore_outlined,
+                size: PillSize.regular,
+                color: AppColors.irisGlow,
+                onTap: () => ref.read(appTourProvider.notifier).start(),
+              ),
+              const SizedBox(height: AppSpacing.section),
               EnvelopeCard(
                 snapshot: snapshot,
                 onEditCeiling: () => showCeilingSheet(context),
@@ -94,18 +118,6 @@ class SpendingProfileScreen extends ConsumerWidget {
               const SectionHeader(eyebrow: 'Breakdown', title: 'Where it went'),
               const SizedBox(height: AppSpacing.xs),
               CategoryBreakdown(budget: budget),
-              const SizedBox(height: AppSpacing.section),
-              const SectionHeader(eyebrow: 'Display', title: 'Appearance'),
-              const SizedBox(height: AppSpacing.md),
-              const _AppearancePicker(),
-              if (ref.watch(currentUserProvider) case final user?) ...[
-                const SizedBox(height: AppSpacing.section),
-                const SectionHeader(eyebrow: 'Signed in', title: 'Account'),
-                const SizedBox(height: AppSpacing.md),
-                _AccountCard(
-                  label: user.email ?? user.displayName ?? 'Clarion account',
-                ),
-              ],
               SizedBox(height: AppSpacing.navBarClearance(context)),
             ],
           ),

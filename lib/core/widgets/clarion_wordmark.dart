@@ -3,6 +3,26 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../theme/app_typography.dart';
 
+/// The word "Clarion" in the brand's display type. The sign-in lockup and the
+/// app header both use this, so the name looks the same wherever it appears.
+class ClarionName extends StatelessWidget {
+  const ClarionName({super.key, required this.fontSize});
+
+  final double fontSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      'Clarion',
+      style: AppTypography.display.copyWith(
+        fontSize: fontSize,
+        letterSpacing: -fontSize * 0.035,
+        height: 1,
+      ),
+    );
+  }
+}
+
 /// Clarion mark (`assets/brand/clarion_logo.svg`): a glass lens with an
 /// iris-to-emerald rim and an iris focal point. Shown alone as a monogram,
 /// or beside the name in the grotesque. Its colours are fixed, so it reads
@@ -31,14 +51,7 @@ class ClarionWordmark extends StatelessWidget {
           ),
           if (showName) ...[
             SizedBox(width: size * 0.45),
-            Text(
-              'Clarion',
-              style: AppTypography.title.copyWith(
-                fontSize: size * 0.98,
-                letterSpacing: -0.5,
-                height: 1,
-              ),
-            ),
+            ClarionName(fontSize: size),
           ],
         ],
       ),

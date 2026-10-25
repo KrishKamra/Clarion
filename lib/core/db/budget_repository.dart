@@ -87,7 +87,8 @@ class BudgetRepository {
     }, where: 'id = 1');
   }
 
-  /// Records a settled purchase under [category].
+  /// Records a settled purchase. [category] is a free label: the checkout
+  /// uses the product's name, so spend reads as a list of what was bought.
   Future<void> addSpend(String category, double amount) async {
     await _db.insert(AppDatabase.spendEntriesTable, {
       'category': category,

@@ -65,8 +65,12 @@ class IntentQuery {
   final Set<String> keywords;
   final double? budget;
 
-  /// Products relevant to this intent: within budget, most keyword overlap
-  /// first, then by fit score. Falls back to everything in budget.
+  /// Products relevant to this intent: within budget and matching at least
+  /// one goal word, most overlap first, then by fit score.
+  ///
+  /// A goal with words that match nothing in the catalogue returns an empty
+  /// list (the app says "no matches found"); only a goal with no words at all,
+  /// such as "under 2000", falls back to everything within budget.
   ///
   /// [scoreOf] supplies the fit score used to break ties (the live computed
   /// score); it defaults to the product's built-in score.
@@ -75,9 +79,10 @@ class IntentQuery {
     final affordable = catalog
         .where((p) => budget == null || p.price <= budget!)
         .toList();
-    int overlap(Product p) => keywords.where(p.intentTags.contains).length;
-    final relevant = affordable.where((p) => overlap(p) > 0).toList();
-    final pool = relevant.isEmpty ? affordable : relevant;
+    int overlap(Product p) => keywords.where(p.matchesKeyword).length;
+    final pool = keywords.isEmpty
+        ? affordable
+        : affordable.where((p) => overlap(p) > 0).toList();
     pool.sort((a, b) {
       final byOverlap = overlap(b).compareTo(overlap(a));
       return byOverlap != 0 ? byOverlap : score(b).compareTo(score(a));

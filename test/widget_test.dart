@@ -11,14 +11,19 @@ import 'package:clarion/features/decision/application/cooldown_controller.dart';
 import 'package:clarion/features/decision/application/fit_engine.dart';
 import 'package:clarion/features/decision/presentation/product_decision_screen.dart';
 import 'package:clarion/features/home/application/intent_controller.dart';
+import 'package:clarion/features/home/presentation/widgets/fit_stream.dart';
 import 'package:clarion/features/navigation/main_scaffold.dart';
+import 'package:clarion/features/navigation/navigation_controller.dart';
 import 'package:clarion/features/profile/presentation/spending_profile_screen.dart';
+import 'package:clarion/features/tour/app_tour.dart';
 import 'package:clarion/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'demo_scenario.dart';
 
 void main() {
   group('Fmt', () {
@@ -40,6 +45,28 @@ void main() {
       final q = IntentQuery.parse('College Setup < ₹2.5k');
       expect(q.budget, 2500);
       expect(q.keywords, containsAll(['college', 'setup']));
+    });
+
+    test('words that match nothing return no products', () {
+      final q = IntentQuery.parse('Ball');
+      expect(q.keywords, {'ball'});
+      expect(q.rank(MockCatalog.products), isEmpty);
+      expect(IntentQuery.parse('Ball under 2000').rank(MockCatalog.products),
+          isEmpty);
+    });
+
+    test('a goal with no words falls back to everything within budget', () {
+      final ranked = IntentQuery.parse('under 1000').rank(MockCatalog.products);
+      expect(ranked, isNotEmpty);
+      expect(ranked.every((p) => p.price <= 1000), isTrue);
+    });
+
+    test('singular and plural words find the same products', () {
+      final one = IntentQuery.parse('headphone').rank(MockCatalog.products);
+      final many = IntentQuery.parse('headphones').rank(MockCatalog.products);
+      expect(one, isNotEmpty);
+      expect(one.map((p) => p.id), many.map((p) => p.id));
+      expect(one.every((p) => p.category == 'Audio'), isTrue);
     });
 
     test('ranks only products within budget', () {
@@ -81,6 +108,26 @@ void main() {
       }
     });
 
+    test('the catalogue has a realistic mix of price positions', () {
+      expect(catalog.products.length, greaterThanOrEqualTo(15));
+      final ids = catalog.products.map((p) => p.id).toList();
+      expect(ids.toSet(), hasLength(ids.length));
+      final atLow = catalog.products.where((p) => p.bandPosition <= 0.25);
+      final midBand = catalog.products.where(
+        (p) => p.bandPosition > 0.25 && p.bandPosition < 0.75,
+      );
+      final atHigh = catalog.products.where((p) => p.bandPosition >= 0.75);
+      expect(atLow, isNotEmpty);
+      expect(midBand, isNotEmpty);
+      expect(atHigh, isNotEmpty);
+      // Not everything is a deal: some products cost more than usual.
+      expect(
+        catalog.products.where((p) => p.discountVsAverage < 0),
+        isNotEmpty,
+      );
+      expect(atLow.length, lessThan(catalog.products.length ~/ 2 + 1));
+    });
+
     test('price radar lists deep discounts, deepest first', () {
       final radar = catalog.priceRadar;
       expect(radar.map((p) => p.id), ['hp_pro', 'sling_field']);
@@ -89,8 +136,20 @@ void main() {
   });
 
   group('Budget Guardian', () {
-    test('seed state matches the ₹3,200 / ₹5,000 envelope', () {
+    test('a new account starts empty', () {
       final container = ProviderContainer();
+      addTearDown(container.dispose);
+      expect(container.read(cartProvider), isEmpty);
+      expect(container.read(cooldownProvider), isEmpty);
+      final b = container.read(budgetSnapshotProvider);
+      expect(b.committed, 0);
+      expect(b.limit, 5000);
+      expect(container.read(budgetProvider).impulseBuysAvoided, 0);
+      expect(container.read(budgetProvider).savedViaCooldown, 0);
+    });
+
+    test('demo scenario matches the ₹3,200 / ₹5,000 envelope', () {
+      final container = ProviderContainer(overrides: demoScenario());
       addTearDown(container.dispose);
       final b = container.read(budgetSnapshotProvider);
       expect(b.committed, 3200);
@@ -98,8 +157,28 @@ void main() {
       expect(b.leftAfter(2199), 801);
     });
 
+    test('checkout records each product by name, not a lump sum', () {
+      final container = ProviderContainer(overrides: demoScenario());
+      addTearDown(container.dispose);
+      container.read(cartProvider.notifier).add('hp_pro');
+      final total = container.read(cartTotalProvider);
+      final title = MockCatalog.products
+          .firstWhere((p) => p.id == 'hp_pro')
+          .title;
+
+      container
+          .read(budgetProvider.notifier)
+          .recordPurchase(container.read(cartProvider));
+
+      final budget = container.read(budgetProvider);
+      final labels = budget.categories.map((c) => c.label);
+      expect(labels, contains(title));
+      expect(labels, isNot(contains('Planned')));
+      expect(budget.spentThisMonth, 2000 + total);
+    });
+
     test('swap engine regains ₹400 by swapping Pro for Core Edition', () {
-      final container = ProviderContainer();
+      final container = ProviderContainer(overrides: demoScenario());
       addTearDown(container.dispose);
       container.read(cartProvider.notifier).add('hp_pro');
       expect(container.read(budgetSnapshotProvider).overBy, 99);
@@ -114,7 +193,7 @@ void main() {
     });
 
     test('intent priority cycles and survives a swap', () {
-      final container = ProviderContainer();
+      final container = ProviderContainer(overrides: demoScenario());
       addTearDown(container.dispose);
       final cart = container.read(cartProvider.notifier)..add('hp_pro');
       cart.cyclePriority('hp_pro');
@@ -134,7 +213,7 @@ void main() {
     const app = ClarionApp();
     await tester.pumpWidget(
       container == null
-          ? const ProviderScope(child: app)
+          ? ProviderScope(overrides: demoScenario(), child: app)
           : UncontrolledProviderScope(container: container, child: app),
     );
     await tester.pump(const Duration(seconds: 2));
@@ -180,6 +259,19 @@ void main() {
     expect(find.text('Radar'), findsOneWidget);
   });
 
+  testWidgets('a goal that matches nothing says so', (tester) async {
+    final container = ProviderContainer(overrides: demoScenario());
+    addTearDown(container.dispose);
+    await pumpApp(tester, container: container);
+
+    container.read(intentProvider.notifier).submit('Ball');
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 2));
+
+    expect(find.text('No matches found'), findsOneWidget);
+    expect(find.byType(FitStreamCard), findsNothing);
+  });
+
   testWidgets('every tab and the decision canvas render cleanly', (
     tester,
   ) async {
@@ -213,7 +305,7 @@ void main() {
   testWidgets('holding the cooling-off button parks the product', (
     tester,
   ) async {
-    final container = ProviderContainer();
+    final container = ProviderContainer(overrides: demoScenario());
     addTearDown(container.dispose);
     await pumpApp(tester, container: container);
 
@@ -260,7 +352,7 @@ void main() {
   testWidgets('guardian swap engine resolves a breach in one tap', (
     tester,
   ) async {
-    final container = ProviderContainer();
+    final container = ProviderContainer(overrides: demoScenario());
     addTearDown(container.dispose);
     container.read(cartProvider.notifier).add('hp_pro');
     await pumpApp(tester, container: container);
@@ -272,6 +364,40 @@ void main() {
     await tester.pump(const Duration(seconds: 2));
     expect(container.read(budgetSnapshotProvider).isOver, isFalse);
     expect(find.text('Swap option available.'), findsNothing);
+  });
+
+  testWidgets('the app tour is hands-on: it asks for a tap, then moves on', (
+    tester,
+  ) async {
+    final container = ProviderContainer(overrides: demoScenario());
+    addTearDown(container.dispose);
+    await pumpApp(tester, container: container);
+
+    container.read(appTourProvider.notifier).start();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('A quick hands-on tour'), findsOneWidget);
+
+    await tester.tap(find.text('Begin tour'));
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('Tap the highlighted goal'), findsOneWidget);
+
+    // The tap passes through the spotlight to the real suggestion pill...
+    await tester.tap(find.text('College Setup < ₹2.5k'));
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(milliseconds: 700));
+    expect(container.read(intentProvider), isNotNull);
+
+    // ...and the tour moves on to the next thing to tap.
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('Tap the top product to open it'), findsOneWidget);
+
+    await tester.tap(find.text('Skip'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(container.read(appTourProvider), isNull);
+    expect(container.read(navigationProvider), AppTab.horizon);
+    expect(container.read(intentProvider), isNull); // tidied up
   });
 
   testWidgets('appearance switches live, including const subtrees', (

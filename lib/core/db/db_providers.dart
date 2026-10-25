@@ -39,11 +39,10 @@ final priceWatchRepositoryProvider = Provider<PriceWatchRepository?>((ref) {
 // ── Start-up state ───────────────────────────────────────────────────────
 //
 // `main()` loads these from SQLite before the first frame and overrides them.
-// The defaults below are the demo scenario, so tests and the no-database
-// fallback behave exactly like the original in-memory app.
+// The defaults below are an empty account, matching a fresh sign-up.
 
 final initialCooldownsProvider = Provider<Map<String, DateTime>>(
-  (ref) => {'kb_loom': DateTime.now().add(const Duration(hours: 17, minutes: 42))},
+  (ref) => <String, DateTime>{},
 );
 
 final initialCartProvider = Provider<List<SavedCartLine>>(
