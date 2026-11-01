@@ -637,4 +637,19 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get youPaid => 'आपने चुकाया';
+
+  @override
+  String get splashTagline => 'स्पष्टता से निर्णय लें।';
+
+  @override
+  String get splashStarting => 'तैयार हो रहा है';
+
+  @override
+  String get splashOpening => 'आपका खाता खुल रहा है';
+
+  @override
+  String get splashReady => 'तैयार';
+
+  @override
+  String get splashSemantics => 'Clarion शुरू हो रहा है';
 }

@@ -15,6 +15,10 @@ class LocaleController extends Notifier<Locale?> {
     _saved = saved == null ? null : Locale(saved);
   }
 
+  /// The saved choice, for code that runs before any provider scope exists
+  /// (the splash).
+  static Locale? get saved => _saved;
+
   @override
   Locale? build() => _saved;
 

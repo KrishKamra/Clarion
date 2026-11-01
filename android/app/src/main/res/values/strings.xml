@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="widget_description">Budget left and cooling-off timers</string>
+    <string name="widget_description">Budget left, cooling-off holds and price watch</string>
+    <string name="widget_brand" translatable="false">CLARION</string>
+    <string name="widget_preview_budget" translatable="false">₹12,400</string>
+    <string name="widget_preview_caption">left of ₹40,000</string>
+    <string name="widget_preview_hold" translatable="false">Loom wireless keyboard</string>
+    <string name="widget_preview_ready">Ready 9:40 PM</string>
+    <string name="widget_open_app">Open Clarion</string>
+    <string name="widget_open_app_caption">to see your budget</string>
+    <string name="widget_no_hold">Nothing cooling off</string>
+    <string name="widget_ready">Ready to decide</string>
+    <string name="widget_ready_at">Ready %1$s</string>
+    <string name="widget_tomorrow">tomorrow %1$s</string>
+    <string name="widget_hours_left">about %1$dh left</string>
+    <string name="widget_minutes_left">%1$dm left</string>
+    <string name="widget_more_holds">+%1$d more</string>
+    <string name="widget_watching">Watching</string>
+    <string name="widget_at_target">%1$d at target</string>
+    <string name="widget_none_at_target">none at target</string>
+    <string name="widget_saved">Saved by waiting</string>
+    <string name="widget_avoided">%1$d impulses skipped</string>
+    <string name="widget_used">%1$d%% used</string>
 </resources>

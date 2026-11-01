@@ -64,6 +64,13 @@ abstract final class AppMotion {
   static const Duration slow = Duration(milliseconds: 280);
   static const Duration reveal = Duration(milliseconds: 640);
 
+  /// The cold-start arrival: the lens pulls focus and the name tracks in.
+  /// Played once per launch, never on navigation.
+  static const Duration arrival = Duration(milliseconds: 1400);
+
+  /// The splash lens opening onto the app beneath it.
+  static const Duration aperture = Duration(milliseconds: 700);
+
   static const Curve standard = Curves.easeOutCubic;
   static const Curve emphasized = Curves.fastOutSlowIn;
 }

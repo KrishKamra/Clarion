@@ -637,4 +637,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get youPaid => 'You paid';
+
+  @override
+  String get splashTagline => 'Decide with clarity.';
+
+  @override
+  String get splashStarting => 'Warming up';
+
+  @override
+  String get splashOpening => 'Opening your ledger';
+
+  @override
+  String get splashReady => 'Ready';
+
+  @override
+  String get splashSemantics => 'Clarion is starting';
 }

@@ -101,10 +101,10 @@ flowchart TD
 | :--- | :--- |
 | Spacing | 4px grid: `xs 4 · sm 8 · md 12 · lg 16 · xl 20 · xxl 24 · xxxl 32 · section 40`; gutter 20 |
 | Radii | `xs 6 · sm 10 · md 14 · lg 18 · xl 24 · pill` |
-| Motion | `fast 220 · medium 250 · slow 280 ms` on `easeOutCubic`; `reveal 640 ms` only for one-off data draws (gauge sweep, price band) |
+| Motion | `fast 220 · medium 250 · slow 280 ms` on `easeOutCubic`; `reveal 640 ms` only for one-off data draws (gauge sweep, price band); `arrival 1400 ms` and `aperture 700 ms` only for the cold-start splash, once per launch |
 | Haptics | `selectionClick` on intent pills, tab switches, chart/barometer scrubbing and the start of a hold; `mediumImpact` when a 24h cooling-off hold commits; `lightImpact` on card and button taps |
 | Hover & glow | Every tappable surface goes through `Pressable`: a click cursor, a hover lift of 60 % of the press depth, and hover/press state exposed through `Pressable.stateOf`. `PressGlow` turns that state into light: solid buttons keep a faint glow of their own colour that blooms on hover, and tappable `TactileCard`s light their rim in their tint (iris by default) with a soft halo. Glows are box shadows, never blurs |
-| Reduced motion | Ambient loops (aurora drift, lockup breath) and entrances stop when `MediaQuery.disableAnimations` is set |
+| Reduced motion | Ambient loops (aurora drift, lockup breath) and entrances stop when `MediaQuery.disableAnimations` is set; the splash shows its settled lockup and fades |
 
 > [!CAUTION]
 > No elastic, bounce or overshoot curves. If a transition needs more than 280 ms to read, the layout change is too big.
@@ -126,6 +126,7 @@ flowchart TD
 | `ProductArtwork` | Matte studio stage with tone-tinted key light and floor shadow |
 | `ObsidianCanvas` | Canvas + single ambient pool + cached film grain |
 | `ChromeSliverHeader` / `ScreenTitle` | Pinned header that frosts only once content scrolls under it |
+| `ClarionSplash` | Cold-start arrival (`lib/features/splash/`): converging focus rings lock onto the lens, the name tracks in, a filament reports real boot progress, then the lens ring opens as an aperture onto the app |
 | `ClarionSheet`, `RoundIconButton`, `SectionHeader`, `ProgressRing`, `AnimatedMetric`, `ClarionWordmark`, `Pressable` | Supporting primitives |
 
 ## Voice

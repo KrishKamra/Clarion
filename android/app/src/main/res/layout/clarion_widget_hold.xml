@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The soonest cooling-off hold: what, when it ends, and a hairline of how
+     much of the wait has passed. Tapping it opens that product. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_hold_row"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/widget_hold_dot"
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/widget_dot_rose" />
+
+        <TextView
+            android:id="@+id/widget_hold_title"
+            style="@style/ClarionWidget.Body"
+            android:layout_width="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="@string/widget_preview_hold" />
+
+        <TextView
+            android:id="@+id/widget_hold_time"
+            style="@style/ClarionWidget.Caption"
+            android:layout_width="wrap_content"
+            android:layout_marginStart="8dp"
+            android:fontFeatureSettings="tnum"
+            android:text="@string/widget_preview_ready" />
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/widget_hold_progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_marginTop="7dp"
+        android:max="1000"
+        android:progress="620"
+        android:progressDrawable="@drawable/widget_hold_progress" />
+</LinearLayout>

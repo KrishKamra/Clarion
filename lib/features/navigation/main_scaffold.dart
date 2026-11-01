@@ -20,6 +20,8 @@ import '../cart/presentation/smart_cart_screen.dart';
 import '../decision/application/compare_controller.dart';
 import '../decision/application/cooldown_controller.dart';
 import '../decision/application/friend_ballot.dart';
+import '../decision/application/watch_status.dart';
+import '../decision/application/watchlist_controller.dart';
 import '../decision/presentation/barcode_scan_screen.dart';
 import '../decision/presentation/compare_matrix_screen.dart';
 import '../decision/presentation/product_decision_screen.dart';
@@ -124,23 +126,54 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
     return null;
   }
 
-  /// Budget left and the soonest cooling-off timer, for the home-screen widget.
+  /// The budget, the soonest cooling-off hold, the watchlist and what
+  /// waiting has saved, for the home-screen widget.
   void _publishWidget() {
     if (!mounted) return;
-    final snapshot = ref.read(budgetSnapshotProvider);
+    final b = ref.read(budgetSnapshotProvider);
+    final budget = ref.read(budgetProvider);
     final holds = ref.read(cooldownProvider);
-    String? title;
+    String? holdId;
     DateTime? ends;
     for (final entry in holds.entries) {
       if (ends != null && !entry.value.isBefore(ends)) continue;
       ends = entry.value;
-      title = _product(entry.key)?.title ?? 'Cooling off';
+      holdId = entry.key;
     }
-    final left = snapshot.headroom;
+    final watchlist = ref.read(watchlistProvider);
+    var atTarget = 0;
+    for (final MapEntry(key: id, value: target) in watchlist.entries) {
+      final product = _product(id);
+      if (product == null) continue;
+      if (watchVerdict(price: product.price, target: target) ==
+          WatchVerdict.targetHit) {
+        atTarget++;
+      }
+    }
     HomeWidgetBridge.publish(
-      budget: left < 0 ? '${Fmt.inr(-left)} over' : '${Fmt.inr(left)} left',
-      holdTitle: title ?? 'No cooling-off hold',
-      holdEnds: ends,
+      HomeWidgetSnapshot(
+        budgetFigure: Fmt.inr(b.isOver ? b.overBy : b.headroom),
+        budgetCaption: b.isOver
+            ? 'over ${Fmt.inr(b.limit)}'
+            : 'left of ${Fmt.inr(b.limit)}',
+        ratio: b.ratio,
+        over: b.isOver,
+        holdTitle: holdId == null
+            ? null
+            : _product(holdId)?.title ?? 'Cooling off',
+        holdProductId: holdId,
+        holdStarts: holdId == null
+            ? null
+            : ends!.subtract(
+                ref.read(cooldownProvider.notifier).spanOf(holdId),
+              ),
+        holdEnds: ends,
+        holdCount: holds.length,
+        watching: watchlist.length,
+        atTarget: atTarget,
+        saved: Fmt.inr(budget.savedViaCooldown),
+        avoided: budget.impulseBuysAvoided,
+      ),
     );
   }
 
@@ -170,6 +203,8 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
   Widget build(BuildContext context) {
     ref.listen(budgetSnapshotProvider, (_, _) => _publishWidget());
     ref.listen(cooldownProvider, (_, _) => _publishWidget());
+    ref.listen(watchlistProvider, (_, _) => _publishWidget());
+    ref.listen(budgetProvider, (_, _) => _publishWidget());
     final tab = ref.watch(navigationProvider);
     final cartCount = ref.watch(cartCountProvider);
     final overBudget = ref.watch(

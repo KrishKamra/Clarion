@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Widget-picker preview of the budget ring at 68 %. The live widget draws
+     the ring as a bitmap from real data. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="56dp"
+    android:height="56dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:pathData="M24,4 A20,20 0 1,1 23.99,4"
+        android:strokeWidth="3.5"
+        android:strokeColor="@color/widget_hairline" />
+    <path
+        android:pathData="M24,4 A20,20 0 1,1 5.87,32.45"
+        android:strokeLineCap="round"
+        android:strokeWidth="3.5"
+        android:strokeColor="@color/widget_emerald" />
+</vector>

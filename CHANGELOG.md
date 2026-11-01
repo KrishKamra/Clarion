@@ -4,6 +4,12 @@ All notable changes to Clarion are documented here. Format based on [Keep a Chan
 
 ## [Unreleased]
 
+### Added — arrival, home widget and notifications
+- **Launch splash**: instead of a blank canvas while Firebase and the account's database load, the lens from the native splash pulls focus: three focus rings converge on it, a glint runs round the rim, and the name tracks in beneath under a sweep of light. A hairline filament shows the real launch steps ("Warming up" → "Opening your ledger"), and never runs ahead of them. When the first screen is ready, the lens ring opens like an aperture and the app shows through it. Under reduced motion it shows the settled lockup and fades. English and Hindi.
+- **Sign-in and sign-out cross-fade** instead of cutting straight to the next screen.
+- **Home-screen widget, rebuilt**: five layouts that fit the widget's size (2×1, 4×1, 2×2, 4×2, 4×3+), swapped instantly on resize on Android 12+. A budget ring in the barometer's emerald / amber / rose zones with the percentage used; the soonest cooling-off hold with its end time ("Ready 9:40 PM", in the device's clock format), a hairline showing how much of the wait has passed, and a tap that opens that product; at 4×3, the watchlist (how many are at target) and what waiting has saved. An alarm refreshes it when a hold ends, so it says "Ready to decide" on time. It follows the system's light or dark theme, uses the launcher's corner radius, and shows a real preview in the widget picker. Widget text is in English and Hindi.
+- **Notifications**: each kind has its own accent (iris to decide, emerald for a price target, amber for a closing return window), a longer expanded message (today's price, the return deadline, savings against the 30-day high), a sub-label, and one action button that opens the product or order. Content is hidden on a secure lock screen. When several price targets are met at once, they're grouped under one summary.
+
 ### Fixed — Google sign-in errors and verification status
 - **Google sign-in no longer fails silently.** On Android, a build whose signing key (SHA-1) isn't registered in Firebase is reported by Credential Manager as a *cancellation* ("[16] Account reauth failed."), so the button used to do nothing. It now says Google sign-in isn't set up for this build and suggests email. A device with no Google account and a picker that can't open also get their own messages; closing the picker stays quiet.
 - **Email verification refreshes by itself** when the app returns to the foreground, so after tapping the link in their mail app people see "verified" without pressing "Check status".
@@ -19,7 +25,7 @@ All notable changes to Clarion are documented here. Format based on [Keep a Chan
 - **Clarity report**: a shareable month of impulse buys avoided, money kept, regret rate and best decisions.
 - **Warranty vault**: return-window and warranty-expiry reminders, and a vault of kept lines.
 - **Ask a friend**: a comparison link a friend votes on by opening a reply link. Votes stay on the device.
-- **Home-screen widget**: budget left and the soonest cooling-off timer.
+- **Home-screen widget**: budget left and the soonest cooling-off timer (rebuilt above).
 - **Goal reading**: an on-device reading of a free-form goal, replaced by grok-4.7 when `XAI_API_KEY` is compiled in, plus Android voice input.
 - **In-store scan**: a barcode shows fit, price history and pickup. Typing the code works without the camera.
 

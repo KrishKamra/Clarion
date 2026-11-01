@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="widget_surface_top">#FF1C1F2B</color>
+    <color name="widget_surface">#FF0E1017</color>
+    <color name="widget_rim">#1FFFFFFF</color>
+    <color name="widget_tile">#0AFFFFFF</color>
+    <color name="widget_hairline">#14FFFFFF</color>
+    <color name="widget_text_primary">#FFF8FAFC</color>
+    <color name="widget_text_secondary">#FFA3B0C2</color>
+    <color name="widget_text_tertiary">#FF8792A3</color>
+    <color name="widget_iris">#FF6B6EF3</color>
+    <color name="widget_emerald">#FF34D399</color>
+    <color name="widget_amber">#FFF59E0B</color>
+    <color name="widget_rose">#FFF43F5E</color>
+</resources>

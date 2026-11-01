@@ -21,32 +21,87 @@ abstract final class NotificationService {
   static final _plugin = FlutterLocalNotificationsPlugin();
   static bool _ready = false;
 
+  /// The app's accent meanings, carried into the shade: iris when it is
+  /// time to act, emerald for a good price, amber for a window closing.
   static const _iris = Color(0xFF4F46E5);
+  static const _emerald = Color(0xFF10B981);
+  static const _amber = Color(0xFFF59E0B);
 
-  static const _coolingOff = NotificationDetails(
-    android: AndroidNotificationDetails(
-      'cooling_off',
-      'Cooling-off reminders',
-      channelDescription: 'When a 24h cooling-off hold ends.',
-      color: _iris,
-    ),
+  /// One channel per kind of reminder, so each can be silenced on its own.
+  static const _coolingOffChannel = (
+    id: 'cooling_off',
+    name: 'Cooling-off reminders',
+    description: 'When a 24h cooling-off hold ends.',
+    group: 'clarion.cooling_off',
+    label: 'Cooling-off',
+    color: _iris,
+    category: AndroidNotificationCategory.reminder,
+  );
+  static const _vaultChannel = (
+    id: 'warranty_vault',
+    name: 'Receipts and warranty',
+    description: 'When a return window is about to close, or a warranty is about to expire.',
+    group: 'clarion.vault',
+    label: 'Receipts & warranty',
+    color: _amber,
+    category: AndroidNotificationCategory.reminder,
+  );
+  static const _priceWatchChannel = (
+    id: 'price_watch',
+    name: 'Price watch',
+    description: 'When a watched product reaches your target price.',
+    group: 'clarion.price_watch',
+    label: 'Price watch',
+    color: _emerald,
+    category: AndroidNotificationCategory.recommendation,
   );
 
-  static const _vault = NotificationDetails(
+  /// Expanded copy, the kind as a sub-label, one action that opens the
+  /// subject, and content hidden on a secure lock screen — what someone is
+  /// thinking of buying is nobody else's business.
+  static NotificationDetails _details(
+    ({
+      String id,
+      String name,
+      String description,
+      String group,
+      String label,
+      Color color,
+      AndroidNotificationCategory category,
+    })
+    channel, {
+    required String body,
+    String? action,
+    String? summary,
+    DateTime? when,
+    StyleInformation? style,
+    bool groupSummary = false,
+  }) => NotificationDetails(
     android: AndroidNotificationDetails(
-      'warranty_vault',
-      'Receipts and warranty',
-      channelDescription: 'When a return window is about to close, or a warranty is about to expire.',
-      color: _iris,
-    ),
-  );
-
-  static const _priceWatch = NotificationDetails(
-    android: AndroidNotificationDetails(
-      'price_watch',
-      'Price watch',
-      channelDescription: 'When a watched product reaches your target price.',
-      color: _iris,
+      channel.id,
+      channel.name,
+      channelDescription: channel.description,
+      icon: 'ic_stat_clarion',
+      color: channel.color,
+      category: channel.category,
+      groupKey: channel.group,
+      setAsGroupSummary: groupSummary,
+      subText: channel.label,
+      styleInformation:
+          style ?? BigTextStyleInformation(body, summaryText: summary),
+      visibility: NotificationVisibility.private,
+      when: when?.millisecondsSinceEpoch,
+      showWhen: when != null,
+      ticker: body,
+      actions: [
+        if (action != null)
+          AndroidNotificationAction(
+            'open',
+            action,
+            titleColor: channel.color,
+            showsUserInterface: true,
+          ),
+      ],
     ),
   );
 
@@ -85,15 +140,24 @@ abstract final class NotificationService {
   static Future<void> scheduleCoolingOff(Product product, DateTime endsAt) =>
       _whenReady(() async {
         if (!endsAt.isAfter(DateTime.now())) return;
+        final body =
+            'Still want the ${product.title}? Decide now, with a clear head.';
         // An absolute instant, so UTC is exact whatever the device's zone.
         await _plugin.zonedSchedule(
           id: idFor('hold', product.id),
           scheduledDate: tz.TZDateTime.from(endsAt, tz.UTC),
-          notificationDetails: _coolingOff,
+          notificationDetails: _details(
+            _coolingOffChannel,
+            body:
+                '$body It’s ${Fmt.inr(product.price)} today. Buy it, keep '
+                'watching, or let it go — all three are good outcomes.',
+            summary: product.title,
+            action: 'Decide now',
+            when: endsAt,
+          ),
           androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
           title: 'Your cooling-off is over',
-          body:
-              'Still want the ${product.title}? Decide now, with a clear head.',
+          body: body,
           payload: product.id,
         );
       });
@@ -115,10 +179,20 @@ abstract final class NotificationService {
       final title = order.lines.isEmpty
           ? 'your order'
           : order.lines.first.title;
+      final closes = returnAt.add(const Duration(days: 3));
       await _plugin.zonedSchedule(
         id: idFor('return', order.id),
         scheduledDate: tz.TZDateTime.from(returnAt, tz.UTC),
-        notificationDetails: _vault,
+        notificationDetails: _details(
+          _vaultChannel,
+          body:
+              'Still happy with the $title? The return window closes on '
+              '${Fmt.shortDate(closes)}. If it isn’t earning its place, '
+              'there’s still time.',
+          summary: 'Order ${order.id}',
+          action: 'View order',
+          when: returnAt,
+        ),
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         title: 'Return window closes in 3 days',
         body: 'Still happy with the $title?',
@@ -139,14 +213,23 @@ abstract final class NotificationService {
       );
       final remind = expires.subtract(const Duration(days: 30));
       if (!remind.isAfter(now)) continue;
+      final body =
+          'The warranty on ${line.title} expires on ${Fmt.shortDate(expires)}.';
       await _plugin.zonedSchedule(
         id: idFor('warranty', '${order.id}:${line.productId}'),
         scheduledDate: tz.TZDateTime.from(remind, tz.UTC),
-        notificationDetails: _vault,
+        notificationDetails: _details(
+          _vaultChannel,
+          body:
+              '$body If anything has been playing up, now is the time to '
+              'get it looked at — your receipt is in the vault.',
+          summary: line.title,
+          action: 'Open product',
+          when: remind,
+        ),
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         title: 'Warranty ending soon',
-        body:
-            'The warranty on ${line.title} expires on ${Fmt.shortDate(expires)}.',
+        body: body,
         payload: line.productId,
       );
     }
@@ -171,6 +254,7 @@ abstract final class NotificationService {
     final key = 'watch_alerted_$userId';
     final announced = prefs.getStringList(key)?.toSet() ?? {};
     final hitNow = <String>{};
+    final fresh = <String>[];
     for (final MapEntry(key: id, value: target) in watchlist.entries) {
       final product = products[id];
       if (product == null || target == null || product.price > target) {
@@ -179,14 +263,42 @@ abstract final class NotificationService {
       final tag = '$id@$target';
       hitNow.add(tag);
       if (announced.contains(tag)) continue;
+      final saving = product.historyMax - product.price;
+      final body =
+          'Now ${Fmt.inr(product.price)}, at or below your '
+          '${Fmt.inr(target)} target. Worth a look when you’re ready.';
       await _plugin.show(
         id: idFor('watch', id),
         title: '${product.title} reached your target',
-        body:
-            'Now ${Fmt.inr(product.price)}, at or below your '
-            '${Fmt.inr(target)} target. Worth a look when you’re ready.',
-        notificationDetails: _priceWatch,
+        body: body,
+        notificationDetails: _details(
+          _priceWatchChannel,
+          body: saving > 0
+              ? '$body That’s ${Fmt.inr(saving)} under its 30-day high.'
+              : body,
+          summary: 'Target ${Fmt.inr(target)}',
+          action: 'See the price',
+        ),
         payload: id,
+      );
+      fresh.add('${product.title} · ${Fmt.inr(product.price)}');
+    }
+    // Several at once fold under one summary in the shade.
+    if (fresh.length > 1) {
+      await _plugin.show(
+        id: idFor('watch', 'summary'),
+        title: '${fresh.length} watched products reached your target',
+        body: fresh.join(', '),
+        notificationDetails: _details(
+          _priceWatchChannel,
+          body: fresh.join(', '),
+          style: InboxStyleInformation(
+            fresh,
+            contentTitle: '${fresh.length} at your target',
+            summaryText: 'Price watch',
+          ),
+          groupSummary: true,
+        ),
       );
     }
     // Only targets still met stay announced; one that lapses can fire again.

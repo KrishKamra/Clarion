@@ -209,5 +209,10 @@
   "pickupLabel": "Pickup",
   "pickupFree": "Free · same day",
   "refundedLabel": "Refunded",
-  "youPaid": "You paid"
+  "youPaid": "You paid",
+  "splashTagline": "Decide with clarity.",
+  "splashStarting": "Warming up",
+  "splashOpening": "Opening your ledger",
+  "splashReady": "Ready",
+  "splashSemantics": "Clarion is starting"
 }

@@ -176,5 +176,10 @@
   "pickupLabel": "पिकअप",
   "pickupFree": "मुफ़्त · उसी दिन",
   "refundedLabel": "रिफ़ंड",
-  "youPaid": "आपने चुकाया"
+  "youPaid": "आपने चुकाया",
+  "splashTagline": "स्पष्टता से निर्णय लें।",
+  "splashStarting": "तैयार हो रहा है",
+  "splashOpening": "आपका खाता खुल रहा है",
+  "splashReady": "तैयार",
+  "splashSemantics": "Clarion शुरू हो रहा है"
 }

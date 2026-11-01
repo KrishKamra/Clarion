@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- How much of the cooling-off hold has passed: iris to rose on a hairline. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@android:id/background">
+        <shape>
+            <corners android:radius="2dp" />
+            <solid android:color="@color/widget_hairline" />
+        </shape>
+    </item>
+    <item android:id="@android:id/progress">
+        <clip>
+            <shape>
+                <corners android:radius="2dp" />
+                <gradient
+                    android:angle="0"
+                    android:endColor="@color/widget_rose"
+                    android:startColor="@color/widget_iris" />
+            </shape>
+        </clip>
+    </item>
+</layer-list>

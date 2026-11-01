@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-widget palette: the app's Porcelain tokens (values-night holds
+     Obsidian). Accents keep one meaning each, as in AppColors. -->
+<resources>
+    <color name="widget_surface_top">#FFFFFFFF</color>
+    <color name="widget_surface">#FFF5F6F8</color>
+    <color name="widget_rim">#1F0F172A</color>
+    <color name="widget_tile">#0A0F172A</color>
+    <color name="widget_hairline">#170F172A</color>
+    <color name="widget_text_primary">#FF0B0F19</color>
+    <color name="widget_text_secondary">#FF475569</color>
+    <color name="widget_text_tertiary">#FF5B6678</color>
+    <color name="widget_iris">#FF4F46E5</color>
+    <color name="widget_emerald">#FF047857</color>
+    <color name="widget_amber">#FFB45309</color>
+    <color name="widget_rose">#FFE11D48</color>
+</resources>

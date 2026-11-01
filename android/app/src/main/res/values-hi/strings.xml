@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_description">बचा बजट, कूलिंग-ऑफ़ और कीमत पर नज़र</string>
+    <string name="widget_preview_caption">₹40,000 में से बचे</string>
+    <string name="widget_preview_ready">9:40 PM तैयार</string>
+    <string name="widget_open_app">Clarion खोलें</string>
+    <string name="widget_open_app_caption">अपना बजट देखने के लिए</string>
+    <string name="widget_no_hold">कुछ भी रुका नहीं है</string>
+    <string name="widget_ready">फ़ैसले के लिए तैयार</string>
+    <string name="widget_ready_at">%1$s तैयार</string>
+    <string name="widget_tomorrow">कल %1$s</string>
+    <string name="widget_hours_left">लगभग %1$d घंटे बाकी</string>
+    <string name="widget_minutes_left">%1$d मिनट बाकी</string>
+    <string name="widget_more_holds">+%1$d और</string>
+    <string name="widget_watching">नज़र में</string>
+    <string name="widget_at_target">%1$d लक्ष्य पर</string>
+    <string name="widget_none_at_target">कोई लक्ष्य पर नहीं</string>
+    <string name="widget_saved">रुककर बचाए</string>
+    <string name="widget_avoided">%1$d आवेग टाले</string>
+    <string name="widget_used">%1$d%% खर्च</string>
+</resources>

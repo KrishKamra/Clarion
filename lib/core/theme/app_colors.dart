@@ -64,6 +64,15 @@ abstract final class AppColors {
   /// Muted rose: anti-impulse friction — cooling off, over the ceiling.
   static Color get rose => _pick(0xFFF43F5E, 0xFFE11D48);
 
+  // ── Brand mark ────────────────────────────────────────────────────────────
+  /// The lens ring in `assets/brand/clarion_logo.svg`, top-left to
+  /// bottom-right. Fixed in both themes, like the mark itself.
+  static const List<Color> lensRing = [
+    Color(0xFFA5B4FC),
+    Color(0xFF6366F1),
+    Color(0xFF10B981),
+  ];
+
   // ── Text ──────────────────────────────────────────────────────────────────
   /// Headings and key metrics.
   static Color get textPrimary => _pick(0xFFF8FAFC, 0xFF0B0F19);

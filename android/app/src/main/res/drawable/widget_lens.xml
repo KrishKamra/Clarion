@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Clarion lens (assets/brand/clarion_logo.svg) at widget scale. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <path
+        android:pathData="M32,6 A26,26 0 1,1 31.99,6 Z"
+        android:strokeWidth="5.5">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:endX="54"
+                android:endY="56"
+                android:startX="10"
+                android:startY="8"
+                android:type="linear">
+                <item android:color="#FFA5B4FC" android:offset="0" />
+                <item android:color="#FF6366F1" android:offset="0.45" />
+                <item android:color="#FF10B981" android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path
+        android:fillColor="#FF6366F1"
+        android:pathData="M41,14.75 A8.25,8.25 0 1,1 40.99,14.75 Z" />
+</vector>

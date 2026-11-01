@@ -15,6 +15,10 @@ class ThemeModeController extends Notifier<ThemeMode> {
     _saved = ThemeMode.values.asNameMap()[saved] ?? ThemeMode.system;
   }
 
+  /// The saved choice, for code that runs before any provider scope exists
+  /// (the splash).
+  static ThemeMode get saved => _saved;
+
   @override
   ThemeMode build() => _saved;
 

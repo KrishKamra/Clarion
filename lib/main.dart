@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -11,12 +12,14 @@ import 'core/db/user_session.dart';
 import 'core/links/deep_links.dart';
 import 'core/notifications/notification_service.dart';
 import 'core/theme/app_colors.dart';
+import 'core/theme/app_spacing.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/locale_controller.dart';
 import 'core/theme/theme_mode_controller.dart';
 import 'features/auth/application/auth_service.dart';
 import 'features/auth/presentation/sign_in_screen.dart';
 import 'features/navigation/main_scaffold.dart';
+import 'features/splash/clarion_splash.dart';
 import 'features/tour/app_tour.dart';
 import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
@@ -33,14 +36,25 @@ Future<void> main() async {
   await NotificationService.init();
   DeepLinks.init();
 
+  // The splash paints before ClarionApp exists, so resolve the palette here.
+  AppColors.brightness = switch (ThemeModeController.saved) {
+    ThemeMode.light => Brightness.light,
+    ThemeMode.dark => Brightness.dark,
+    ThemeMode.system => PlatformDispatcher.instance.platformBrightness,
+  };
+  SystemChrome.setSystemUIOverlayStyle(AppTheme.overlayStyle);
+
   runApp(const AuthGate());
 }
 
-/// Routes between sign-in and the app.
+/// Routes between sign-in and the app, behind the launch splash.
 ///
 /// Each account runs in its own provider scope, keyed by uid and seeded from
 /// its own database, so signing out or switching accounts can never carry one
 /// account's cart, holds or budget into another's.
+///
+/// The splash covers the cold start only: it reports which step the launch
+/// is on, and opens onto the app once the first screen has what it needs.
 class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
 
@@ -53,6 +67,8 @@ class _AuthGateState extends State<AuthGate> {
   bool _resolved = false;
   User? _user;
   Future<UserSession>? _session;
+  UserSession? _opened;
+  bool _splashDone = false;
 
   @override
   void initState() {
@@ -60,13 +76,22 @@ class _AuthGateState extends State<AuthGate> {
     _subscription = FirebaseAuth.instance.authStateChanges().listen((user) {
       if (_resolved && user?.uid == _user?.uid) return;
       final previous = _session;
+      final session = user == null ? null : openUserSession(user.uid);
       setState(() {
         _resolved = true;
         _user = user;
-        _session = user == null ? null : openUserSession(user.uid);
+        _session = session;
+        _opened = null;
       });
-      // Close the old account's database once its scope has been torn down.
+      session?.then((s) {
+        if (mounted && identical(_session, session)) {
+          setState(() => _opened = s);
+        }
+      });
+      // Close the old account's database once its scope has faded out and
+      // been torn down.
       previous?.then((s) async {
+        await Future<void>.delayed(AppMotion.slow);
         await SchedulerBinding.instance.endOfFrame;
         await s.db?.close();
       });
@@ -79,31 +104,60 @@ class _AuthGateState extends State<AuthGate> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
+  BootStage get _stage {
+    if (!_resolved) return BootStage.starting;
+    if (_user != null && _opened == null) return BootStage.opening;
+    return BootStage.ready;
+  }
+
+  Widget _app() {
     final user = _user;
-    if (!_resolved) return ColoredBox(color: AppColors.canvas);
+    final waiting = ColoredBox(
+      key: const ValueKey('waiting'),
+      color: AppColors.canvas,
+    );
+    if (!_resolved) return waiting;
     if (user == null) {
       return const ProviderScope(
         key: ValueKey('signed-out'),
         child: ClarionApp(home: SignInScreen()),
       );
     }
-    return FutureBuilder(
+    final session = _opened;
+    if (session == null) return waiting;
+    return ProviderScope(
       key: ValueKey(user.uid),
-      future: _session,
-      builder: (context, snapshot) {
-        final session = snapshot.data;
-        if (session == null) return ColoredBox(color: AppColors.canvas);
-        return ProviderScope(
-          key: ValueKey(user.uid),
-          overrides: [
-            currentUserProvider.overrideWithValue(user),
-            ...session.overrides,
-          ],
-          child: const ClarionApp(),
-        );
-      },
+      overrides: [
+        currentUserProvider.overrideWithValue(user),
+        ...session.overrides,
+      ],
+      child: const ClarionApp(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // The app always holds the first slot, so dropping the splash above it
+    // never rebuilds it from scratch.
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Signing in or out cross-fades between scopes, never a hard cut.
+          AnimatedSwitcher(
+            duration: AppMotion.slow,
+            switchInCurve: AppMotion.standard,
+            switchOutCurve: AppMotion.standard,
+            child: _app(),
+          ),
+          if (!_splashDone)
+            ClarionSplash(
+              stage: _stage,
+              onDone: () => setState(() => _splashDone = true),
+            ),
+        ],
+      ),
     );
   }
 }

@@ -18,16 +18,9 @@ class MainActivity : FlutterActivity() {
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "update" -> {
-                        val budget = call.argument<String>("budget") ?: ""
-                        val hold = call.argument<String>("hold") ?: ""
-                        val endsAt = (call.argument<Any>("endsAt") as? Number)?.toLong() ?: 0L
-                        getSharedPreferences(ClarionWidgetProvider.PREFS, MODE_PRIVATE)
-                            .edit()
-                            .putString(ClarionWidgetProvider.KEY_BUDGET, budget)
-                            .putString(ClarionWidgetProvider.KEY_HOLD, hold)
-                            .putLong(ClarionWidgetProvider.KEY_ENDS, endsAt)
-                            .apply()
-                        ClarionWidgetProvider.refresh(this)
+                        @Suppress("UNCHECKED_CAST")
+                        val values = call.arguments as? Map<String, Any?> ?: emptyMap()
+                        ClarionWidgetProvider.save(this, values)
                         result.success(null)
                     }
                     "listen" -> startVoice(result)

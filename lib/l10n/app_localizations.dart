@@ -1099,6 +1099,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You paid'**
   String get youPaid;
+
+  /// No description provided for @splashTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decide with clarity.'**
+  String get splashTagline;
+
+  /// No description provided for @splashStarting.
+  ///
+  /// In en, this message translates to:
+  /// **'Warming up'**
+  String get splashStarting;
+
+  /// No description provided for @splashOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening your ledger'**
+  String get splashOpening;
+
+  /// No description provided for @splashReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get splashReady;
+
+  /// No description provided for @splashSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Clarion is starting'**
+  String get splashSemantics;
 }
 
 class _AppLocalizationsDelegate
