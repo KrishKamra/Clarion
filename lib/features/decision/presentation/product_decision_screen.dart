@@ -261,11 +261,7 @@ class _TitleBlock extends ConsumerWidget {
                 excludeSemantics: true,
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.star_rounded,
-                      size: 14,
-                      color: AppColors.amber,
-                    ),
+                    Icon(Icons.star_rounded, size: 14, color: AppColors.amber),
                     const SizedBox(width: 3),
                     Flexible(
                       child: Text(

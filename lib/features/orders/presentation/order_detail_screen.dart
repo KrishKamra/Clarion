@@ -116,9 +116,8 @@ String _vaultSentence(BuildContext context, VaultEntry entry, DateTime now) {
   final expires = entry.warrantyExpires;
   if (expires == null) return '$title: $years-year warranty.';
   // A warranty ends in another year, so the year is always shown.
-  final when = DateFormat.yMMMd(
-    Localizations.localeOf(context).toLanguageTag(),
-  ).format(expires);
+  final when = DateFormat.yMMMd(Localizations.localeOf(context).toLanguageTag())
+      .format(expires);
   final lead = expires.difference(now).inDays;
   if (lead >= 0 && lead <= 30) {
     return '$title: warranty expires in $lead days ($when).';
