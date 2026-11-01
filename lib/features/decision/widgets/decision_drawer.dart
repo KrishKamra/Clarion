@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/feedback/app_haptics.dart';
 import '../../../data/catalog.dart';
 import '../../../data/models/product_model.dart';
 import '../../../core/theme/app_colors.dart';
@@ -60,6 +60,7 @@ class _DecisionDrawerState extends ConsumerState<DecisionDrawer> {
 
     final budget = ref.read(budgetSnapshotProvider);
     if (budget.leftAfterWithCart(product.price) < 0) {
+      AppHaptics.warn();
       final altId = product.alternativeId;
       final choice = await showMindfulCheckSheet(
         context: context,
@@ -88,7 +89,7 @@ class _DecisionDrawerState extends ConsumerState<DecisionDrawer> {
     if (!mounted) return;
     ref.read(cartProvider.notifier).add(product.id);
     ref.read(cooldownProvider.notifier).release(product.id);
-    HapticFeedback.lightImpact();
+    AppHaptics.commit();
     setState(() => _adding = false);
 
     final after = ref.read(budgetSnapshotProvider);

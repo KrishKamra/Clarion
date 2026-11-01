@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
+import '../feedback/app_haptics.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
@@ -97,7 +97,7 @@ class DynamicPill extends StatelessWidget {
       selected: selected,
       child: Pressable(
         onTap: () {
-          HapticFeedback.selectionClick();
+          AppHaptics.select();
           onTap!();
         },
         haptic: false,

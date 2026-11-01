@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
+import '../feedback/app_haptics.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_decorations.dart';
 import '../theme/app_spacing.dart';
@@ -89,7 +89,7 @@ class FloatingNavCapsule extends StatelessWidget {
                               selected: i == currentIndex,
                               onTap: () {
                                 if (i == currentIndex) return;
-                                HapticFeedback.selectionClick();
+                                AppHaptics.select();
                                 onSelected(i);
                               },
                             ),

@@ -21,6 +21,7 @@ import 'widgets/bundle_card.dart';
 import 'widgets/fit_stream.dart';
 import 'widgets/horizon_header.dart';
 import 'widgets/intent_summary.dart';
+import 'widgets/needs_you_card.dart';
 import 'widgets/price_memory_radar.dart';
 import 'widgets/watchlist_card.dart';
 
@@ -82,6 +83,8 @@ class IntentHomeScreen extends ConsumerWidget {
                   color: AppColors.irisGlow,
                   onTap: () => BarcodeScanScreen.open(context),
                 ),
+                const SizedBox(height: AppSpacing.xxl),
+                const NeedsYouCard(),
               ],
             ),
           ),

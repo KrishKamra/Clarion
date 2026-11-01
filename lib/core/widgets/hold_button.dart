@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
+import '../feedback/app_haptics.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_decorations.dart';
 import '../theme/app_spacing.dart';
@@ -56,14 +56,14 @@ class _HoldButtonState extends State<HoldButton>
 
   void _onStatus(AnimationStatus status) {
     if (status != AnimationStatus.completed) return;
-    HapticFeedback.mediumImpact();
+    AppHaptics.commit();
     widget.onConfirmed?.call();
     _progress.value = 0;
   }
 
   void _start() {
     if (!_enabled) return;
-    HapticFeedback.selectionClick();
+    AppHaptics.select();
     _progress.forward();
   }
 

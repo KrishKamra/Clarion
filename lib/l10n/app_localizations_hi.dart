@@ -652,4 +652,26 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get splashSemantics => 'Clarion शुरू हो रहा है';
+
+  @override
+  String attentionEyebrow(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count चीज़ें आपका इंतज़ार कर रही हैं',
+      one: '1 चीज़ आपका इंतज़ार कर रही है',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String attentionMore(int count) {
+    return 'और $count';
+  }
+
+  @override
+  String get attentionClear => 'सब ठीक है';
+
+  @override
+  String get attentionClearDetail => 'अभी किसी फ़ैसले की ज़रूरत नहीं है।';
 }

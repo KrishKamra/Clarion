@@ -60,57 +60,27 @@ class SpendingProfileScreen extends ConsumerWidget {
           padding: AppSpacing.screenPadding.copyWith(top: AppSpacing.lg),
           sliver: SliverList.list(
             children: [
-              // Account and appearance live at the top, like most apps.
-              if (ref.watch(currentUserProvider) case final user?) ...[
-                SectionHeader(
-                  eyebrow: l10n.signedInEyebrow,
-                  title: l10n.account,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                _AccountCard(
-                  label: user.email ?? user.displayName ?? 'Clarion account',
-                ),
-                // Only accounts that still need it; Google accounts arrive
-                // verified.
-                if (!user.emailVerified) ...[
-                  const SizedBox(height: AppSpacing.md),
-                  EmailVerificationCard(user: user),
-                ],
+              // What needs a decision comes first; the month's standing
+              // next; settings, which are rarely touched, last.
+              if (ref.watch(currentUserProvider) case final user?
+                  when !user.emailVerified) ...[
+                EmailVerificationCard(user: user),
                 const SizedBox(height: AppSpacing.section),
               ],
-              SectionHeader(
-                eyebrow: l10n.ordersEyebrow,
-                title: l10n.ordersTitle,
-                actionLabel: orders.isEmpty ? null : l10n.seeAll,
-                onAction: () => OrdersScreen.open(context),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              if (orders.isEmpty)
-                Text(l10n.noOrders, style: AppTypography.bodySmall)
-              else
-                OrderCard(order: orders.first),
-              const SizedBox(height: AppSpacing.section),
-              SectionHeader(
-                eyebrow: l10n.displayEyebrow,
-                title: l10n.appearance,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              const _AppearancePicker(),
-              const SizedBox(height: AppSpacing.section),
-              SectionHeader(eyebrow: l10n.displayEyebrow, title: l10n.language),
-              const SizedBox(height: AppSpacing.md),
-              const _LanguagePicker(),
-              const SizedBox(height: AppSpacing.section),
-              SectionHeader(eyebrow: l10n.helpEyebrow, title: l10n.appTour),
-              const SizedBox(height: AppSpacing.md),
-              DynamicPill(
-                label: l10n.replayTour,
-                icon: Icons.explore_outlined,
-                size: PillSize.regular,
-                color: AppColors.irisGlow,
-                onTap: () => ref.read(appTourProvider.notifier).start(),
-              ),
-              const SizedBox(height: AppSpacing.section),
+              if (holds.isNotEmpty) ...[
+                SectionHeader(
+                  eyebrow: l10n.antiImpulseEyebrow,
+                  title: l10n.coolingOffTitle,
+                  caption: l10n.coolingOffCaption,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                for (final entry in holds.entries) ...[
+                  PendingHoldTile(productId: entry.key, until: entry.value),
+                  const SizedBox(height: AppSpacing.md),
+                ],
+                const SizedBox(height: AppSpacing.xxl),
+              ],
+              const DueRegretSection(),
               EnvelopeCard(
                 snapshot: snapshot,
                 onEditCeiling: () => showCeilingSheet(context),
@@ -134,21 +104,7 @@ class SpendingProfileScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              if (holds.isNotEmpty) ...[
-                const SizedBox(height: AppSpacing.section),
-                SectionHeader(
-                  eyebrow: l10n.antiImpulseEyebrow,
-                  title: l10n.coolingOffTitle,
-                  caption: l10n.coolingOffCaption,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                for (final entry in holds.entries) ...[
-                  PendingHoldTile(productId: entry.key, until: entry.value),
-                  const SizedBox(height: AppSpacing.md),
-                ],
-              ],
               const SizedBox(height: AppSpacing.section),
-              const DueRegretSection(),
               const SavingsGoalsCard(),
               const SizedBox(height: AppSpacing.md),
               Wrap(
@@ -172,6 +128,18 @@ class SpendingProfileScreen extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: AppSpacing.section),
+              SectionHeader(
+                eyebrow: l10n.ordersEyebrow,
+                title: l10n.ordersTitle,
+                actionLabel: orders.isEmpty ? null : l10n.seeAll,
+                onAction: () => OrdersScreen.open(context),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              if (orders.isEmpty)
+                Text(l10n.noOrders, style: AppTypography.bodySmall)
+              else
+                OrderCard(order: orders.first),
+              const SizedBox(height: AppSpacing.section),
               const RegretBarometerCard(),
               const SizedBox(height: AppSpacing.section),
               SectionHeader(
@@ -191,6 +159,38 @@ class SpendingProfileScreen extends ConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.xs),
               CategoryBreakdown(budget: budget),
+              const SizedBox(height: AppSpacing.section),
+              if (ref.watch(currentUserProvider) case final user?) ...[
+                SectionHeader(
+                  eyebrow: l10n.signedInEyebrow,
+                  title: l10n.account,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _AccountCard(
+                  label: user.email ?? user.displayName ?? 'Clarion account',
+                ),
+                const SizedBox(height: AppSpacing.section),
+              ],
+              SectionHeader(
+                eyebrow: l10n.displayEyebrow,
+                title: l10n.appearance,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              const _AppearancePicker(),
+              const SizedBox(height: AppSpacing.section),
+              SectionHeader(eyebrow: l10n.displayEyebrow, title: l10n.language),
+              const SizedBox(height: AppSpacing.md),
+              const _LanguagePicker(),
+              const SizedBox(height: AppSpacing.section),
+              SectionHeader(eyebrow: l10n.helpEyebrow, title: l10n.appTour),
+              const SizedBox(height: AppSpacing.md),
+              DynamicPill(
+                label: l10n.replayTour,
+                icon: Icons.explore_outlined,
+                size: PillSize.regular,
+                color: AppColors.irisGlow,
+                onTap: () => ref.read(appTourProvider.notifier).start(),
+              ),
               SizedBox(height: AppSpacing.navBarClearance(context)),
             ],
           ),

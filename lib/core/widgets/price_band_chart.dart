@@ -1,8 +1,8 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
+import '../feedback/app_haptics.dart';
 import '../../data/models/product_model.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
@@ -40,7 +40,7 @@ class _PriceBandChartState extends State<PriceBandChart> {
     final n = widget.points.length;
     final i = (dx / width * (n - 1)).round().clamp(0, n - 1);
     if (i == _selected) return;
-    HapticFeedback.selectionClick();
+    AppHaptics.select();
     setState(() => _selected = i);
   }
 

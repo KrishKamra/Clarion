@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
+import '../../../core/feedback/app_haptics.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_decorations.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -69,7 +69,7 @@ class _SignInScreenState extends State<SignInScreen>
 
   void _fail(String message) {
     setState(() => _error = message);
-    HapticFeedback.mediumImpact();
+    AppHaptics.warn();
     _shake.forward(from: 0);
   }
 
@@ -448,7 +448,7 @@ class _ModeSwitch extends StatelessWidget {
         haptic: false,
         semanticLabel: label,
         onTap: () {
-          HapticFeedback.selectionClick();
+          AppHaptics.select();
           onChanged(value);
         },
         child: Center(

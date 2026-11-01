@@ -214,5 +214,11 @@
   "splashStarting": "Warming up",
   "splashOpening": "Opening your ledger",
   "splashReady": "Ready",
-  "splashSemantics": "Clarion is starting"
+  "splashSemantics": "Clarion is starting",
+  "attentionEyebrow": "{count, plural, =1{1 thing needs you} other{{count} things need you}}",
+  "@attentionEyebrow": {"placeholders": {"count": {"type": "int"}}},
+  "attentionMore": "and {count} more",
+  "@attentionMore": {"placeholders": {"count": {"type": "int"}}},
+  "attentionClear": "All clear",
+  "attentionClearDetail": "Nothing needs a decision right now."
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/feedback/app_haptics.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -54,7 +54,7 @@ class BundleCard extends ConsumerWidget {
               for (final item in plan.items) {
                 cart.add(item.id);
               }
-              HapticFeedback.lightImpact();
+              AppHaptics.tap();
             },
           ),
         ],

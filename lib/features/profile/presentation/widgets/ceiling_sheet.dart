@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/feedback/app_haptics.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -187,7 +187,7 @@ class _CeilingEditorState extends ConsumerState<_CeilingEditor> {
           max: 20000,
           divisions: 36,
           onChanged: (v) {
-            if (v != _value) HapticFeedback.selectionClick();
+            if (v != _value) AppHaptics.select();
             setState(() => _value = v);
           },
         ),

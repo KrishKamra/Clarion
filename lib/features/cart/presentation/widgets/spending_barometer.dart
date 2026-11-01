@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
+import '../../../../core/feedback/app_haptics.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -75,7 +75,7 @@ class _SpendingBarometerState extends State<SpendingBarometer> {
     final value = dx / width * _scale;
     final i = segments.indexWhere((s) => value >= s.start && value < s.end);
     if (i < 0 || i == _selected) return;
-    HapticFeedback.selectionClick();
+    AppHaptics.select();
     setState(() => _selected = i);
   }
 

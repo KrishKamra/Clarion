@@ -2,9 +2,9 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../core/feedback/app_haptics.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_decorations.dart';
 import '../../core/theme/app_spacing.dart';
@@ -121,7 +121,7 @@ class _ClarionSplashState extends State<ClarionSplash>
   void _onArrivalTick() {
     if (_locked || _arrival.value < _lockAt) return;
     _locked = true;
-    HapticFeedback.selectionClick();
+    AppHaptics.select();
   }
 
   void _advance() {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
+import '../feedback/app_haptics.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_decorations.dart';
 import '../theme/app_spacing.dart';
@@ -75,7 +75,7 @@ class _IntentFieldState extends State<IntentField> {
   void _submit([String? value, bool haptic = true]) {
     final text = (value ?? _controller.text).trim();
     if (text.isEmpty) return;
-    if (haptic) HapticFeedback.lightImpact();
+    if (haptic) AppHaptics.tap();
     _focus.unfocus();
     widget.onSubmitted(text);
   }

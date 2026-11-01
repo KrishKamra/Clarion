@@ -2,8 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 
+import '../feedback/app_haptics.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 
@@ -75,14 +75,14 @@ class _PressableState extends State<Pressable> {
         onTap: widget.onTap == null
             ? null
             : () {
-                if (widget.haptic) HapticFeedback.lightImpact();
+                if (widget.haptic) AppHaptics.tap();
                 widget.onTap!();
               },
         onLongPress: widget.onLongPress == null
             ? null
             : () {
                 _set(false);
-                HapticFeedback.mediumImpact();
+                AppHaptics.commit();
                 widget.onLongPress!();
               },
         child: MouseRegion(

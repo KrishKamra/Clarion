@@ -8,6 +8,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/clarion_button.dart';
 import '../../../core/widgets/tactile_card.dart';
 import '../../../data/models/product_model.dart';
+import '../application/compare_names.dart';
 import '../application/friend_ballot.dart';
 
 /// Share a comparison. A friend votes by opening the link, with no feed.
@@ -52,13 +53,13 @@ class AskFriendCard extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           ClarionButton(
-            label: 'I pick ${left.brand}',
+            label: 'I pick ${distinctNames(left, right).$1}',
             tone: ButtonTone.secondary,
             onPressed: () => _vote(ref, left.id, 'me'),
           ),
           const SizedBox(height: AppSpacing.sm),
           ClarionButton(
-            label: 'I pick ${right.brand}',
+            label: 'I pick ${distinctNames(left, right).$2}',
             tone: ButtonTone.secondary,
             onPressed: () => _vote(ref, right.id, 'me'),
           ),

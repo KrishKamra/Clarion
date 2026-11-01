@@ -10,6 +10,7 @@ import '../../../core/widgets/section_header.dart';
 import '../../../data/catalog.dart';
 import '../../../l10n/l10n.dart';
 import '../application/compare_controller.dart';
+import '../application/compare_names.dart';
 import '../widgets/ask_friend_card.dart';
 import '../widgets/compare_matrix.dart';
 import '../widgets/sticky_compare_header.dart';
@@ -142,11 +143,14 @@ class _CompareMatrixScreenState extends ConsumerState<CompareMatrixScreen> {
         section(
           Row(
             children: [
-              for (final (i, p) in [result.left, result.right].indexed) ...[
+              for (final (i, (p, name)) in [
+                (result.left, distinctNames(result.left, result.right).$1),
+                (result.right, distinctNames(result.left, result.right).$2),
+              ].indexed) ...[
                 if (i == 1) const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: ClarionButton(
-                    label: context.l10n.compareReview(p.brand),
+                    label: context.l10n.compareReview(name),
                     tone: leader == p
                         ? ButtonTone.primary
                         : ButtonTone.secondary,

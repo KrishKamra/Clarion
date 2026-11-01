@@ -4,6 +4,17 @@ All notable changes to Clarion are documented here. Format based on [Keep a Chan
 
 ## [Unreleased]
 
+### Changed — identity, feel and focus
+- **Refined mark**: the lens keeps its iris-to-emerald ring and off-centre focal point, but loses the glossy highlight and the white glint. The focal point is now matte and lit from the same top-left as every surface. Launcher, adaptive, themed and splash icons are regenerated from the one SVG at the same proportions.
+- **"Needs you" on Horizon**: one quiet card listing only what is waiting on a decision (cooling-off holds that have ended, return windows in their last three days, watched prices at target, purchases due a check-in), most urgent first, each opening where it's settled. With nothing pending it shows "All clear", the cue that there's nothing more to do. English and Hindi.
+- **Haptics have a vocabulary**: every haptic goes through `AppHaptics` (select, tap, commit, success, warn). Placing an order now ends in a light-then-firm settle, and an add that would break the ceiling gives two even knocks as the mindful check opens.
+- **Profile puts decisions first**: unverified email, cooling-off holds and due check-ins, then the month's envelope and wins, goals, orders and insights. Account, appearance, language and the tour move to the bottom.
+- **README banner** animates (the aurora drifts, focus rings lock onto the lens) with a light-mode twin, and stays still under reduced motion.
+
+### Fixed
+- **Compare between two products from the same brand** said "Arcus Audio fits your priorities better" and showed "I pick Arcus Audio" twice. Verdicts, votes and review buttons now use the shortest name that tells them apart ("Q30 Pro" against "Q30 Core").
+- **The envelope card overflowed at 200 % text size**: the percentage now scales inside its ring and the ceiling label shrinks. It had been hidden below the old Profile layout.
+
 ### Added — arrival, home widget and notifications
 - **Launch splash**: instead of a blank canvas while Firebase and the account's database load, the lens from the native splash pulls focus: three focus rings converge on it, a glint runs round the rim, and the name tracks in beneath under a sweep of light. A hairline filament shows the real launch steps ("Warming up" → "Opening your ledger"), and never runs ahead of them. When the first screen is ready, the lens ring opens like an aperture and the app shows through it. Under reduced motion it shows the settled lockup and fades. English and Hindi.
 - **Sign-in and sign-out cross-fade** instead of cutting straight to the next screen.

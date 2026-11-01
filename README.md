@@ -1,5 +1,8 @@
 <p align="center">
-  <img src="assets/brand/clarion_banner.svg" alt="Clarion — Clear Intent. Conscious Commerce." width="100%">
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="assets/brand/clarion_banner_light.svg">
+    <img src="assets/brand/clarion_banner.svg" alt="Clarion — Clear Intent. Conscious Commerce." width="100%">
+  </picture>
 </p>
 
 <p align="center">

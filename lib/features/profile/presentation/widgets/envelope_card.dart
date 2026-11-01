@@ -49,18 +49,28 @@ class EnvelopeCard extends StatelessWidget {
                   size: 92,
                   strokeWidth: 2,
                 ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      Fmt.percent(s.ratio * 100),
-                      style: AppTypography.metricLarge.copyWith(color: color),
+                // Inside the inner ring; scales down rather than spilling
+                // out at large text sizes.
+                Padding(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          Fmt.percent(s.ratio * 100),
+                          style: AppTypography.metricLarge.copyWith(
+                            color: color,
+                          ),
+                        ),
+                        Text(
+                          'COMMITTED',
+                          style: AppTypography.overline.copyWith(fontSize: 8.5),
+                        ),
+                      ],
                     ),
-                    Text(
-                      'COMMITTED',
-                      style: AppTypography.overline.copyWith(fontSize: 8.5),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
@@ -72,20 +82,28 @@ class EnvelopeCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Pressable(
-                      onTap: onEditCeiling,
-                      semanticLabel: 'Edit monthly ceiling',
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text('CEILING', style: AppTypography.overline),
-                          const SizedBox(width: AppSpacing.xs),
-                          Icon(
-                            Icons.edit_outlined,
-                            size: 12,
-                            color: AppColors.textTertiary,
-                          ),
-                        ],
+                    Flexible(
+                      child: Pressable(
+                        onTap: onEditCeiling,
+                        semanticLabel: 'Edit monthly ceiling',
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                'CEILING',
+                                style: AppTypography.overline,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.xs),
+                            Icon(
+                              Icons.edit_outlined,
+                              size: 12,
+                              color: AppColors.textTertiary,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(width: AppSpacing.sm),

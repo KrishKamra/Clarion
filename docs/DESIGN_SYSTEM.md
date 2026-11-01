@@ -102,7 +102,7 @@ flowchart TD
 | Spacing | 4px grid: `xs 4 · sm 8 · md 12 · lg 16 · xl 20 · xxl 24 · xxxl 32 · section 40`; gutter 20 |
 | Radii | `xs 6 · sm 10 · md 14 · lg 18 · xl 24 · pill` |
 | Motion | `fast 220 · medium 250 · slow 280 ms` on `easeOutCubic`; `reveal 640 ms` only for one-off data draws (gauge sweep, price band); `arrival 1400 ms` and `aperture 700 ms` only for the cold-start splash, once per launch |
-| Haptics | `selectionClick` on intent pills, tab switches, chart/barometer scrubbing and the start of a hold; `mediumImpact` when a 24h cooling-off hold commits; `lightImpact` on card and button taps |
+| Haptics | Only through `AppHaptics` (`lib/core/feedback/`), five words with one meaning each: `select` (stepping through choices: pills, tabs, chart and slider notches, the start of a hold), `tap` (buttons and tappable surfaces), `commit` (a decision that changes state: add to cart, a hold set, a goal saved, a long press), `success` (an order placed: light then firm, a settling), `warn` (a failed sign-in, an add that would break the ceiling: two even knocks). No haptics for browsing, scrolling or opening things |
 | Hover & glow | Every tappable surface goes through `Pressable`: a click cursor, a hover lift of 60 % of the press depth, and hover/press state exposed through `Pressable.stateOf`. `PressGlow` turns that state into light: solid buttons keep a faint glow of their own colour that blooms on hover, and tappable `TactileCard`s light their rim in their tint (iris by default) with a soft halo. Glows are box shadows, never blurs |
 | Reduced motion | Ambient loops (aurora drift, lockup breath) and entrances stop when `MediaQuery.disableAnimations` is set; the splash shows its settled lockup and fades |
 
@@ -128,6 +128,10 @@ flowchart TD
 | `ChromeSliverHeader` / `ScreenTitle` | Pinned header that frosts only once content scrolls under it |
 | `ClarionSplash` | Cold-start arrival (`lib/features/splash/`): converging focus rings lock onto the lens, the name tracks in, a filament reports real boot progress, then the lens ring opens as an aperture onto the app |
 | `ClarionSheet`, `RoundIconButton`, `SectionHeader`, `ProgressRing`, `AnimatedMetric`, `ClarionWordmark`, `Pressable` | Supporting primitives |
+
+## Brand mark
+
+`assets/brand/clarion_logo.svg` is the single source: a lens ring (iris to emerald, lit from the top-left) with an off-centre focal point, "what you are actually looking for". The focal point is matte, never glossy, and the mark carries no specular glint, so it reads as precision optics at 16dp as well as 1024. Launcher, adaptive, themed (monochrome) and splash PNGs in `assets/brand/icon/` are rendered from it at fixed ring proportions (adaptive foreground 55 %, legacy icon 62 %, splash 44 %, Android 12 splash 51.5 %), then `dart run flutter_launcher_icons` and `dart run flutter_native_splash:create`. The README banner (`clarion_banner.svg`, `clarion_banner_light.svg`) animates with CSS only and stops under reduced motion.
 
 ## Voice
 

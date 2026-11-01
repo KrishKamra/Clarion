@@ -7,6 +7,7 @@ import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/dynamic_pill.dart';
 import '../../../core/widgets/tactile_card.dart';
 import '../application/compare_controller.dart';
+import '../application/compare_names.dart';
 
 /// "What matters most?" — starred criteria count double toward the verdict.
 class PriorityPicker extends StatelessWidget {
@@ -63,9 +64,10 @@ class VerdictCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final total = result.leftScore + result.rightScore;
     final leftShare = total == 0 ? 0.5 : result.leftScore / total;
+    final (leftName, rightName) = distinctNames(result.left, result.right);
     final winner = switch (result.overall) {
-      CompareWinner.left => result.left,
-      CompareWinner.right => result.right,
+      CompareWinner.left => leftName,
+      CompareWinner.right => rightName,
       _ => null,
     };
     final leftLeads = result.overall == CompareWinner.left;
@@ -82,7 +84,7 @@ class VerdictCard extends StatelessWidget {
           Text(
             winner == null
                 ? 'Dead even on your priorities'
-                : '${winner.brand} fits your priorities better',
+                : '$winner fits your priorities better',
             style: AppTypography.title,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -122,12 +124,12 @@ class VerdictCard extends StatelessWidget {
           Row(
             children: [
               Text(
-                '${result.left.brand} ${_score(result.leftScore)}',
+                '$leftName ${_score(result.leftScore)}',
                 style: AppTypography.metricSmall,
               ),
               const Spacer(),
               Text(
-                '${_score(result.rightScore)} ${result.right.brand}',
+                '${_score(result.rightScore)} $rightName',
                 style: AppTypography.metricSmall,
               ),
             ],

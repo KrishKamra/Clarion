@@ -1129,6 +1129,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clarion is starting'**
   String get splashSemantics;
+
+  /// No description provided for @attentionEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 thing needs you} other{{count} things need you}}'**
+  String attentionEyebrow(int count);
+
+  /// No description provided for @attentionMore.
+  ///
+  /// In en, this message translates to:
+  /// **'and {count} more'**
+  String attentionMore(int count);
+
+  /// No description provided for @attentionClear.
+  ///
+  /// In en, this message translates to:
+  /// **'All clear'**
+  String get attentionClear;
+
+  /// No description provided for @attentionClearDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing needs a decision right now.'**
+  String get attentionClearDetail;
 }
 
 class _AppLocalizationsDelegate
