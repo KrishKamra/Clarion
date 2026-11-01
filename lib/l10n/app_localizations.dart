@@ -1153,6 +1153,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing needs a decision right now.'**
   String get attentionClearDetail;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
 }
 
 class _AppLocalizationsDelegate

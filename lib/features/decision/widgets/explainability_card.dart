@@ -4,14 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/product_model.dart';
 import '../../../data/models/trade_off_item.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_decorations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/tactile_card.dart';
 import '../../home/application/intent_controller.dart';
 
-/// "Why We Recommend This" — the fit score as a ledger. Every signed line is
+/// "Why we recommend this" — the fit score as a ledger. Every signed line is
 /// shown, and the total is printed beneath them, so the number is never
 /// asserted, only derived.
 class ExplainabilityCard extends ConsumerWidget {
@@ -32,7 +31,7 @@ class ExplainabilityCard extends ConsumerWidget {
         children: [
           Text('HOW WELL IT FITS YOU', style: AppTypography.overline),
           const SizedBox(height: AppSpacing.xs),
-          Text('Why We Recommend This', style: AppTypography.title),
+          Text('Why we recommend this', style: AppTypography.title),
           const SizedBox(height: 2),
           Text('Each reason, in plain words.', style: AppTypography.bodySmall),
           const SizedBox(height: AppSpacing.md),
@@ -110,7 +109,9 @@ class _Total extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         borderRadius: AppRadii.mdAll,
-        gradient: AppDecorations.backlight(color, intensity: 0.12),
+        gradient: LinearGradient(
+          colors: [color.withValues(alpha: 0), color.withValues(alpha: 0.10)],
+        ),
         border: Border.all(color: color.withValues(alpha: 0.18)),
       ),
       child: Row(

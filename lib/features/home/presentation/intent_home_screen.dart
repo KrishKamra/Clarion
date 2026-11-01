@@ -58,24 +58,23 @@ class IntentHomeScreen extends ConsumerWidget {
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       slivers: [
         const ChromeSliverHeader(child: HorizonHeader()),
+        // The field carries its own gutter so its suggestion row can scroll
+        // out to the screen edges.
         SliverPadding(
-          padding: AppSpacing.screenPadding.copyWith(top: AppSpacing.xl),
+          padding: const EdgeInsets.only(top: AppSpacing.xl),
           sliver: SliverToBoxAdapter(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                IntentField(
-                  capsules: capsules,
-                  activeIntent: intent?.raw,
-                  onSubmitted: (text) =>
-                      ref.read(goalExplanationProvider.notifier).explain(text),
-                  onCleared: () {
-                    controller.clear();
-                    ref.read(goalExplanationProvider.notifier).clear();
-                  },
-                  onVoice: VoiceInput.listen,
-                ),
-                const SizedBox(height: AppSpacing.md),
+            child: IntentField(
+              gutter: AppSpacing.gutter,
+              capsules: capsules,
+              activeIntent: intent?.raw,
+              onSubmitted: (text) =>
+                  ref.read(goalExplanationProvider.notifier).explain(text),
+              onCleared: () {
+                controller.clear();
+                ref.read(goalExplanationProvider.notifier).clear();
+              },
+              onVoice: VoiceInput.listen,
+              leading: [
                 DynamicPill(
                   label: 'Scan in store',
                   icon: Icons.qr_code_scanner_rounded,
@@ -83,11 +82,13 @@ class IntentHomeScreen extends ConsumerWidget {
                   color: AppColors.irisGlow,
                   onTap: () => BarcodeScanScreen.open(context),
                 ),
-                const SizedBox(height: AppSpacing.xxl),
-                const NeedsYouCard(),
               ],
             ),
           ),
+        ),
+        SliverPadding(
+          padding: AppSpacing.screenPadding.copyWith(top: AppSpacing.xxl),
+          sliver: const SliverToBoxAdapter(child: NeedsYouCard()),
         ),
         SliverToBoxAdapter(
           child: AnimatedSize(

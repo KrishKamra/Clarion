@@ -252,14 +252,31 @@ class _TitleBlock extends ConsumerWidget {
               const SizedBox(height: AppSpacing.sm),
               Text(product.title, style: AppTypography.headline),
               const SizedBox(height: AppSpacing.sm),
-              Text(
-                '${product.rating}★  ·  '
-                '${context.l10n.verifiedOwners(product.reviewCount)}',
-                semanticsLabel:
+              // A drawn star, not a glyph: the mono face has none, and a
+              // fallback font would set it in a different weight.
+              Semantics(
+                label:
                     '${context.l10n.ratedOutOfFive('${product.rating}')}, '
                     '${context.l10n.verifiedOwners(product.reviewCount)}',
-                style: AppTypography.metricSmall.copyWith(
-                  color: AppColors.textSecondary,
+                excludeSemantics: true,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.star_rounded,
+                      size: 14,
+                      color: AppColors.amber,
+                    ),
+                    const SizedBox(width: 3),
+                    Flexible(
+                      child: Text(
+                        '${product.rating}  ·  '
+                        '${context.l10n.verifiedOwners(product.reviewCount)}',
+                        style: AppTypography.metricSmall.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: AppSpacing.lg),

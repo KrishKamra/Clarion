@@ -248,7 +248,7 @@ void main() {
 
     expect(find.bySemanticsLabel('Clarion'), findsOneWidget);
     expect(find.text('₹1,800 left'), findsOneWidget);
-    expect(find.text('What are you seeking to accomplish?'), findsOneWidget);
+    expect(find.text('What’s the goal?'), findsOneWidget);
     expect(find.text('College Setup < ₹2.5k'), findsOneWidget);
     expect(find.text('Personal Fit Stream'), findsOneWidget);
     expect(find.byType(FitScoreGauge), findsWidgets);
@@ -285,7 +285,7 @@ void main() {
     await openAtlas(tester);
     await tester.pump();
     await tester.pump(const Duration(seconds: 2));
-    expect(find.text('Why We Recommend This'), findsOneWidget);
+    expect(find.text('Why we recommend this'), findsOneWidget);
     for (final line in [
       FitEngine.intentTitle,
       FitEngine.budgetTitle,
@@ -411,14 +411,21 @@ void main() {
     expect(AppColors.isDark, isFalse);
 
     await openTab(tester, 'Profile');
+    // Settings sit at the end of Profile: scroll past the first glimpse so
+    // the picker clears the floating nav island before tapping it.
     await tester.scrollUntilVisible(
-      find.text('Dark'),
+      find.text('Replay the tour'),
       300,
       scrollable: find.descendant(
         of: find.byType(SpendingProfileScreen),
         matching: find.byType(Scrollable),
       ),
     );
+    await tester.drag(
+      find.byType(SpendingProfileScreen),
+      const Offset(0, -300),
+    );
+    await tester.pump(const Duration(seconds: 1));
     Color? titleInk() => tester
         .renderObject<RenderParagraph>(find.text('Appearance'))
         .text

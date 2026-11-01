@@ -118,7 +118,7 @@ flowchart TD
 | `FitScoreGauge` | `CustomPainter` 300° utility dial (0–100%), mono score, halo + ticks on large sizes |
 | `IntentField` | Conversational intent input with an iris focus filament and contextual pills |
 | `DynamicPill` | One micro-badge for categories, tags, trade-offs and selectable choices |
-| `FloatingNavCapsule` | Frosted spatial capsule; magnetic active pill with iris halo; count badges and status dots |
+| `FloatingNavCapsule` | Frosted spatial capsule with sentence-case sans labels (mono caps stay for eyebrows); magnetic active pill with iris halo; count badges and status dots |
 | `HoldButton` | Press-and-hold confirm with sweep fill, micro-progress ring and live timer |
 | `PriceBandChart` | Interactive 30-day band: scrub to read any day's price against today |
 | `ClarionButton` | `primary` (iris gradient) · `secondary` (vellum) · `positive` (emerald gradient) |
@@ -131,7 +131,7 @@ flowchart TD
 
 ## Brand mark
 
-`assets/brand/clarion_logo.svg` is the single source: a lens ring (iris to emerald, lit from the top-left) with an off-centre focal point, "what you are actually looking for". The focal point is matte, never glossy, and the mark carries no specular glint, so it reads as precision optics at 16dp as well as 1024. Launcher, adaptive, themed (monochrome) and splash PNGs in `assets/brand/icon/` are rendered from it at fixed ring proportions (adaptive foreground 55 %, legacy icon 62 %, splash 44 %, Android 12 splash 51.5 %), then `dart run flutter_launcher_icons` and `dart run flutter_native_splash:create`. The README banner (`clarion_banner.svg`, `clarion_banner_light.svg`) animates with CSS only and stops under reduced motion.
+`assets/brand/clarion_logo.svg` is the single source: a lens ring (iris to emerald, lit from the top-left) with an off-centre focal point, "what you are actually looking for". The focal point is matte, never glossy, and the mark carries no specular glint, so it reads as precision optics at 16dp as well as 1024. Launcher, adaptive, themed (monochrome) and splash PNGs in `assets/brand/icon/` are rendered from it at fixed ring proportions (adaptive foreground 55 %, legacy icon 62 %, splash 44 %, Android 12 splash 51.5 %), then `dart run flutter_launcher_icons` and `dart run flutter_native_splash:create`. The README banner (`clarion_banner.svg`, `clarion_banner_light.svg`) has one motion, the same as the splash: focus rings lock onto the lens and a glint runs once round the ring. The canvas never moves. CSS only, still under reduced motion.
 
 ## Voice
 

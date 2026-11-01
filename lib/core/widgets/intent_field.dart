@@ -22,8 +22,10 @@ class IntentField extends StatefulWidget {
     this.onCleared,
     this.capsules = const [],
     this.activeIntent,
-    this.hint = 'What are you seeking to accomplish?',
+    this.hint = 'What’s the goal?',
     this.onVoice,
+    this.leading = const [],
+    this.gutter = 0,
   });
 
   final ValueChanged<String> onSubmitted;
@@ -39,6 +41,13 @@ class IntentField extends StatefulWidget {
   /// it upstream clears the field.
   final String? activeIntent;
   final String hint;
+
+  /// Actions that lead the suggestion row, e.g. scanning in store.
+  final List<Widget> leading;
+
+  /// Horizontal inset for the field. The suggestion row scrolls to the
+  /// screen edges instead, starting in line with the field.
+  final double gutter;
 
   @override
   State<IntentField> createState() => _IntentFieldState();
@@ -119,69 +128,73 @@ class _IntentFieldState extends State<IntentField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        CustomPaint(
-          foregroundPainter: RimLightPainter(
-            borderRadius: AppRadii.xlAll,
-            gradient: focused
-                ? AppDecorations.rimLight
-                : AppDecorations.rimLightSoft,
-          ),
-          child: AnimatedContainer(
-            duration: AppMotion.medium,
-            curve: AppMotion.standard,
-            decoration: AppDecorations.vellum(
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: widget.gutter),
+          child: CustomPaint(
+            foregroundPainter: RimLightPainter(
               borderRadius: AppRadii.xlAll,
-              active: focused,
+              gradient: focused
+                  ? AppDecorations.rimLight
+                  : AppDecorations.rimLightSoft,
             ),
-            child: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.xl,
-                    AppSpacing.lg,
-                    AppSpacing.md,
-                    AppSpacing.md,
+            child: AnimatedContainer(
+              duration: AppMotion.medium,
+              curve: AppMotion.standard,
+              decoration: AppDecorations.vellum(
+                borderRadius: AppRadii.xlAll,
+                active: focused,
+              ),
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.xl,
+                      AppSpacing.lg,
+                      AppSpacing.md,
+                      AppSpacing.md,
+                    ),
+                    child: _Field(
+                      controller: _controller,
+                      focusNode: _focus,
+                      hint: widget.hint,
+                      hasText: hasText,
+                      onSubmit: _submit,
+                      onClear: _clear,
+                      onSpeak: widget.onVoice == null ? null : _speak,
+                    ),
                   ),
-                  child: _Field(
-                    controller: _controller,
-                    focusNode: _focus,
-                    hint: widget.hint,
-                    hasText: hasText,
-                    onSubmit: _submit,
-                    onClear: _clear,
-                    onSpeak: widget.onVoice == null ? null : _speak,
-                  ),
-                ),
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: Center(
-                    child: AnimatedFractionallySizedBox(
-                      duration: AppMotion.slow,
-                      curve: AppMotion.emphasized,
-                      widthFactor: focused ? 0.84 : 0,
-                      child: Container(
-                        height: 1,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              AppColors.irisGlow.withValues(alpha: 0),
-                              AppColors.irisGlow,
-                              AppColors.irisGlow.withValues(alpha: 0),
-                            ],
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: Center(
+                      child: AnimatedFractionallySizedBox(
+                        duration: AppMotion.slow,
+                        curve: AppMotion.emphasized,
+                        widthFactor: focused ? 0.84 : 0,
+                        child: Container(
+                          height: 1,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                AppColors.irisGlow.withValues(alpha: 0),
+                                AppColors.irisGlow,
+                                AppColors.irisGlow.withValues(alpha: 0),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
         // Suggestions step aside once there is text: the field (or the
         // intent summary below it) is then the only thing asking for focus.
+        // One row that scrolls to the screen edges, never a wrapped block.
         AnimatedSize(
           duration: AppMotion.medium,
           curve: AppMotion.standard,
@@ -190,22 +203,38 @@ class _IntentFieldState extends State<IntentField> {
               ? const SizedBox(width: double.infinity)
               : Padding(
                   padding: const EdgeInsets.only(top: AppSpacing.md),
-                  child: Wrap(
-                    spacing: AppSpacing.sm,
-                    runSpacing: AppSpacing.sm,
-                    children: [
-                      for (final (i, capsule) in widget.capsules.indexed)
-                        _tourMark(
-                          i == 0,
-                          DynamicPill(
-                            label: capsule,
-                            size: PillSize.regular,
-                            color: AppColors.irisGlow,
-                            selected: widget.activeIntent == capsule,
-                            onTap: () => _toggleCapsule(capsule),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    padding: EdgeInsets.symmetric(horizontal: widget.gutter),
+                    child: Row(
+                      children: [
+                        for (final action in widget.leading) ...[
+                          action,
+                          const SizedBox(width: AppSpacing.sm),
+                        ],
+                        if (widget.leading.isNotEmpty) ...[
+                          Container(
+                            width: 1,
+                            height: 20,
+                            color: AppColors.hairline,
                           ),
-                        ),
-                    ],
+                          const SizedBox(width: AppSpacing.sm),
+                        ],
+                        for (final (i, capsule) in widget.capsules.indexed) ...[
+                          if (i > 0) const SizedBox(width: AppSpacing.sm),
+                          _tourMark(
+                            i == 0,
+                            DynamicPill(
+                              label: capsule,
+                              size: PillSize.regular,
+                              color: AppColors.irisGlow,
+                              selected: widget.activeIntent == capsule,
+                              onTap: () => _toggleCapsule(capsule),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
                 ),
         ),

@@ -674,4 +674,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get attentionClearDetail => 'अभी किसी फ़ैसले की ज़रूरत नहीं है।';
+
+  @override
+  String get settingsTitle => 'सेटिंग्स';
 }

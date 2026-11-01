@@ -674,4 +674,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get attentionClearDetail => 'Nothing needs a decision right now.';
+
+  @override
+  String get settingsTitle => 'Settings';
 }

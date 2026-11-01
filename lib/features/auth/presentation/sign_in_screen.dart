@@ -10,7 +10,6 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/aurora_backdrop.dart';
 import '../../../core/widgets/clarion_button.dart';
 import '../../../core/widgets/clarion_wordmark.dart';
-import '../../../core/widgets/dynamic_pill.dart';
 import '../../../core/widgets/frosted_chrome.dart';
 import '../../../core/widgets/pressable.dart';
 import '../application/auth_service.dart';
@@ -207,7 +206,8 @@ class _SignInScreenState extends State<SignInScreen>
     return FrostedChrome(
       borderRadius: AppRadii.xlAll,
       sigma: 30,
-      floating: true,
+      // No contact shadow: through translucent glass it reads as a grey
+      // band, and the rim already defines the pane's edge.
       fill: AppColors.surface.withValues(alpha: AppColors.isDark ? 0.55 : 0.62),
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
@@ -403,32 +403,29 @@ class _LockupState extends State<_Lockup> with SingleTickerProviderStateMixin {
   }
 }
 
-/// Three promises, each in the accent that carries its meaning app-wide.
+/// Three promises as one quiet line. On the threshold of the app nothing is
+/// a warning yet, so no accent colour is spent here.
 class _Promises extends StatelessWidget {
   const _Promises();
 
   @override
   Widget build(BuildContext context) {
+    final dot = Text(
+      '  ·  ',
+      style: AppTypography.caption.copyWith(color: AppColors.textTertiary),
+    );
+    final style = AppTypography.caption.copyWith(
+      color: AppColors.textSecondary,
+    );
     return Wrap(
       alignment: WrapAlignment.center,
-      spacing: AppSpacing.sm,
-      runSpacing: AppSpacing.sm,
+      runSpacing: AppSpacing.xs,
       children: [
-        DynamicPill(
-          label: 'Fit you can see',
-          icon: Icons.insights_rounded,
-          color: AppColors.emeraldGlow,
-        ),
-        DynamicPill(
-          label: 'Budget guardian',
-          icon: Icons.shield_outlined,
-          color: AppColors.irisGlow,
-        ),
-        DynamicPill(
-          label: '24h cool-off',
-          icon: Icons.hourglass_bottom_rounded,
-          color: AppColors.rose,
-        ),
+        Text('Fit you can see', style: style),
+        dot,
+        Text('A budget that guards', style: style),
+        dot,
+        Text('Time to think', style: style),
       ],
     );
   }

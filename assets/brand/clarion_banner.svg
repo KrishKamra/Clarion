@@ -1,15 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 400" width="1280" height="400" role="img" aria-label="Clarion — Clear Intent. Conscious Commerce.">
   <title>Clarion — Clear Intent. Conscious Commerce.</title>
   <style>
-    /* Motion for the README: the aurora drifts, then every seven seconds
-       three focus rings converge and lock onto the lens. Eased, never
-       bouncy, and still when the reader asks for reduced motion. */
-    .drift-a { animation: drift-a 22s ease-in-out infinite alternate; }
-    .drift-b { animation: drift-b 27s ease-in-out infinite alternate; }
-    .drift-c { animation: drift-c 31s ease-in-out infinite alternate; }
-    @keyframes drift-a { to { transform: translate(110px, 34px); } }
-    @keyframes drift-b { to { transform: translate(-130px, -28px); } }
-    @keyframes drift-c { to { transform: translate(80px, -46px); } }
+    /* One motion, the same as the app's splash: every seven seconds three
+       focus rings converge and lock onto the lens, the focal point settles
+       and a glint runs once round the ring. The canvas never moves. Eased,
+       never bouncy, and still under reduced motion. */
     .focus-ring {
       transform-box: fill-box; transform-origin: center; opacity: 0;
       animation: converge 7s cubic-bezier(0.22, 1, 0.36, 1) infinite;
@@ -17,19 +12,29 @@
     .focus-ring.r2 { animation-delay: 0.16s; }
     .focus-ring.r3 { animation-delay: 0.32s; }
     @keyframes converge {
-      0% { transform: scale(2.6); opacity: 0; }
-      12% { opacity: 0.6; }
+      0% { transform: scale(2.4); opacity: 0; }
+      12% { opacity: 0.5; }
       30%, 100% { transform: scale(1); opacity: 0; }
     }
-    .halo { animation: breathe 7s ease-in-out infinite; }
-    @keyframes breathe { 0%, 20% { opacity: 0.6; } 34% { opacity: 1; } 70%, 100% { opacity: 0.6; } }
+    .halo { opacity: 0.6; animation: breathe 7s ease-in-out infinite; }
+    @keyframes breathe { 0%, 22% { opacity: 0.6; } 36% { opacity: 1; } 72%, 100% { opacity: 0.6; } }
     .focal {
       transform-box: fill-box; transform-origin: center;
       animation: settle 7s cubic-bezier(0.22, 1, 0.36, 1) infinite;
     }
-    @keyframes settle { 0% { transform: scale(1); } 10% { transform: scale(0.84); } 34%, 100% { transform: scale(1); } }
+    @keyframes settle { 0% { transform: scale(1); } 10% { transform: scale(0.86); } 34%, 100% { transform: scale(1); } }
+    .glint {
+      opacity: 0; stroke-dasharray: 16 148; stroke-dashoffset: 8;
+      animation: glint 7s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+    }
+    @keyframes glint {
+      0%, 31% { opacity: 0; stroke-dashoffset: 8; }
+      38% { opacity: 0.75; }
+      52% { opacity: 0; stroke-dashoffset: -156; }
+      100% { opacity: 0; stroke-dashoffset: -156; }
+    }
     @media (prefers-reduced-motion: reduce) {
-      .drift-a, .drift-b, .drift-c, .focus-ring, .halo, .focal { animation: none; }
+      .focus-ring, .halo, .focal, .glint { animation: none; }
     }
   </style>
   <defs>
@@ -75,9 +80,9 @@
   </defs>
   <g clip-path="url(#card)">
     <rect width="1280" height="400" fill="#07080B"/>
-    <rect class="drift-a" width="1280" height="400" fill="url(#aurora-iris)"/>
-    <rect class="drift-b" width="1280" height="400" fill="url(#aurora-emerald)"/>
-    <rect class="drift-c" width="1280" height="400" fill="url(#aurora-glow)"/>
+    <rect width="1280" height="400" fill="url(#aurora-iris)"/>
+    <rect width="1280" height="400" fill="url(#aurora-emerald)"/>
+    <rect width="1280" height="400" fill="url(#aurora-glow)"/>
   </g>
   <rect x="0.75" y="0.75" width="1278.5" height="398.5" rx="27.25" fill="none" stroke="url(#rim)" stroke-width="1.5"/>
   <g transform="translate(248 105) scale(2.9688)">
@@ -87,6 +92,7 @@
     <circle class="focus-ring r2" cx="32" cy="32" r="26" fill="none" stroke="url(#ring)" stroke-width="0.55"/>
     <circle class="focus-ring r3" cx="32" cy="32" r="26" fill="none" stroke="url(#ring)" stroke-width="0.4"/>
     <circle cx="32" cy="32" r="26" fill="none" stroke="url(#ring)" stroke-width="4.5"/>
+    <circle class="glint" cx="32" cy="32" r="26" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" transform="rotate(-135 32 32)"/>
     <circle class="focal" cx="41" cy="23" r="8.25" fill="url(#focus)"/>
   </g>
   <path fill="#A3B0C2" d="M497.27 107.38L497.27 107.38Q495.21 107.38 493.78 106.30Q492.35 105.22 491.61 103.23Q490.86 101.24 490.86 98.50L490.86 98.50Q490.86 95.74 491.61 93.75Q492.35 91.76 493.78 90.67Q495.21 89.58 497.27 89.58L497.27 89.58Q499.60 89.58 501.20 91.11Q502.79 92.65 503.30 95.41L503.30 95.41L500.66 95.55Q500.30 93.78 499.40 92.85Q498.50 91.93 497.27 91.93L497.27 91.93Q496.02 91.93 495.18 92.70Q494.34 93.46 493.91 94.93Q493.48 96.39 493.48 98.50L493.48 98.50Q493.48 100.59 493.91 102.04Q494.34 103.50 495.18 104.26Q496.02 105.03 497.27 105.03L497.27 105.03Q498.59 105.03 499.53 104.02Q500.46 103.02 500.78 101.07L500.78 101.07L503.39 101.19Q502.96 104.12 501.35 105.75Q499.74 107.38 497.27 107.38ZM525.09 107L514.43 107L514.43 89.96L516.95 89.96L516.95 106.04L515.42 104.62L525.09 104.62L525.09 107ZM546.93 107L536.27 107L536.27 89.96L546.74 89.96L546.74 92.34L538.79 92.34L538.79 97.30L546.45 97.30L546.45 99.61L538.79 99.61L538.79 104.62L546.93 104.62L546.93 107ZM559.43 107L556.82 107L561.81 89.96L565.07 89.96L570.06 107L567.45 107L563.44 92.58L559.43 107ZM567.28 102.56L559.60 102.56L560.37 100.23L566.51 100.23L567.28 102.56ZM582.45 107L579.93 107L579.93 89.96L585.23 89.96Q587.94 89.96 589.49 91.33Q591.04 92.70 591.04 95.05L591.04 95.05Q591.04 96.27 590.50 97.21Q589.96 98.14 589.08 98.67Q588.21 99.20 587.22 99.27L587.22 99.27L587.13 98.98Q588.90 99.06 589.78 99.79Q590.66 100.52 590.80 102.15L590.80 102.15L591.23 107L588.71 107L588.33 102.63Q588.26 101.79 587.97 101.29Q587.68 100.78 587.08 100.57Q586.48 100.35 585.42 100.35L585.42 100.35L582.45 100.35L582.45 107ZM582.45 92.34L582.45 98L585.18 98Q586.77 98 587.61 97.26Q588.45 96.51 588.45 95.17L588.45 95.17Q588.45 93.80 587.61 93.07Q586.77 92.34 585.18 92.34L585.18 92.34L582.45 92.34ZM635.01 107L624.35 107L624.35 104.62L628.43 104.62L628.43 92.34L624.35 92.34L624.35 89.96L635.01 89.96L635.01 92.34L630.93 92.34L630.93 104.62L635.01 104.62L635.01 107ZM648.66 107L646.19 107L646.19 89.96L649.26 89.96L655.29 104.43L654.86 104.53L654.86 89.96L657.33 89.96L657.33 107L654.26 107L648.23 92.53L648.66 92.41L648.66 107ZM675.09 107L672.59 107L672.59 92.34L667.60 92.34L667.60 89.96L680.08 89.96L680.08 92.34L675.09 92.34L675.09 107ZM701.49 107L690.83 107L690.83 89.96L701.30 89.96L701.30 92.34L693.35 92.34L693.35 97.30L701.01 97.30L701.01 99.61L693.35 99.61L693.35 104.62L701.49 104.62L701.49 107ZM714.90 107L712.43 107L712.43 89.96L715.50 89.96L721.53 104.43L721.10 104.53L721.10 89.96L723.57 89.96L723.57 107L720.50 107L714.47 92.53L714.90 92.41L714.90 107ZM741.33 107L738.83 107L738.83 92.34L733.84 92.34L733.84 89.96L746.32 89.96L746.32 92.34L741.33 92.34L741.33 107ZM763.79 107L760.53 107L760.53 103.83L763.79 103.83L763.79 107Z"/>

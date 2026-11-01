@@ -46,9 +46,9 @@ class BuyOrWaitCard extends ConsumerWidget {
               Flexible(
                 child: DynamicPill(
                   label: verdict.shouldWait
-                      ? '${verdict.recommendation.emoji} WAIT ~${verdict.estimatedWaitWeeks} '
+                      ? 'WAIT ~${verdict.estimatedWaitWeeks} '
                             '${verdict.estimatedWaitWeeks == 1 ? 'WK' : 'WKS'}'
-                      : '${verdict.recommendation.emoji} BUY NOW',
+                      : 'BUY NOW',
                   color: statusColor,
                   selected: true,
                 ),

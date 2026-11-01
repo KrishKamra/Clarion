@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -114,7 +115,10 @@ String _vaultSentence(BuildContext context, VaultEntry entry, DateTime now) {
   }
   final expires = entry.warrantyExpires;
   if (expires == null) return '$title: $years-year warranty.';
-  final when = MaterialLocalizations.of(context).formatMediumDate(expires);
+  // A warranty ends in another year, so the year is always shown.
+  final when = DateFormat.yMMMd(
+    Localizations.localeOf(context).toLanguageTag(),
+  ).format(expires);
   final lead = expires.difference(now).inDays;
   if (lead >= 0 && lead <= 30) {
     return '$title: warranty expires in $lead days ($when).';

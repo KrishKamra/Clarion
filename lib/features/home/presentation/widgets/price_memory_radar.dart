@@ -79,25 +79,20 @@ class _RadarRow extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 6),
+                      // The dot and the discount pill already say "good
+                      // price"; the room goes to the figures, which must
+                      // never be cut off.
                       Flexible(
-                        child: Text.rich(
-                          TextSpan(
-                            text: 'Good price — ',
-                            style: AppTypography.caption.copyWith(
-                              color: AppColors.emeraldGlow,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            '${Fmt.inr(p.price)} · avg ${Fmt.inr(p.averagePrice30d)}',
+                            maxLines: 1,
+                            style: AppTypography.metricSmall.copyWith(
+                              color: AppColors.textSecondary,
                             ),
-                            children: [
-                              TextSpan(
-                                text:
-                                    '${Fmt.inr(p.price)} vs avg ${Fmt.inr(p.averagePrice30d)}',
-                                style: AppTypography.metricSmall.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ],
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],

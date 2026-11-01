@@ -220,5 +220,6 @@
   "attentionMore": "and {count} more",
   "@attentionMore": {"placeholders": {"count": {"type": "int"}}},
   "attentionClear": "All clear",
-  "attentionClearDetail": "Nothing needs a decision right now."
+  "attentionClearDetail": "Nothing needs a decision right now.",
+  "settingsTitle": "Settings"
 }

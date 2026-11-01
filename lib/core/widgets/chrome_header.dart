@@ -121,9 +121,13 @@ class ScreenTitle extends StatelessWidget {
           ),
         ),
         // At large text sizes the trailing figure gives way to the title.
+        // It sits on the trailing edge, in line with the screen gutter.
         if (trailing case final trailing?)
           Flexible(
-            child: FittedBox(fit: BoxFit.scaleDown, child: trailing),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: FittedBox(fit: BoxFit.scaleDown, child: trailing),
+            ),
           ),
       ],
     );

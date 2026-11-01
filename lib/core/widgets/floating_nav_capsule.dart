@@ -211,12 +211,16 @@ class _NavButton extends StatelessWidget {
             const SizedBox(height: 3),
             AnimatedDefaultTextStyle(
               duration: AppMotion.medium,
-              style: AppTypography.overline.copyWith(
-                fontSize: 10,
-                letterSpacing: 0.6,
+              // Native tab labels: sentence case in the sans, one weight, so
+              // only the colour moves when the selection does.
+              style: AppTypography.caption.copyWith(
+                fontSize: 11,
+                height: 1.2,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0.1,
                 color: color,
               ),
-              child: Text(destination.label.toUpperCase(), maxLines: 1),
+              child: Text(destination.label, maxLines: 1),
             ),
           ],
         ),

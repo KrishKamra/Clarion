@@ -39,6 +39,7 @@ class SpendingProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final budget = ref.watch(budgetProvider);
+    final trend = [...budget.monthlyHistory, budget.spentThisMonth];
     final snapshot = ref.watch(budgetSnapshotProvider);
     final holds = ref.watch(cooldownProvider);
     final orders = ref.watch(ordersProvider);
@@ -142,17 +143,18 @@ class SpendingProfileScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.section),
               const RegretBarometerCard(),
               const SizedBox(height: AppSpacing.section),
-              SectionHeader(
-                eyebrow: l10n.historyEyebrow,
-                title: l10n.sixMonthTrend,
-                caption: l10n.sixMonthCaption,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              SixMonthTrend(
-                history: [...budget.monthlyHistory, budget.spentThisMonth],
-                limit: budget.monthlyLimit,
-              ),
-              const SizedBox(height: AppSpacing.section),
+              // A trend needs at least two real months; before that the
+              // chart would only draw zeros.
+              if (trend.where((v) => v > 0).length >= 2) ...[
+                SectionHeader(
+                  eyebrow: l10n.historyEyebrow,
+                  title: l10n.sixMonthTrend,
+                  caption: l10n.sixMonthCaption,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                SixMonthTrend(history: trend, limit: budget.monthlyLimit),
+                const SizedBox(height: AppSpacing.section),
+              ],
               SectionHeader(
                 eyebrow: l10n.breakdownEyebrow,
                 title: l10n.whereItWent,
@@ -160,36 +162,46 @@ class SpendingProfileScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.xs),
               CategoryBreakdown(budget: budget),
               const SizedBox(height: AppSpacing.section),
+              // One settings group, as a native settings screen has: the
+              // account, then each preference as a labelled row.
+              SectionHeader(title: l10n.settingsTitle),
+              const SizedBox(height: AppSpacing.md),
               if (ref.watch(currentUserProvider) case final user?) ...[
-                SectionHeader(
-                  eyebrow: l10n.signedInEyebrow,
-                  title: l10n.account,
-                ),
-                const SizedBox(height: AppSpacing.md),
                 _AccountCard(
                   label: user.email ?? user.displayName ?? 'Clarion account',
                 ),
-                const SizedBox(height: AppSpacing.section),
+                const SizedBox(height: AppSpacing.md),
               ],
-              SectionHeader(
-                eyebrow: l10n.displayEyebrow,
-                title: l10n.appearance,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              const _AppearancePicker(),
-              const SizedBox(height: AppSpacing.section),
-              SectionHeader(eyebrow: l10n.displayEyebrow, title: l10n.language),
-              const SizedBox(height: AppSpacing.md),
-              const _LanguagePicker(),
-              const SizedBox(height: AppSpacing.section),
-              SectionHeader(eyebrow: l10n.helpEyebrow, title: l10n.appTour),
-              const SizedBox(height: AppSpacing.md),
-              DynamicPill(
-                label: l10n.replayTour,
-                icon: Icons.explore_outlined,
-                size: PillSize.regular,
-                color: AppColors.irisGlow,
-                onTap: () => ref.read(appTourProvider.notifier).start(),
+              TactileCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _SettingRow(
+                      label: l10n.appearance,
+                      child: const _AppearancePicker(),
+                    ),
+                    const Divider(height: AppSpacing.xxl),
+                    _SettingRow(
+                      label: l10n.language,
+                      child: const _LanguagePicker(),
+                    ),
+                    const Divider(height: AppSpacing.xxl),
+                    _SettingRow(
+                      label: l10n.appTour,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: DynamicPill(
+                          label: l10n.replayTour,
+                          icon: Icons.explore_outlined,
+                          size: PillSize.regular,
+                          color: AppColors.irisGlow,
+                          onTap: () =>
+                              ref.read(appTourProvider.notifier).start(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               SizedBox(height: AppSpacing.navBarClearance(context)),
             ],
@@ -342,6 +354,26 @@ class _AccountCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// A labelled preference inside the settings group.
+class _SettingRow extends StatelessWidget {
+  const _SettingRow({required this.label, required this.child});
+
+  final String label;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(label, style: AppTypography.label),
+        const SizedBox(height: AppSpacing.md),
+        child,
+      ],
     );
   }
 }

@@ -8,18 +8,16 @@ import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/clarion_wordmark.dart';
 import '../../../../core/widgets/pressable.dart';
 import '../../../../core/widgets/progress_ring.dart';
-import '../../../../core/widgets/round_icon_button.dart';
-import '../../../../l10n/l10n.dart';
 import '../../../cart/application/budget_controller.dart';
 import '../../../navigation/navigation_controller.dart';
 
-/// Quiet header: the Clarion mark and name, the live monthly budget
-/// indicator and the profile node.
-class HorizonHeader extends ConsumerWidget {
+/// Quiet header: the Clarion mark and name, and the live monthly budget.
+/// Profile is one tab away, so it gets no second entry here.
+class HorizonHeader extends StatelessWidget {
   const HorizonHeader({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Row(
       children: [
         // At large text sizes the wordmark yields room to the budget.
@@ -33,14 +31,6 @@ class HorizonHeader extends ConsumerWidget {
         const SizedBox(width: AppSpacing.md),
         const Expanded(
           child: Align(alignment: Alignment.centerRight, child: BudgetMetric()),
-        ),
-        const SizedBox(width: AppSpacing.md),
-        RoundIconButton(
-          icon: Icons.person_outline_rounded,
-          semanticLabel: context.l10n.profileEyebrow,
-          size: 36,
-          onPressed: () =>
-              ref.read(navigationProvider.notifier).select(AppTab.profile),
         ),
       ],
     );

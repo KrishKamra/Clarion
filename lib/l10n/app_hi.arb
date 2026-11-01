@@ -185,5 +185,6 @@
   "attentionEyebrow": "{count, plural, =1{1 चीज़ आपका इंतज़ार कर रही है} other{{count} चीज़ें आपका इंतज़ार कर रही हैं}}",
   "attentionMore": "और {count}",
   "attentionClear": "सब ठीक है",
-  "attentionClearDetail": "अभी किसी फ़ैसले की ज़रूरत नहीं है।"
+  "attentionClearDetail": "अभी किसी फ़ैसले की ज़रूरत नहीं है।",
+  "settingsTitle": "सेटिंग्स"
 }

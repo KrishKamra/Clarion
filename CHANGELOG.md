@@ -4,6 +4,18 @@ All notable changes to Clarion are documented here. Format based on [Keep a Chan
 
 ## [Unreleased]
 
+### Changed — lighter, quieter, more native
+- **README banner**: the background no longer drifts (moving the aurora exposed its edges, so the card looked like it was shrinking). One motion remains, the same as the app's splash: focus rings lock onto the lens and a single glint runs round the ring.
+- **Horizon**: the header is just the name and the budget (Profile already has a tab). The goal prompt reads "What’s the goal?" on one line. Scan and the suggestions share a single row that scrolls to the screen edges instead of wrapping over three. Radar rows show the full price and average instead of cutting off inside a number.
+- **Tab bar** labels are sentence case in the sans; mono capitals stay for section eyebrows.
+- **Sign-in**: the three coloured chips (one in alarm red) become one quiet line, and the frosted pane loses a drop shadow that showed through the glass as a grey band.
+- **Profile settings** are one group, the account and then Appearance, Language and the tour as labelled rows, instead of three stacked headers. The six-month trend appears once there are two real months to compare, not as a chart of zeros.
+- **Product page**: the "Overall match" colour washes toward the score instead of pooling as a smudge mid-row, the rating uses a drawn star, the buy-or-wait chip drops its emoji, and "Why we recommend this" is in sentence case like every other heading.
+
+### Fixed
+- Header counts ("17 results", "2 items") sat mid-header instead of on the trailing edge.
+- A warranty's expiry date showed no year, so a 1-year warranty read as expiring today.
+
 ### Changed — identity, feel and focus
 - **Refined mark**: the lens keeps its iris-to-emerald ring and off-centre focal point, but loses the glossy highlight and the white glint. The focal point is now matte and lit from the same top-left as every surface. Launcher, adaptive, themed and splash icons are regenerated from the one SVG at the same proportions.
 - **"Needs you" on Horizon**: one quiet card listing only what is waiting on a decision (cooling-off holds that have ended, return windows in their last three days, watched prices at target, purchases due a check-in), most urgent first, each opening where it's settled. With nothing pending it shows "All clear", the cue that there's nothing more to do. English and Hindi.
