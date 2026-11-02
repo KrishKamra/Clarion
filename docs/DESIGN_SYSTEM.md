@@ -134,7 +134,8 @@ flowchart TD
 | `FitScoreGauge` | `CustomPainter` 300° utility dial (0–100%), mono score, halo + ticks on large sizes |
 | `IntentField` | Conversational intent input, prompt set in Newsreader, with a plum focus filament and one scrolling row of suggestions |
 | `DynamicPill` | One micro-badge for categories, tags, trade-offs and selectable choices |
-| `FloatingNavCapsule` | Optical-glass capsule with sentence-case sans labels (mono caps stay for eyebrows); magnetic active pill with plum halo; count badges and status dots |
+| `FloatingNavCapsule` | Optical-glass capsule with `ClarionIcon` glyphs and sentence-case sans labels (mono caps stay for eyebrows); magnetic active pill with plum halo; count badges and status dots |
+| `ClarionIcon` | Clarion's own glyphs for the four destinations (horizon, two lenses, the budget ring, a figure with a lens for a head), 24-unit grid, 1.7 strokes, round caps. Each carries the logo's focal dot, which grows in and turns plum when its tab is selected. Material icons stay everywhere else |
 | `HoldButton` | Press-and-hold confirm with sweep fill, micro-progress ring and live timer |
 | `PriceBandChart` | Interactive 30-day band: scrub to read any day's price against today |
 | `ClarionButton` | `primary` (plum gradient) · `secondary` (vellum) · `positive` (sea gradient) |

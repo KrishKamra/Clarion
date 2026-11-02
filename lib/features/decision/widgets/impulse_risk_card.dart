@@ -10,9 +10,16 @@ import '../application/impulse_risk.dart';
 
 /// The adaptive hold: what raised or lowered it for this product.
 class ImpulseRiskCard extends ConsumerWidget {
-  const ImpulseRiskCard({super.key, required this.product});
+  const ImpulseRiskCard({
+    super.key,
+    required this.product,
+    this.grouped = false,
+  });
 
   final Product product;
+
+  /// Inside a fact sheet: content only, the sheet supplies the card.
+  final bool grouped;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -22,27 +29,26 @@ class ImpulseRiskCard extends ConsumerWidget {
         : assessment.hold.inHours < 24
         ? AppColors.good
         : AppColors.textSecondary;
-    return TactileCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('IMPULSE RISK', style: AppTypography.overline),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            'Score ${assessment.score} · ${assessment.hold.inHours}-hour hold',
-            style: AppTypography.title.copyWith(color: tone),
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('IMPULSE RISK', style: AppTypography.overline),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          'Score ${assessment.score} · ${assessment.hold.inHours}-hour hold',
+          style: AppTypography.title.copyWith(color: tone),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          assessment.isBaseline
+              ? 'Rapid adds, late-night browsing and large purchases lengthen the hold. A small, calm one shortens it.'
+              : assessment.summary,
+          style: AppTypography.bodySmall.copyWith(
+            color: AppColors.textSecondary,
           ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            assessment.isBaseline
-                ? 'Rapid adds, late-night browsing and large purchases lengthen the hold. A small, calm one shortens it.'
-                : assessment.summary,
-            style: AppTypography.bodySmall.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
+    return grouped ? content : TactileCard(child: content);
   }
 }

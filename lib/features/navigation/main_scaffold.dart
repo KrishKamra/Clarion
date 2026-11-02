@@ -6,6 +6,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/widget/home_widget_bridge.dart';
+import '../../core/widgets/clarion_icon.dart';
 import '../../core/widgets/floating_nav_capsule.dart';
 import '../../core/widgets/obsidian_canvas.dart';
 import '../../data/catalog.dart';
@@ -245,25 +246,21 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                 ref.read(navigationProvider.notifier).select(AppTab.values[i]),
             destinations: [
               NavDestination(
-                icon: Icons.blur_on_outlined,
-                activeIcon: Icons.blur_on_rounded,
+                glyph: ClarionGlyph.horizon,
                 label: l10n.navHorizon,
               ),
               NavDestination(
-                icon: Icons.compare_arrows_outlined,
-                activeIcon: Icons.compare_arrows_rounded,
+                glyph: ClarionGlyph.compare,
                 label: l10n.navCompare,
               ),
               NavDestination(
-                icon: Icons.shield_outlined,
-                activeIcon: Icons.shield_rounded,
+                glyph: ClarionGlyph.guardian,
                 label: l10n.navGuardian,
                 badge: cartCount,
                 badgeColor: overBudget ? AppColors.over : AppColors.action,
               ),
               NavDestination(
-                icon: Icons.donut_large_outlined,
-                activeIcon: Icons.donut_large_rounded,
+                glyph: ClarionGlyph.profile,
                 label: l10n.navProfile,
                 dot: coolingOff ? AppColors.over : null,
               ),

@@ -7,6 +7,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_decorations.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
+import 'clarion_icon.dart';
 import 'frosted_chrome.dart';
 import 'pressable.dart';
 
@@ -14,16 +15,14 @@ import 'pressable.dart';
 @immutable
 class NavDestination {
   const NavDestination({
-    required this.icon,
-    required this.activeIcon,
+    required this.glyph,
     required this.label,
     this.badge = 0,
     this.badgeColor,
     this.dot,
   });
 
-  final IconData icon;
-  final IconData activeIcon;
+  final ClarionGlyph glyph;
   final String label;
 
   /// Count bubble; hidden at zero.
@@ -176,10 +175,10 @@ class _NavButton extends StatelessWidget {
             Stack(
               clipBehavior: Clip.none,
               children: [
-                Icon(
-                  selected ? destination.activeIcon : destination.icon,
+                ClarionIcon(
+                  destination.glyph,
                   color: color,
-                  size: 20,
+                  selected: selected,
                 ),
                 if (destination.badge > 0)
                   Positioned(
@@ -205,7 +204,8 @@ class _NavButton extends StatelessWidget {
                   ),
               ],
             ),
-            const SizedBox(height: 3),
+            // 2px, not 3: the 24px glyph needs the room at large text sizes.
+            const SizedBox(height: 2),
             AnimatedDefaultTextStyle(
               duration: AppMotion.medium,
               // Native tab labels: sentence case in the sans, one weight, so

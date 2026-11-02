@@ -13,7 +13,7 @@ import 'tour_target.dart';
 /// goal, followed by curated contextual intent pills.
 ///
 /// Deliberately not a search bar — no magnifier, no border box. The prompt
-/// is set in display type, and focus is shown by an plum filament drawing
+/// is set in display type, and focus is shown by a plum filament drawing
 /// itself along the base of the field.
 class IntentField extends StatefulWidget {
   const IntentField({

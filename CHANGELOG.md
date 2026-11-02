@@ -4,6 +4,15 @@ All notable changes to Clarion are documented here. Format based on [Keep a Chan
 
 ## [Unreleased]
 
+### Changed — tab icons of Clarion's own
+- **Four custom glyphs** replace Material's stock icons in the tab bar: a light rising on a horizon (Horizon), two overlapping lenses (Compare), the budget ring (Guardian), and a figure whose head is a lens (Profile). They share the app's line work: a 24-unit grid, 1.7 strokes, round caps.
+- **The logo's focal dot is in every glyph.** When a tab is selected, its dot grows in and turns plum, the splash's focus lock at the size of a tab, and is the only colour in the tab bar. It holds still under reduced motion.
+- Material icons stay everywhere else, and product photos stay as placeholders for now.
+- **Product page reads as one decision, not a stack of boxes.** Cost per use, impulse risk, opportunity cost and refurbished & repair share one fact sheet, divided by hairlines. The 30-day price band moves up beside "Buy now or wait?" so the price story sits together; an ownership warning keeps its own card.
+
+### Fixed
+- **The Google mark on "Continue with Google" looked misaligned.** It was the letter G typed in the title style with a colour sweep, so when titles became Newsreader it turned into a serif letter sitting on a text baseline. It's now Google's four-colour G drawn from vectors in a centred square, independent of the app's fonts.
+
 ### Changed — Inkwell: a palette and type of Clarion's own
 - **Palette.** The old accents were Tailwind's stock indigo-600, emerald-500, amber-500 and rose-500, the house style of AI-built interfaces. Inkwell replaces them with three ingredients: ink for the canvas and the type, plum (the magenta of a real lens coating) as the one colour for acting, and champagne as the one metal. Every colour now sits clear of the stock shades (10.4 ΔE median, from 0.0).
 - **Meanings that survive colour blindness.** Good, caution and over were nearly indistinguishable for people with red-green colour blindness (separation 4.7). They are now sea, ochre and brick, chosen together to stay apart under protanopia, deuteranopia and tritanopia (9.6). Every text pair still clears WCAG AA in both themes.

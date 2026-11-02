@@ -10,36 +10,42 @@ import '../../cart/application/value_alternatives.dart';
 
 /// Refurbished and repair alternatives, with the money and the material saved.
 class ValuePathsCard extends StatelessWidget {
-  const ValuePathsCard({super.key, required this.product});
+  const ValuePathsCard({
+    super.key,
+    required this.product,
+    this.grouped = false,
+  });
 
   final Product product;
+
+  /// Inside a fact sheet: content only, the sheet supplies the card.
+  final bool grouped;
 
   @override
   Widget build(BuildContext context) {
     final paths = ValueAlternatives.forProduct(product);
     if (paths.isEmpty) return const SizedBox.shrink();
-    return TactileCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('REFURBISHED & REPAIR', style: AppTypography.overline),
-          const SizedBox(height: AppSpacing.sm),
-          for (final (index, path) in paths.indexed) ...[
-            if (index > 0) const SizedBox(height: AppSpacing.lg),
-            Text(
-              '${path.kindLabel} saves ${Fmt.inr(path.savingsAgainst(product.price))} at ${path.parity}% parity',
-              style: AppTypography.title,
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('REFURBISHED & REPAIR', style: AppTypography.overline),
+        const SizedBox(height: AppSpacing.sm),
+        for (final (index, path) in paths.indexed) ...[
+          if (index > 0) const SizedBox(height: AppSpacing.lg),
+          Text(
+            '${path.kindLabel} saves ${Fmt.inr(path.savingsAgainst(product.price))} at ${path.parity}% parity',
+            style: AppTypography.title,
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            '${path.note} Sustainability ${path.sustainability}.',
+            style: AppTypography.bodySmall.copyWith(
+              color: AppColors.textSecondary,
             ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              '${path.note} Sustainability ${path.sustainability}.',
-              style: AppTypography.bodySmall.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
+          ),
         ],
-      ),
+      ],
     );
+    return grouped ? content : TactileCard(child: content);
   }
 }

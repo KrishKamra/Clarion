@@ -16,6 +16,7 @@ import '../../../core/widgets/tactile_card.dart';
 import '../../../core/widgets/sub_page.dart';
 import '../../../core/widgets/tour_target.dart';
 import '../../../l10n/l10n.dart';
+import '../../cart/application/value_alternatives.dart';
 import '../../home/application/intent_controller.dart';
 import '../../navigation/navigation_controller.dart';
 import '../../profile/application/opportunity_cost.dart';
@@ -117,25 +118,28 @@ class ProductDecisionScreen extends ConsumerWidget {
                         child: ExplainabilityCard(product: product),
                       ),
                       const SizedBox(height: AppSpacing.md),
+                      // Price first: the verdict, then the band it reads.
                       BuyOrWaitCard(product: product),
                       const SizedBox(height: AppSpacing.md),
-                      OwnershipCostCard(product: product),
-                      const SizedBox(height: AppSpacing.md),
-                      ImpulseRiskCard(product: product),
+                      PriceBandCard(product: product),
+                      // A warning stands apart; the rest are facts.
                       if (ref.watch(ownershipWarningProvider(product.id))
                           case final warning?) ...[
                         const SizedBox(height: AppSpacing.md),
                         OwnershipWarningCard(warning: warning),
                       ],
-                      if (ref.watch(opportunityProvider(product.id))
-                          case final opportunity?) ...[
-                        const SizedBox(height: AppSpacing.md),
-                        OpportunityCard(cost: opportunity),
-                      ],
                       const SizedBox(height: AppSpacing.md),
-                      ValuePathsCard(product: product),
-                      const SizedBox(height: AppSpacing.md),
-                      PriceBandCard(product: product),
+                      _FactSheet(
+                        facts: [
+                          OwnershipCostCard(product: product, grouped: true),
+                          ImpulseRiskCard(product: product, grouped: true),
+                          if (ref.watch(opportunityProvider(product.id))
+                              case final opportunity?)
+                            OpportunityCard(cost: opportunity, grouped: true),
+                          if (ValueAlternatives.forProduct(product).isNotEmpty)
+                            ValuePathsCard(product: product, grouped: true),
+                        ],
+                      ),
                       const SizedBox(height: AppSpacing.section),
                       SectionHeader(title: context.l10n.specifications),
                       const SizedBox(height: AppSpacing.xs),
@@ -367,6 +371,30 @@ class _AlternativeRow extends ConsumerWidget {
             'Compare',
             style: AppTypography.label.copyWith(color: AppColors.action),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The finer points of a decision (cost per use, impulse risk, opportunity
+/// cost, refurbished and repair) in one card, divided by hairlines, so they
+/// read as one fact sheet rather than a stack of boxes.
+class _FactSheet extends StatelessWidget {
+  const _FactSheet({required this.facts});
+
+  final List<Widget> facts;
+
+  @override
+  Widget build(BuildContext context) {
+    return TactileCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final (i, fact) in facts.indexed) ...[
+            if (i > 0) const Divider(height: AppSpacing.xxxl),
+            fact,
+          ],
         ],
       ),
     );
