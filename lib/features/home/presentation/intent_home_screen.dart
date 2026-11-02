@@ -79,7 +79,7 @@ class IntentHomeScreen extends ConsumerWidget {
                   label: 'Scan in store',
                   icon: Icons.qr_code_scanner_rounded,
                   size: PillSize.regular,
-                  color: AppColors.irisGlow,
+                  color: AppColors.action,
                   onTap: () => BarcodeScanScreen.open(context),
                 ),
               ],

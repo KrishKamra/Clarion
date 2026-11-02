@@ -18,7 +18,7 @@
             android:layout_width="6dp"
             android:layout_height="6dp"
             android:importantForAccessibility="no"
-            android:src="@drawable/widget_dot_rose" />
+            android:src="@drawable/widget_dot_over" />
 
         <TextView
             android:id="@+id/widget_hold_title"

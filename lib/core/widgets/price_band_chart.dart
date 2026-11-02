@@ -85,7 +85,7 @@ class _PriceBandChartState extends State<PriceBandChart> {
                   painter: _BandPainter(
                     prices: [for (final p in widget.points) p.price],
                     average: widget.average,
-                    color: widget.color ?? AppColors.emeraldGlow,
+                    color: widget.color ?? AppColors.good,
                     progress: t,
                     selected: _selected,
                   ),
@@ -123,7 +123,7 @@ class _Readout extends StatelessWidget {
           Text(
             '${Fmt.inr(d.abs())} ${d > 0 ? 'above' : 'below'} today',
             style: AppTypography.metricSmall.copyWith(
-              color: d > 0 ? AppColors.emeraldGlow : AppColors.amber,
+              color: d > 0 ? AppColors.good : AppColors.caution,
             ),
           )
         else

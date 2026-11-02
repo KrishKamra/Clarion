@@ -46,7 +46,7 @@ class CartItemTile extends ConsumerWidget {
         padding: const EdgeInsets.only(right: AppSpacing.xxl),
         child: Text(
           'REMOVE',
-          style: AppTypography.overline.copyWith(color: AppColors.rose),
+          style: AppTypography.overline.copyWith(color: AppColors.over),
         ),
       ),
       child: TactileCard(
@@ -141,7 +141,7 @@ class _Stepper extends StatelessWidget {
 }
 
 Color _priorityColor(IntentPriority p) => switch (p) {
-  IntentPriority.essential => AppColors.emeraldGlow,
-  IntentPriority.important => AppColors.irisGlow,
-  IntentPriority.niceToHave => AppColors.amber,
+  IntentPriority.essential => AppColors.good,
+  IntentPriority.important => AppColors.action,
+  IntentPriority.niceToHave => AppColors.caution,
 };

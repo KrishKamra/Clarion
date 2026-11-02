@@ -62,7 +62,7 @@ class _ReturnFormState extends ConsumerState<_ReturnForm> {
               DynamicPill(
                 label: l10n.reason(r),
                 size: PillSize.regular,
-                color: AppColors.irisGlow,
+                color: AppColors.action,
                 selected: _reason == r,
                 onTap: () => setState(() => _reason = r),
               ),

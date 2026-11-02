@@ -170,7 +170,7 @@ class _RegretCheckinFormState extends ConsumerState<_RegretCheckinForm> {
               DynamicPill(
                 label: tag.label,
                 size: PillSize.regular,
-                color: tag.isNegative ? AppColors.rose : AppColors.emeraldGlow,
+                color: tag.isNegative ? AppColors.over : AppColors.good,
                 selected: _tag == tag,
                 onTap: () => setState(() {
                   _tag = _tag == tag ? null : tag;
@@ -203,7 +203,7 @@ class _RegretCheckinFormState extends ConsumerState<_RegretCheckinForm> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: AppRadii.lgAll,
-              borderSide: BorderSide(color: AppColors.irisGlow),
+              borderSide: BorderSide(color: AppColors.action),
             ),
           ),
         ),
@@ -228,9 +228,9 @@ class _RatingButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final activeColor = switch (rating) {
-      RegretRating.worthIt => AppColors.emeraldGlow,
-      RegretRating.neutral => AppColors.irisGlow,
-      RegretRating.regretted => AppColors.rose,
+      RegretRating.worthIt => AppColors.good,
+      RegretRating.neutral => AppColors.action,
+      RegretRating.regretted => AppColors.over,
     };
 
     return GestureDetector(

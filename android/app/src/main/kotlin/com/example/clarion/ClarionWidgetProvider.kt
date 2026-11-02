@@ -93,7 +93,7 @@ class ClarionWidgetProvider : AppWidgetProvider() {
             views.setTextViewText(R.id.widget_caption, s.caption)
             views.setTextColor(
                 R.id.widget_budget,
-                context.getColor(if (s.over) R.color.widget_rose else R.color.widget_text_primary),
+                context.getColor(if (s.over) R.color.widget_over else R.color.widget_text_primary),
             )
         }
         views.setContentDescription(R.id.widget_ring, context.getString(R.string.widget_used, s.percent))
@@ -117,7 +117,7 @@ class ClarionWidgetProvider : AppWidgetProvider() {
             )
             views.setTextColor(
                 R.id.widget_at_target,
-                context.getColor(if (s.atTarget > 0) R.color.widget_emerald else R.color.widget_text_secondary),
+                context.getColor(if (s.atTarget > 0) R.color.widget_good else R.color.widget_text_secondary),
             )
             views.setTextViewText(R.id.widget_saved, s.saved.ifEmpty { "—" })
             views.setTextViewText(R.id.widget_avoided, context.getString(R.string.widget_avoided, s.avoided))
@@ -128,7 +128,7 @@ class ClarionWidgetProvider : AppWidgetProvider() {
     private fun bindHold(context: Context, views: RemoteViews, s: WidgetState, bucket: Bucket) {
         val now = System.currentTimeMillis()
         if (s.endsAt <= 0L) {
-            views.setImageViewResource(R.id.widget_hold_dot, R.drawable.widget_dot_emerald)
+            views.setImageViewResource(R.id.widget_hold_dot, R.drawable.widget_dot_good)
             views.setTextViewText(R.id.widget_hold_title, context.getString(R.string.widget_no_hold))
             views.setTextViewText(R.id.widget_hold_time, if (bucket == Bucket.SMALL) context.getString(R.string.widget_no_hold) else "")
             views.setViewVisibility(R.id.widget_hold_progress, View.GONE)
@@ -142,7 +142,7 @@ class ClarionWidgetProvider : AppWidgetProvider() {
         val ready = now >= s.endsAt
         views.setImageViewResource(
             R.id.widget_hold_dot,
-            if (ready) R.drawable.widget_dot_emerald else R.drawable.widget_dot_rose,
+            if (ready) R.drawable.widget_dot_good else R.drawable.widget_dot_over,
         )
         val more = if (s.holdCount > 1 && bucket != Bucket.SMALL) {
             "  " + context.getString(R.string.widget_more_holds, s.holdCount - 1)
@@ -157,7 +157,7 @@ class ClarionWidgetProvider : AppWidgetProvider() {
         views.setTextViewText(R.id.widget_hold_time, time + more)
         views.setTextColor(
             R.id.widget_hold_time,
-            context.getColor(if (ready) R.color.widget_emerald else R.color.widget_text_secondary),
+            context.getColor(if (ready) R.color.widget_good else R.color.widget_text_secondary),
         )
 
         val span = (s.endsAt - s.startsAt).takeIf { s.startsAt > 0L && it > 0L } ?: DateUtils.DAY_IN_MILLIS
@@ -183,7 +183,7 @@ class ClarionWidgetProvider : AppWidgetProvider() {
     }
 
     /// The budget ring: committed spend against the ceiling in the same
-    /// emerald / amber / rose zones as the in-app barometer.
+    /// sea / ochre / brick zones as the in-app barometer.
     private fun ringBitmap(context: Context, s: WidgetState, px: Int, label: Boolean): Bitmap {
         val size = max(px, 1)
         val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
@@ -200,9 +200,9 @@ class ClarionWidgetProvider : AppWidgetProvider() {
         canvas.drawOval(oval, paint)
 
         val zone = when {
-            s.ratio > 1.0 -> R.color.widget_rose
-            s.ratio >= 0.85 -> R.color.widget_amber
-            else -> R.color.widget_emerald
+            s.ratio > 1.0 -> R.color.widget_over
+            s.ratio >= 0.85 -> R.color.widget_caution
+            else -> R.color.widget_good
         }
         paint.color = context.getColor(zone)
         val sweep = (min(s.ratio, 1.0) * 360).toFloat()

@@ -155,7 +155,7 @@ class _EmailVerificationCardState extends ConsumerState<EmailVerificationCard>
                 icon: verified
                     ? Icons.verified_user_rounded
                     : Icons.mark_email_unread_outlined,
-                color: verified ? AppColors.emeraldGlow : AppColors.amber,
+                color: verified ? AppColors.good : AppColors.caution,
                 selected: true,
               ),
             ],

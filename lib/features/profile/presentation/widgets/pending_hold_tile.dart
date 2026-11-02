@@ -72,7 +72,7 @@ class PendingHoldTile extends ConsumerWidget {
                         value: elapsed.clamp(0.0, 1.0),
                         minHeight: 3,
                         backgroundColor: AppColors.hairline,
-                        color: AppColors.rose,
+                        color: AppColors.over,
                       ),
                     ),
                   ],

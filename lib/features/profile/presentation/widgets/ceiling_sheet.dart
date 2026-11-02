@@ -104,7 +104,7 @@ class _Point extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 20, color: AppColors.irisGlow),
+          Icon(icon, size: 20, color: AppColors.action),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
@@ -164,13 +164,13 @@ class _CeilingEditorState extends ConsumerState<_CeilingEditor> {
                   Icon(
                     Icons.info_outline_rounded,
                     size: 16,
-                    color: AppColors.irisGlow,
+                    color: AppColors.action,
                   ),
                   const SizedBox(width: 6),
                   Text(
                     'What is a ceiling?',
                     style: AppTypography.label.copyWith(
-                      color: AppColors.irisGlow,
+                      color: AppColors.action,
                     ),
                   ),
                 ],

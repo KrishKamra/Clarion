@@ -134,7 +134,7 @@ class _Bar extends StatelessWidget {
                   value: share,
                   minHeight: 6,
                   backgroundColor: AppColors.hairline,
-                  color: AppColors.amber,
+                  color: AppColors.caution,
                 ),
               ),
             ),
@@ -196,7 +196,7 @@ class _ReviewCardState extends State<ReviewCard> {
                 DynamicPill(
                   label: l10n.verifiedPurchase,
                   icon: Icons.verified_outlined,
-                  color: AppColors.emeraldGlow,
+                  color: AppColors.good,
                 ),
             ],
           ),
@@ -237,9 +237,7 @@ class _ReviewCardState extends State<ReviewCard> {
                 padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                 child: Text(
                   l10n.editReview,
-                  style: AppTypography.label.copyWith(
-                    color: AppColors.irisGlow,
-                  ),
+                  style: AppTypography.label.copyWith(color: AppColors.action),
                 ),
               ),
             ),

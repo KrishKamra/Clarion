@@ -41,7 +41,7 @@ Future<MindfulChoice?> showMindfulCheckSheet({
           padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
           child: Divider(),
         ),
-        _Line('Month total', total, color: AppColors.rose, strong: true),
+        _Line('Month total', total, color: AppColors.over, strong: true),
         _Line('Ceiling', budget.limit),
         const SizedBox(height: AppSpacing.xxl),
         ClarionButton(

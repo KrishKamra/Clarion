@@ -208,7 +208,7 @@ class _BudgetImpact extends StatelessWidget {
       lead = budget.isOver ? 'Cart is ' : 'In your cart · ';
       amount = budget.isOver ? budget.overBy : budget.headroom;
       tail = budget.isOver ? ' over the ceiling' : ' headroom left';
-      color = budget.isOver ? AppColors.rose : AppColors.emeraldGlow;
+      color = budget.isOver ? AppColors.over : AppColors.good;
     } else {
       final alone = budget.leftAfter(product.price);
       final withCart = budget.leftAfterWithCart(product.price);
@@ -217,15 +217,15 @@ class _BudgetImpact extends StatelessWidget {
       amount = alone.abs();
       tail = fits ? ' safe buffer in your monthly limit' : '';
       color = !fits
-          ? AppColors.rose
+          ? AppColors.over
           : alone < budget.limit * 0.1
-          ? AppColors.amber
-          : AppColors.emeraldGlow;
+          ? AppColors.caution
+          : AppColors.good;
       if (fits && budget.cart > 0) {
         if (withCart < 0) {
           note =
               '${Fmt.inr(-withCart)} over once your ${Fmt.inr(budget.cart)} cart is included';
-          noteColor = AppColors.amber;
+          noteColor = AppColors.caution;
         } else {
           note = '${Fmt.inr(withCart)} left including your cart';
         }
@@ -259,7 +259,7 @@ class _BudgetImpact extends StatelessWidget {
   }
 }
 
-/// The cooling-off period in progress: a live countdown over a thin rose
+/// The cooling-off period in progress: a live countdown over a thin brick
 /// timeline of the 24 hours. Tapping ends it early.
 class _CoolingOffStatus extends StatelessWidget {
   const _CoolingOffStatus({
@@ -291,7 +291,7 @@ class _CoolingOffStatus extends StatelessWidget {
           borderRadius: radius,
           child: Container(
             height: 52,
-            color: AppColors.rose.withValues(alpha: 0.08),
+            color: AppColors.over.withValues(alpha: 0.08),
             child: Stack(
               children: [
                 Center(
@@ -303,7 +303,7 @@ class _CoolingOffStatus extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTypography.metricSmall.copyWith(
-                          color: AppColors.rose,
+                          color: AppColors.over,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -325,7 +325,7 @@ class _CoolingOffStatus extends StatelessWidget {
                     value: elapsed,
                     minHeight: 2,
                     backgroundColor: AppColors.hairline,
-                    color: AppColors.rose,
+                    color: AppColors.over,
                   ),
                 ),
               ],

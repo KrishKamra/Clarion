@@ -208,7 +208,7 @@ class _Step extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ink = reached ? AppColors.emeraldGlow : AppColors.textTertiary;
+    final ink = reached ? AppColors.good : AppColors.textTertiary;
     return MergeSemantics(
       child: IntrinsicHeight(
         child: Row(
@@ -325,8 +325,8 @@ class _LineTile extends ConsumerWidget {
                       ? l10n.refunded(Fmt.inr(line.subtotal))
                       : l10n.returnInProgress,
                   color: returned.isRefunded(now)
-                      ? AppColors.emeraldGlow
-                      : AppColors.amber,
+                      ? AppColors.good
+                      : AppColors.caution,
                 ),
             ],
           ),
@@ -340,7 +340,7 @@ class _LineTile extends ConsumerWidget {
                     : l10n.returnItem,
                 icon: Icons.undo_rounded,
                 size: PillSize.regular,
-                color: AppColors.irisGlow,
+                color: AppColors.action,
                 onTap: () => showReturnSheet(context, order, line),
               ),
             ),
@@ -376,7 +376,7 @@ class _Totals extends StatelessWidget {
           row(
             l10n.refundedLabel,
             Fmt.inr(-order.refunded),
-            color: AppColors.emeraldGlow,
+            color: AppColors.good,
           ),
         const Divider(),
         row(l10n.youPaid, Fmt.inr(order.total - order.refunded)),

@@ -26,9 +26,9 @@ class PriceBandCard extends ConsumerWidget {
         product.priceHistory;
     final position = product.bandPosition;
     final (verdict, color) = switch (position) {
-      <= 0.25 => ('Near 30-day low', AppColors.emeraldGlow),
+      <= 0.25 => ('Near 30-day low', AppColors.good),
       <= 0.6 => ('Typical price', AppColors.textSecondary),
-      _ => ('Near 30-day high', AppColors.amber),
+      _ => ('Near 30-day high', AppColors.caution),
     };
     final percentile = (position * 100).round();
 
@@ -48,9 +48,7 @@ class PriceBandCard extends ConsumerWidget {
           PriceBandChart(
             points: history,
             average: product.averagePrice30d,
-            color: color == AppColors.textSecondary
-                ? AppColors.irisGlow
-                : color,
+            color: color == AppColors.textSecondary ? AppColors.action : color,
           ),
           const SizedBox(height: AppSpacing.lg),
           Row(
@@ -106,11 +104,11 @@ class _WatchSection extends ConsumerWidget {
       WatchVerdict.targetHit => (
         'Target reached: ${Fmt.inr(product.price)} is at or below '
             '${Fmt.inr(target!)}. A good time to decide.',
-        AppColors.emeraldGlow,
+        AppColors.good,
       ),
       WatchVerdict.close => (
         'Close: ${Fmt.inr(product.price - target!)} above your target.',
-        AppColors.amber,
+        AppColors.caution,
       ),
       WatchVerdict.waiting => (
         'Waiting: ${Fmt.inr(product.price - target!)} above your target.',
@@ -129,7 +127,7 @@ class _WatchSection extends ConsumerWidget {
               icon: watching
                   ? Icons.visibility_rounded
                   : Icons.visibility_outlined,
-              color: AppColors.irisGlow,
+              color: AppColors.action,
               selected: watching,
               onTap: () => watching
                   ? controller.unwatch(product.id)
@@ -146,7 +144,7 @@ class _WatchSection extends ConsumerWidget {
               for (final option in options)
                 DynamicPill(
                   label: 'Alert at ${Fmt.inr(option)}',
-                  color: AppColors.emeraldGlow,
+                  color: AppColors.good,
                   selected: target == option,
                   onTap: () => controller.setTarget(
                     product.id,

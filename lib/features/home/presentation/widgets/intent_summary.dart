@@ -40,13 +40,13 @@ class IntentSummary extends StatelessWidget {
                   if (intent.budget != null)
                     DynamicPill(
                       label: '≤ ${Fmt.inr(intent.budget!)}',
-                      color: AppColors.emeraldGlow,
+                      color: AppColors.good,
                     ),
                   for (final k in intent.keywords.take(4))
                     DynamicPill(label: k),
                   DynamicPill(
                     label: '$matches ${matches == 1 ? 'match' : 'matches'}',
-                    color: AppColors.irisGlow,
+                    color: AppColors.action,
                   ),
                 ],
               ),

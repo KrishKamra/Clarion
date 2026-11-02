@@ -40,7 +40,7 @@ class PriorityPicker extends StatelessWidget {
                     ? Icons.star_rounded
                     : Icons.star_outline_rounded,
                 size: PillSize.regular,
-                color: AppColors.amber,
+                color: AppColors.caution,
                 selected: selected.contains(k),
                 onTap: () => onToggle(k),
               ),
@@ -75,7 +75,7 @@ class VerdictCard extends StatelessWidget {
 
     return TactileCard(
       material: CardMaterial.floating,
-      tint: winner == null ? AppColors.amber : AppColors.emerald,
+      tint: winner == null ? AppColors.caution : AppColors.good,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -102,7 +102,7 @@ class VerdictCard extends StatelessWidget {
                       flex: (share * 1000).round().clamp(1, 999),
                       child: ColoredBox(
                         color: leftLeads
-                            ? AppColors.emeraldGlow
+                            ? AppColors.good
                             : AppColors.textTertiary,
                       ),
                     ),
@@ -111,7 +111,7 @@ class VerdictCard extends StatelessWidget {
                       flex: ((1 - share) * 1000).round().clamp(1, 999),
                       child: ColoredBox(
                         color: rightLeads
-                            ? AppColors.emeraldGlow
+                            ? AppColors.good
                             : AppColors.textTertiary,
                       ),
                     ),

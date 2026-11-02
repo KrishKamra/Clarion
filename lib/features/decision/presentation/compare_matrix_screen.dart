@@ -78,7 +78,7 @@ class _CompareMatrixScreenState extends ConsumerState<CompareMatrixScreen> {
                 DynamicPill(
                   label: pair.label,
                   size: PillSize.regular,
-                  color: AppColors.irisGlow,
+                  color: AppColors.action,
                   selected: i == state.pairIndex,
                   onTap: () {
                     setState(() => _showIdentical = false);

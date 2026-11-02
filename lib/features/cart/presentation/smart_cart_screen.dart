@@ -300,7 +300,7 @@ class _Summary extends StatelessWidget {
         row(
           budget.isOver ? l10n.pastCeilingBy : l10n.leftAfterCheckout,
           Fmt.inr(budget.isOver ? budget.overBy : budget.headroom),
-          color: budget.isOver ? AppColors.rose : AppColors.emeraldGlow,
+          color: budget.isOver ? AppColors.over : AppColors.good,
         ),
         const SizedBox(height: AppSpacing.lg),
         ClarionButton(

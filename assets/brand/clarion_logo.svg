@@ -1,23 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Clarion">
   <title>Clarion</title>
   <defs>
-    <!-- Light falls from the top-left, as on every Clarion surface: the ring
-         runs from soft iris through iris to emerald. -->
+    <!-- The lens coating. Light falls from the top-left, as on every Clarion
+         surface: champagne where it catches the rim, deepening into plum. -->
     <linearGradient id="ring" x1="10" y1="8" x2="54" y2="56" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#A5B4FC"/>
-      <stop offset="0.45" stop-color="#6366F1"/>
-      <stop offset="1" stop-color="#10B981"/>
+      <stop offset="0" stop-color="#EAE0CF"/>
+      <stop offset="0.42" stop-color="#B07CC4"/>
+      <stop offset="1" stop-color="#6A3C82"/>
     </linearGradient>
-    <!-- A faint pool of iris inside the lens, so it reads as glass. -->
+    <!-- A faint pool of plum inside the lens, so it reads as glass. -->
     <radialGradient id="glass" cx="26" cy="24" r="30" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#6366F1" stop-opacity="0.24"/>
-      <stop offset="1" stop-color="#6366F1" stop-opacity="0"/>
+      <stop offset="0" stop-color="#B07CC4" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#B07CC4" stop-opacity="0"/>
     </radialGradient>
     <!-- The focal point — what you are actually looking for. Matte, lit
          from the same top-left as the ring: precision, not gloss. -->
     <linearGradient id="focus" x1="34" y1="16" x2="48" y2="30" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#7C7FF5"/>
-      <stop offset="1" stop-color="#4F46E5"/>
+      <stop offset="0" stop-color="#C79AD8"/>
+      <stop offset="1" stop-color="#6A3C82"/>
     </linearGradient>
   </defs>
   <circle cx="32" cy="32" r="26" fill="url(#glass)"/>

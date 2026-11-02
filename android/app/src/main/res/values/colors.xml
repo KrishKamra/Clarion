@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Home-widget palette: the app's Porcelain tokens (values-night holds
-     Obsidian). Accents keep one meaning each, as in AppColors. -->
+<!-- Home-widget palette: the app's Inkwell light tokens (values-night holds
+     dark). Plum acts; sea, ochre and brick each carry one meaning. -->
 <resources>
     <color name="widget_surface_top">#FFFFFFFF</color>
-    <color name="widget_surface">#FFF5F6F8</color>
-    <color name="widget_rim">#1F0F172A</color>
-    <color name="widget_tile">#0A0F172A</color>
-    <color name="widget_hairline">#170F172A</color>
-    <color name="widget_text_primary">#FF0B0F19</color>
-    <color name="widget_text_secondary">#FF475569</color>
-    <color name="widget_text_tertiary">#FF5B6678</color>
-    <color name="widget_iris">#FF4F46E5</color>
-    <color name="widget_emerald">#FF047857</color>
-    <color name="widget_amber">#FFB45309</color>
-    <color name="widget_rose">#FFE11D48</color>
+    <color name="widget_surface">#FFF5F6FA</color>
+    <color name="widget_rim">#1F151B33</color>
+    <color name="widget_tile">#0A151B33</color>
+    <color name="widget_hairline">#17151B33</color>
+    <color name="widget_text_primary">#FF151B33</color>
+    <color name="widget_text_secondary">#FF4A5170</color>
+    <color name="widget_text_tertiary">#FF5E6683</color>
+    <color name="widget_action">#FF6A3C82</color>
+    <color name="widget_good">#FF1B6F86</color>
+    <color name="widget_caution">#FF8C6A12</color>
+    <color name="widget_over">#FF8E3A3A</color>
 </resources>

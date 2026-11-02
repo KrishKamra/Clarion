@@ -15,7 +15,7 @@ import '../../../core/widgets/pressable.dart';
 import '../application/auth_service.dart';
 
 /// Arrival: the brand lockup framed by its tagline, three promises, and a
-/// frosted sign-in pane floating over a slow aurora.
+/// frosted sign-in pane floating in a still light from above.
 ///
 /// `AuthGate` swaps to the app as soon as Firebase reports a user, so this
 /// screen never navigates on success.
@@ -315,7 +315,7 @@ class _SignInScreenState extends State<SignInScreen>
 }
 
 /// The tagline wraps the name: intent above, its outcome — in the brand
-/// gradient — below, with the lens breathing in a pool of iris light.
+/// gradient — below, with the lens breathing in a pool of plum light.
 class _Lockup extends StatefulWidget {
   const _Lockup();
 
@@ -362,7 +362,7 @@ class _LockupState extends State<_Lockup> with SingleTickerProviderStateMixin {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: AppDecorations.backlight(
-                        AppColors.irisGlow,
+                        AppColors.action,
                         intensity: AppColors.isDark ? 0.42 : 0.3,
                       ),
                     ),
@@ -388,7 +388,10 @@ class _LockupState extends State<_Lockup> with SingleTickerProviderStateMixin {
         ShaderMask(
           blendMode: BlendMode.srcIn,
           shaderCallback: (bounds) => LinearGradient(
-            colors: [AppColors.irisGlow, AppColors.emeraldGlow],
+            colors: [
+              AppColors.action,
+              AppColors.isDark ? AppColors.champagne : AppColors.actionLit,
+            ],
           ).createShader(bounds),
           child: Text(
             'Conscious Commerce.',
@@ -431,7 +434,7 @@ class _Promises extends StatelessWidget {
   }
 }
 
-/// Sign in / Sign up, with an iris pill that glides between the halves.
+/// Sign in / Sign up, with an plum pill that glides between the halves.
 class _ModeSwitch extends StatelessWidget {
   const _ModeSwitch({required this.creating, required this.onChanged});
 
@@ -454,7 +457,7 @@ class _ModeSwitch extends StatelessWidget {
             style: AppTypography.label.copyWith(
               fontWeight: FontWeight.w600,
               color: creating == value
-                  ? AppColors.onAccent
+                  ? AppColors.onAction
                   : AppColors.textSecondary,
             ),
             child: Text(label),
@@ -482,11 +485,11 @@ class _ModeSwitch extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [AppColors.irisGlow, AppColors.iris],
+                    colors: [AppColors.actionLit, AppColors.action],
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.iris.withValues(alpha: 0.35),
+                      color: AppColors.action.withValues(alpha: 0.35),
                       blurRadius: 16,
                       spreadRadius: -4,
                       offset: const Offset(0, 6),
@@ -503,7 +506,7 @@ class _ModeSwitch extends StatelessWidget {
   }
 }
 
-/// A vellum input that lights an iris edge and halo while focused, and
+/// A vellum input that lights an plum edge and halo while focused, and
 /// brightens its edge under a hovering pointer.
 class _GlassField extends StatefulWidget {
   const _GlassField({
@@ -550,7 +553,7 @@ class _GlassFieldState extends State<_GlassField> {
   @override
   Widget build(BuildContext context) {
     final focused = _focus.hasFocus;
-    final accent = focused ? AppColors.irisGlow : AppColors.textTertiary;
+    final accent = focused ? AppColors.action : AppColors.textTertiary;
 
     return MouseRegion(
       cursor: SystemMouseCursors.text,
@@ -565,14 +568,14 @@ class _GlassFieldState extends State<_GlassField> {
           borderRadius: AppRadii.mdAll,
           border: Border.all(
             color: focused
-                ? AppColors.irisGlow.withValues(alpha: 0.75)
+                ? AppColors.action.withValues(alpha: 0.75)
                 : _hover
                 ? AppColors.rimBright
                 : AppColors.hairline,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.iris.withValues(alpha: focused ? 0.28 : 0),
+              color: AppColors.action.withValues(alpha: focused ? 0.28 : 0),
               blurRadius: 20,
               spreadRadius: -4,
             ),
@@ -638,7 +641,7 @@ class _Message extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isError ? AppColors.rose : AppColors.emeraldGlow;
+    final color = isError ? AppColors.over : AppColors.good;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -709,7 +712,7 @@ class _GoogleMark extends StatelessWidget {
   }
 }
 
-/// An iris text action that underlines under a hovering pointer.
+/// An plum text action that underlines under a hovering pointer.
 class _Link extends StatelessWidget {
   const _Link({required this.label, required this.onTap});
 
@@ -729,11 +732,11 @@ class _Link extends StatelessWidget {
             child: Text(
               label,
               style: AppTypography.label.copyWith(
-                color: AppColors.irisGlow,
+                color: AppColors.action,
                 decoration: hovered
                     ? TextDecoration.underline
                     : TextDecoration.none,
-                decorationColor: AppColors.irisGlow,
+                decorationColor: AppColors.action,
               ),
             ),
           );

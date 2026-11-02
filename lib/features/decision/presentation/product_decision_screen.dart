@@ -261,7 +261,11 @@ class _TitleBlock extends ConsumerWidget {
                 excludeSemantics: true,
                 child: Row(
                   children: [
-                    Icon(Icons.star_rounded, size: 14, color: AppColors.amber),
+                    Icon(
+                      Icons.star_rounded,
+                      size: 14,
+                      color: AppColors.caution,
+                    ),
                     const SizedBox(width: 3),
                     Flexible(
                       child: Text(
@@ -296,9 +300,7 @@ class _TitleBlock extends ConsumerWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTypography.metricSmall.copyWith(
-                          color: pct > 0
-                              ? AppColors.emeraldGlow
-                              : AppColors.amber,
+                          color: pct > 0 ? AppColors.good : AppColors.caution,
                         ),
                       ),
                     ),
@@ -355,9 +357,7 @@ class _AlternativeRow extends ConsumerWidget {
                 Text(
                   '$otherFit fit · ${diff < 0 ? '${Fmt.inr(-diff)} less' : '${Fmt.inr(diff)} more'}',
                   style: AppTypography.metricSmall.copyWith(
-                    color: diff < 0
-                        ? AppColors.emeraldGlow
-                        : AppColors.textSecondary,
+                    color: diff < 0 ? AppColors.good : AppColors.textSecondary,
                   ),
                 ),
               ],
@@ -365,7 +365,7 @@ class _AlternativeRow extends ConsumerWidget {
           ),
           Text(
             'Compare',
-            style: AppTypography.label.copyWith(color: AppColors.irisGlow),
+            style: AppTypography.label.copyWith(color: AppColors.action),
           ),
         ],
       ),

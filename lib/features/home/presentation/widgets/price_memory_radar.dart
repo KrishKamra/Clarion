@@ -74,7 +74,7 @@ class _RadarRow extends StatelessWidget {
                         width: 6,
                         height: 6,
                         decoration: BoxDecoration(
-                          color: AppColors.emeraldGlow,
+                          color: AppColors.good,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -103,7 +103,7 @@ class _RadarRow extends StatelessWidget {
             const SizedBox(width: AppSpacing.sm),
             DynamicPill(
               label: '−${Fmt.percent(p.discountVsAverage * 100)}',
-              color: AppColors.emeraldGlow,
+              color: AppColors.good,
             ),
           ],
         ),

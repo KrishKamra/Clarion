@@ -21,11 +21,12 @@ abstract final class NotificationService {
   static final _plugin = FlutterLocalNotificationsPlugin();
   static bool _ready = false;
 
-  /// The app's accent meanings, carried into the shade: iris when it is
-  /// time to act, emerald for a good price, amber for a window closing.
-  static const _iris = Color(0xFF4F46E5);
-  static const _emerald = Color(0xFF10B981);
-  static const _amber = Color(0xFFF59E0B);
+  /// The app's accent meanings, carried into the shade: plum when it is
+  /// time to act, sea for a good price, ochre for a window closing. The
+  /// light-theme values, which read on both light and dark shades.
+  static const _plum = Color(0xFF6A3C82);
+  static const _sea = Color(0xFF1B6F86);
+  static const _ochre = Color(0xFF8C6A12);
 
   /// One channel per kind of reminder, so each can be silenced on its own.
   static const _coolingOffChannel = (
@@ -34,7 +35,7 @@ abstract final class NotificationService {
     description: 'When a 24h cooling-off hold ends.',
     group: 'clarion.cooling_off',
     label: 'Cooling-off',
-    color: _iris,
+    color: _plum,
     category: AndroidNotificationCategory.reminder,
   );
   static const _vaultChannel = (
@@ -43,7 +44,7 @@ abstract final class NotificationService {
     description: 'When a return window is about to close, or a warranty is about to expire.',
     group: 'clarion.vault',
     label: 'Receipts & warranty',
-    color: _amber,
+    color: _ochre,
     category: AndroidNotificationCategory.reminder,
   );
   static const _priceWatchChannel = (
@@ -52,7 +53,7 @@ abstract final class NotificationService {
     description: 'When a watched product reaches your target price.',
     group: 'clarion.price_watch',
     label: 'Price watch',
-    color: _emerald,
+    color: _sea,
     category: AndroidNotificationCategory.recommendation,
   );
 

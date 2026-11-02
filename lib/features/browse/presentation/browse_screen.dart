@@ -65,7 +65,7 @@ class BrowseScreen extends ConsumerWidget {
                         ? l10n.allCategories
                         : categoryLabel(l10n, c),
                     size: PillSize.regular,
-                    color: AppColors.irisGlow,
+                    color: AppColors.action,
                     selected: filters.category == c,
                     onTap: () =>
                         controller.set(filters.copyWith(category: () => c)),
@@ -87,7 +87,7 @@ class BrowseScreen extends ConsumerWidget {
                       : l10n.filtersActive(filters.activeCount),
                   icon: Icons.tune_rounded,
                   size: PillSize.regular,
-                  color: AppColors.irisGlow,
+                  color: AppColors.action,
                   selected: filters.activeCount > 0,
                   onTap: () => showBrowseFilterSheet(context),
                 ),
@@ -97,7 +97,7 @@ class BrowseScreen extends ConsumerWidget {
                     label: l10n.sortedBy(sortLabel(l10n, filters.sort)),
                     icon: Icons.swap_vert_rounded,
                     size: PillSize.regular,
-                    color: AppColors.irisGlow,
+                    color: AppColors.action,
                     onTap: () => showBrowseSortSheet(context),
                   ),
                 ),
@@ -183,7 +183,7 @@ class BrowseRow extends ConsumerWidget {
                     if (dip >= 1)
                       DynamicPill(
                         label: l10n.belowAverage(dip),
-                        color: AppColors.emeraldGlow,
+                        color: AppColors.good,
                       ),
                     StarRating(rating: p.rating, size: 12),
                   ],
@@ -223,7 +223,7 @@ class _NoResults extends StatelessWidget {
           DynamicPill(
             label: l10n.clearFilters,
             size: PillSize.regular,
-            color: AppColors.irisGlow,
+            color: AppColors.action,
             onTap: onClear,
           ),
         ],

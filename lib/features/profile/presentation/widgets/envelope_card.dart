@@ -115,7 +115,7 @@ class EnvelopeCard extends StatelessWidget {
                         child: Icon(
                           Icons.info_outline_rounded,
                           size: 15,
-                          color: AppColors.irisGlow,
+                          color: AppColors.action,
                         ),
                       ),
                     ),

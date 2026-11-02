@@ -71,7 +71,7 @@ flowchart TD
 
 ## 🎨 Design language
 
-*Obsidian Titanium & Botanical Emerald* — a matte `#07080B` canvas with film grain, two surface tiers lit by a directional specular rim, and four accents that each carry exactly one meaning. Type pairs **Schibsted Grotesk** (reading) with **Geist Mono** (prices, scores, labels), both bundled.
+*Inkwell* — an ink canvas and ink type, plum as the one colour for acting, champagne as the one metal on the lens and the rims of optical glass, and sea, ochre and brick for good, caution and over, chosen to stay apart under colour blindness. Type pairs **Newsreader** (titles and hero figures) with **Schibsted Grotesk** (reading) and **IBM Plex Mono** (prices, scores, labels), all bundled.
 
 > [!TIP]
 > The full token reference, material tiers and component catalogue are in [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md).
@@ -88,7 +88,7 @@ flowchart TD
 | Sharing & links | [`share_plus`](https://pub.dev/packages/share_plus) and [`app_links`](https://pub.dev/packages/app_links) (see `docs/DEEP_LINKS.md`) |
 | Localization | `flutter_localizations` + ARB files: English and हिन्दी |
 | Brand | SVG logo and banner in `assets/brand/`, rendered with [`flutter_svg`](https://pub.dev/packages/flutter_svg) |
-| Typography | Schibsted Grotesk + Geist Mono (OFL-1.1, bundled) |
+| Typography | Newsreader + Schibsted Grotesk + IBM Plex Mono, with Tiro Devanagari Hindi for Hindi titles (OFL-1.1, bundled) |
 
 ## 🗂️ Project structure
 

@@ -17,13 +17,13 @@ class OwnershipWarningCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TactileCard(
-      tint: AppColors.amber,
+      tint: AppColors.caution,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'ALREADY YOURS',
-            style: AppTypography.overline.copyWith(color: AppColors.amber),
+            style: AppTypography.overline.copyWith(color: AppColors.caution),
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(warning.message, style: AppTypography.title),

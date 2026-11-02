@@ -18,9 +18,9 @@ class ImpulseRiskCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final assessment = ref.watch(impulseAssessmentProvider(product.id));
     final tone = assessment.score >= 45
-        ? AppColors.rose
+        ? AppColors.over
         : assessment.hold.inHours < 24
-        ? AppColors.emeraldGlow
+        ? AppColors.good
         : AppColors.textSecondary;
     return TactileCard(
       child: Column(

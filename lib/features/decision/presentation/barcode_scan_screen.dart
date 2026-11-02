@@ -113,7 +113,7 @@ class _BarcodeScanScreenState extends ConsumerState<BarcodeScanScreen> {
               if (_miss != null)
                 Text(
                   'No product for $_miss.',
-                  style: AppTypography.body.copyWith(color: AppColors.amber),
+                  style: AppTypography.body.copyWith(color: AppColors.caution),
                 )
               else if (product != null)
                 _ScanResult(product: product),

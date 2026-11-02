@@ -54,7 +54,7 @@ class SectionHeader extends StatelessWidget {
               child: Text(
                 actionLabel!,
                 style: AppTypography.label.copyWith(
-                  color: AppColors.irisGlow,
+                  color: AppColors.action,
                   fontSize: 13,
                 ),
               ),

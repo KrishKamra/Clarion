@@ -6,7 +6,7 @@ import '../theme/app_spacing.dart';
 
 /// Product shot on a matte studio stage: a soft key light from above tinted
 /// by the product's tone, a contact shadow on the floor, and the glyph lit
-/// in titanium. Shows the product's photo from `assets/products/` when one
+/// in the primary ink. Shows the product's photo from `assets/products/` when one
 /// has been added (see [Product.imageAssets]) and the glyph otherwise, and
 /// doubles as the [Hero] anchor between list and detail.
 class ProductArtwork extends StatelessWidget {
@@ -50,8 +50,8 @@ class ProductArtwork extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: AppColors.isDark
-                    ? [const Color(0xFF16181F), AppColors.surface]
-                    : const [Color(0xFFF8F9FB), Color(0xFFECEEF2)],
+                    ? [const Color(0xFF181C2A), AppColors.surface]
+                    : const [Color(0xFFF8F9FC), Color(0xFFEBEDF3)],
               ),
               border: Border.all(color: AppColors.hairline),
             ),

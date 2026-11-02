@@ -14,7 +14,7 @@ class ClarionName extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       'Clarion',
-      style: AppTypography.display.copyWith(
+      style: AppTypography.logotype.copyWith(
         fontSize: fontSize,
         letterSpacing: -fontSize * 0.035,
         height: 1,
@@ -24,7 +24,7 @@ class ClarionName extends StatelessWidget {
 }
 
 /// Clarion mark (`assets/brand/clarion_logo.svg`): a glass lens with an
-/// iris-to-emerald rim and an iris focal point. Shown alone as a monogram,
+/// champagne-to-plum rim and a plum focal point. Shown alone as a monogram,
 /// or beside the name in the grotesque. Its colours are fixed, so it reads
 /// the same on light and dark.
 class ClarionWordmark extends StatelessWidget {

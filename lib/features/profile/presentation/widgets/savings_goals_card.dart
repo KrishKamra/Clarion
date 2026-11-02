@@ -149,7 +149,7 @@ class _SavingsFormState extends ConsumerState<_SavingsForm> {
                   category,
                   style: AppTypography.body.copyWith(
                     color: _category == category
-                        ? AppColors.irisGlow
+                        ? AppColors.action
                         : AppColors.textSecondary,
                   ),
                 ),

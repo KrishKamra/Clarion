@@ -78,7 +78,7 @@ class _DeleteAccountFormState extends ConsumerState<_DeleteAccountForm> {
             children: [
               Icon(
                 Icons.warning_amber_rounded,
-                color: AppColors.rose,
+                color: AppColors.over,
                 size: 24,
               ),
               const SizedBox(width: AppSpacing.md),
@@ -89,7 +89,7 @@ class _DeleteAccountFormState extends ConsumerState<_DeleteAccountForm> {
                     Text(
                       'This action is permanent and cannot be undone.',
                       style: AppTypography.label.copyWith(
-                        color: AppColors.rose,
+                        color: AppColors.over,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -110,7 +110,7 @@ class _DeleteAccountFormState extends ConsumerState<_DeleteAccountForm> {
           const SizedBox(height: AppSpacing.md),
           Text(
             _error!,
-            style: AppTypography.caption.copyWith(color: AppColors.rose),
+            style: AppTypography.caption.copyWith(color: AppColors.over),
           ),
         ],
         const SizedBox(height: AppSpacing.xl),

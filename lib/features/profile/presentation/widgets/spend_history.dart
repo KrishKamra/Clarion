@@ -15,8 +15,8 @@ import '../../application/regret_controller.dart';
 import 'regret_checkin_sheet.dart';
 
 /// Six months of settled spend as slim columns against the ceiling rule.
-/// Months that broke the ceiling are marked in rose; the current month is
-/// the only one set in titanium.
+/// Months that broke the ceiling are marked in brick; the current month is
+/// the only one set in the primary ink.
 class SixMonthTrend extends StatelessWidget {
   const SixMonthTrend({super.key, required this.history, required this.limit});
 
@@ -116,7 +116,7 @@ class _Column extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = over
-        ? AppColors.rose
+        ? AppColors.over
         : current
         ? AppColors.textPrimary
         : AppColors.textTertiary;
@@ -229,10 +229,10 @@ class _CategoryRow extends StatelessWidget {
                   label: '${checkin!.rating.emoji} ${checkin!.rating.label}',
                   size: PillSize.compact,
                   color: checkin!.isWorthIt
-                      ? AppColors.emeraldGlow
+                      ? AppColors.good
                       : checkin!.isRegretted
-                      ? AppColors.rose
-                      : AppColors.irisGlow,
+                      ? AppColors.over
+                      : AppColors.action,
                   selected: true,
                   onTap: () => showRegretCheckinSheet(
                     context,
@@ -245,7 +245,7 @@ class _CategoryRow extends StatelessWidget {
                   label: 'Check in',
                   icon: Icons.rate_review_outlined,
                   size: PillSize.compact,
-                  color: AppColors.irisGlow,
+                  color: AppColors.action,
                   onTap: () => showRegretCheckinSheet(
                     context,
                     productTitle: category.label,
@@ -274,7 +274,7 @@ class _CategoryRow extends StatelessWidget {
               minHeight: 2,
               backgroundColor: AppColors.hairline,
               color: checkin?.isRegretted ?? false
-                  ? AppColors.rose
+                  ? AppColors.over
                   : AppColors.textSecondary,
             ),
           ),

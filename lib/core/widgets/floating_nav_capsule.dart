@@ -29,7 +29,7 @@ class NavDestination {
   /// Count bubble; hidden at zero.
   final int badge;
 
-  /// Defaults to iris.
+  /// Defaults to plum.
   final Color? badgeColor;
 
   /// Unobtrusive status dot (e.g. a cooling-off item awaiting a decision);
@@ -41,7 +41,7 @@ class NavDestination {
 ///
 /// Frosted glass — affordable here because the capsule is fixed chrome.
 /// The active pill is magnetic: in flight it stretches toward its target
-/// and settles back to size on arrival, with a soft iris halo beneath.
+/// and settles back to size on arrival, with a soft plum halo beneath.
 class FloatingNavCapsule extends StatelessWidget {
   const FloatingNavCapsule({
     super.key,
@@ -135,12 +135,9 @@ class _MagneticPill extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: AppRadii.pillAll,
-          gradient: AppDecorations.backlight(
-            AppColors.irisGlow,
-            intensity: 0.3,
-          ),
+          gradient: AppDecorations.backlight(AppColors.action, intensity: 0.3),
           border: Border.all(
-            color: AppColors.irisGlow.withValues(alpha: 0.35),
+            color: AppColors.action.withValues(alpha: 0.35),
             width: 0.75,
           ),
         ),
@@ -190,7 +187,7 @@ class _NavButton extends StatelessWidget {
                     top: -6,
                     child: _Badge(
                       count: destination.badge,
-                      color: destination.badgeColor ?? AppColors.iris,
+                      color: destination.badgeColor ?? AppColors.action,
                     ),
                   )
                 else if (destination.dot != null)
@@ -253,7 +250,7 @@ class _Badge extends StatelessWidget {
         style: AppTypography.metricSmall.copyWith(
           fontSize: 10,
           fontWeight: FontWeight.w600,
-          color: AppColors.onAccent,
+          color: AppColors.onAction,
           height: 1,
         ),
       ),

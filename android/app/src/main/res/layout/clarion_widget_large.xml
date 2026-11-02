@@ -71,7 +71,7 @@
                 android:id="@+id/widget_at_target"
                 style="@style/ClarionWidget.Caption"
                 android:text="2 at target"
-                android:textColor="@color/widget_emerald" />
+                android:textColor="@color/widget_good" />
         </LinearLayout>
 
         <LinearLayout style="@style/ClarionWidget.Tile">

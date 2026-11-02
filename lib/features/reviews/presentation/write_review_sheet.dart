@@ -111,7 +111,7 @@ class _WriteReviewState extends ConsumerState<_WriteReview> {
                 padding: const EdgeInsets.all(AppSpacing.md),
                 child: Text(
                   l10n.deleteReview,
-                  style: AppTypography.label.copyWith(color: AppColors.rose),
+                  style: AppTypography.label.copyWith(color: AppColors.over),
                 ),
               ),
             ),

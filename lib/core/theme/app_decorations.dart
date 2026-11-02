@@ -26,7 +26,7 @@ abstract final class AppDecorations {
 
   /// Fill beneath frosted chrome so text stays legible over any content.
   static Color get frostFill => AppColors.isDark
-      ? const Color(0xB80E1017) // surface @ 72 %
+      ? const Color(0xB811141F) // surface @ 72 %
       : const Color(0xD9FFFFFF); // surface @ 85 %
 
   /// Directional specular rim: light falls from the top-left, so the edge
@@ -36,7 +36,22 @@ abstract final class AppDecorations {
     end: Alignment.bottomRight,
     colors: AppColors.isDark
         ? const [Color(0x26FFFFFF), Color(0x05FFFFFF)] // 15 % → 2 %
-        : const [Color(0x140F172A), Color(0x1F0F172A)], // 8 % → 12 % ink
+        : const [Color(0x14151B33), Color(0x1F151B33)], // 8 % → 12 % ink
+  );
+
+  /// The lens coating along the edge of glass: plum where light enters at
+  /// the top-left, a champagne glint, clear glass, and a trace of plum
+  /// again at the far corner. Only frosted chrome wears it.
+  static LinearGradient get coatingRim => LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      AppColors.action.withValues(alpha: AppColors.isDark ? 0.55 : 0.45),
+      AppColors.champagne.withValues(alpha: AppColors.isDark ? 0.40 : 0.55),
+      AppColors.champagne.withValues(alpha: 0),
+      AppColors.action.withValues(alpha: AppColors.isDark ? 0.22 : 0.18),
+    ],
+    stops: const [0, 0.28, 0.55, 1],
   );
 
   /// Softer rim for vellum and flush surfaces.
@@ -45,7 +60,7 @@ abstract final class AppDecorations {
     end: Alignment.bottomRight,
     colors: AppColors.isDark
         ? const [Color(0x17FFFFFF), Color(0x03FFFFFF)] // 9 % → 1 %
-        : const [Color(0x0F0F172A), Color(0x170F172A)], // 6 % → 9 % ink
+        : const [Color(0x0F151B33), Color(0x17151B33)], // 6 % → 9 % ink
   );
 
   /// Tier 1: surface lifted by a 3 % ambient wash at the top.
@@ -53,7 +68,7 @@ abstract final class AppDecorations {
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     colors: [
-      AppColors.isDark ? const Color(0xFF15171E) : AppColors.surface,
+      AppColors.isDark ? const Color(0xFF161A27) : AppColors.surface,
       AppColors.surface,
     ],
     stops: const [0, 0.65],
@@ -64,7 +79,7 @@ abstract final class AppDecorations {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      AppColors.isDark ? const Color(0xFF202330) : AppColors.surfaceHigh,
+      AppColors.isDark ? const Color(0xFF212639) : AppColors.surfaceHigh,
       AppColors.surfaceHigh,
     ],
     stops: const [0, 0.55],
@@ -75,7 +90,7 @@ abstract final class AppDecorations {
       ? null
       : const [
           BoxShadow(
-            color: Color(0x0F0F172A),
+            color: Color(0x0F151B33),
             blurRadius: 12,
             offset: Offset(0, 3),
             spreadRadius: -4,
@@ -142,7 +157,7 @@ abstract final class AppDecorations {
     BoxShadow(
       color: AppColors.isDark
           ? const Color(0x99000000)
-          : const Color(0x290F172A),
+          : const Color(0x29151B33),
       blurRadius: 32,
       offset: const Offset(0, 14),
       spreadRadius: -10,

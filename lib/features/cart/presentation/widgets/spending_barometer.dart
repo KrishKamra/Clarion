@@ -30,7 +30,7 @@ class _Segment {
 }
 
 /// The Spending Barometer: committed spend as one multi-segment bar laid
-/// over three zones — Safe (emerald) → Caution (amber) → Over (rose).
+/// over three zones — Safe (sea) → Caution (ochre) → Over (brick).
 ///
 /// Settled spend and every cart item are separate segments, each coloured
 /// by the zone it pushes the month into. Touch or drag along the bar to
@@ -266,9 +266,9 @@ class _BarometerPainter extends CustomPainter {
 
     // Zone field: safe → caution → over, as quiet tints.
     final zones = [
-      (0.0, limit * _cautionAt, AppColors.emeraldGlow),
-      (limit * _cautionAt, limit, AppColors.amber),
-      (limit, scale, AppColors.rose),
+      (0.0, limit * _cautionAt, AppColors.good),
+      (limit * _cautionAt, limit, AppColors.caution),
+      (limit, scale, AppColors.over),
     ];
     for (final (from, to, color) in zones) {
       canvas.drawRect(
@@ -308,7 +308,7 @@ class _BarometerPainter extends CustomPainter {
         ..strokeWidth = 1.5,
     );
     const labelY = _barTop + _barH + 8;
-    _label(canvas, 'SAFE', const Offset(0, labelY), AppColors.emeraldGlow);
+    _label(canvas, 'SAFE', const Offset(0, labelY), AppColors.good);
     _label(
       canvas,
       'LIMIT',

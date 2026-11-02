@@ -47,14 +47,14 @@ class RegretBarometerCard extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color:
                       (stats.mindfulScore >= 75
-                              ? AppColors.emeraldGlow
-                              : AppColors.rose)
+                              ? AppColors.good
+                              : AppColors.over)
                           .withValues(alpha: 0.15),
                   borderRadius: AppRadii.pillAll,
                   border: Border.all(
                     color: stats.mindfulScore >= 75
-                        ? AppColors.emeraldGlow
-                        : AppColors.rose,
+                        ? AppColors.good
+                        : AppColors.over,
                     width: 1,
                   ),
                 ),
@@ -62,8 +62,8 @@ class RegretBarometerCard extends ConsumerWidget {
                   '${stats.mindfulScore}% Mindful',
                   style: AppTypography.label.copyWith(
                     color: stats.mindfulScore >= 75
-                        ? AppColors.emeraldGlow
-                        : AppColors.rose,
+                        ? AppColors.good
+                        : AppColors.over,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -97,17 +97,17 @@ class RegretBarometerCard extends ConsumerWidget {
                   if (worthRatio > 0)
                     Expanded(
                       flex: (worthRatio * 100).round(),
-                      child: Container(color: AppColors.emeraldGlow),
+                      child: Container(color: AppColors.good),
                     ),
                   if (neutralRatio > 0)
                     Expanded(
                       flex: (neutralRatio * 100).round(),
-                      child: Container(color: AppColors.irisGlow),
+                      child: Container(color: AppColors.action),
                     ),
                   if (regretRatio > 0)
                     Expanded(
                       flex: (regretRatio * 100).round(),
-                      child: Container(color: AppColors.rose),
+                      child: Container(color: AppColors.over),
                     ),
                 ],
               ),
@@ -124,7 +124,7 @@ class RegretBarometerCard extends ConsumerWidget {
                       Fmt.inr(stats.regrettedAmount),
                       style: AppTypography.metricLarge.copyWith(
                         color: stats.regrettedAmount > 0
-                            ? AppColors.rose
+                            ? AppColors.over
                             : AppColors.textPrimary,
                       ),
                     ),
@@ -142,7 +142,7 @@ class RegretBarometerCard extends ConsumerWidget {
                     Text(
                       Fmt.inr(budget.savedViaCooldown),
                       style: AppTypography.metricLarge.copyWith(
-                        color: AppColors.emeraldGlow,
+                        color: AppColors.good,
                       ),
                     ),
                     const SizedBox(height: 2),

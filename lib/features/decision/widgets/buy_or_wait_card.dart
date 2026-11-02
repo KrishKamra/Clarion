@@ -27,8 +27,8 @@ class BuyOrWaitCard extends ConsumerWidget {
     final watching = watchlist.containsKey(product.id);
 
     final statusColor = verdict.shouldBuyNow
-        ? AppColors.emeraldGlow
-        : AppColors.amber;
+        ? AppColors.good
+        : AppColors.caution;
 
     final targetPrice = product.price - verdict.estimatedSavings;
 

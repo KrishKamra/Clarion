@@ -69,11 +69,7 @@ class _PickupPlate extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.storefront_outlined,
-            size: 15,
-            color: AppColors.emeraldGlow,
-          ),
+          Icon(Icons.storefront_outlined, size: 15, color: AppColors.good),
           const SizedBox(width: AppSpacing.sm),
           Column(
             mainAxisSize: MainAxisSize.min,

@@ -189,7 +189,7 @@ class _Candidate extends ConsumerWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTypography.overline.copyWith(
-                    color: leads ? AppColors.emeraldGlow : null,
+                    color: leads ? AppColors.good : null,
                   ),
                 ),
                 const SizedBox(height: 2),

@@ -55,9 +55,9 @@ class _LedgerRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = switch (item.verdict) {
-      'Weak' || 'Concern' => AppColors.amber,
+      'Weak' || 'Concern' => AppColors.caution,
       'Neutral' => AppColors.textSecondary,
-      _ => item.isPositive ? AppColors.emeraldGlow : AppColors.amber,
+      _ => item.isPositive ? AppColors.good : AppColors.caution,
     };
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),

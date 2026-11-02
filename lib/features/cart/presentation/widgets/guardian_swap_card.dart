@@ -30,14 +30,14 @@ class GuardianSwapCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TactileCard(
-      tint: AppColors.rose,
+      tint: AppColors.over,
       padding: const EdgeInsets.all(AppSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
             'GUARDIAN SWAP ENGINE',
-            style: AppTypography.overline.copyWith(color: AppColors.rose),
+            style: AppTypography.overline.copyWith(color: AppColors.over),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
@@ -126,14 +126,14 @@ class _Suggestion extends StatelessWidget {
         const SizedBox(height: AppSpacing.md),
         Row(
           children: [
-            _Figure('Saves', Fmt.inr(s.savings), AppColors.emeraldGlow),
+            _Figure('Saves', Fmt.inr(s.savings), AppColors.good),
             _Figure('Spec parity', '${s.parity}%', AppColors.textPrimary),
             _Figure(
               'After swap',
               remainingOver <= 0
                   ? '${Fmt.inr(-remainingOver)} left'
                   : '${Fmt.inr(remainingOver)} over',
-              remainingOver <= 0 ? AppColors.emeraldGlow : AppColors.amber,
+              remainingOver <= 0 ? AppColors.good : AppColors.caution,
             ),
           ],
         ),

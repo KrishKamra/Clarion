@@ -7,13 +7,13 @@ import '../theme/app_typography.dart';
 import 'pressable.dart';
 
 enum ButtonTone {
-  /// Iris gradient. One per view: the action the screen exists for.
+  /// Plum gradient. One per view: the action the screen exists for.
   primary,
 
   /// Vellum with a rim light. Secondary and "slow down" actions.
   secondary,
 
-  /// Emerald gradient. Confirms a value-positive action (a swap that saves).
+  /// Sea gradient. Confirms a value-positive action (a swap that saves).
   positive,
 }
 
@@ -53,11 +53,11 @@ class ClarionButton extends StatelessWidget {
     // every other surface, so the button reads as pressed metal, not paint.
     final (fill, ink) = switch (tone) {
       ButtonTone.primary => (
-        [AppColors.irisGlow, AppColors.iris],
-        AppColors.onAccent,
+        [AppColors.actionLit, AppColors.action],
+        AppColors.onAction,
       ),
       ButtonTone.positive => (
-        [AppColors.emeraldGlow, AppColors.emerald],
+        [AppColors.goodLit, AppColors.good],
         AppColors.canvas,
       ),
       ButtonTone.secondary => (
@@ -98,7 +98,7 @@ class ClarionButton extends StatelessWidget {
           // Solid tones keep a faint glow of their own colour that blooms on
           // hover; secondary only glows while hovered.
           child: PressGlow(
-            color: tone == ButtonTone.secondary ? AppColors.iris : fill.last,
+            color: tone == ButtonTone.secondary ? AppColors.action : fill.last,
             borderRadius: radius,
             rest: _enabled && tone != ButtonTone.secondary ? 0.28 : 0,
             child: CustomPaint(

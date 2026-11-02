@@ -238,7 +238,7 @@ class _ClarionSplashState extends State<ClarionSplash>
           child: DecoratedBox(
             decoration: BoxDecoration(
               gradient: AppDecorations.backlight(
-                AppColors.iris,
+                AppColors.action,
                 intensity: 0.22 * phase(0.2, 0.7),
               ),
             ),
@@ -351,7 +351,7 @@ class _Name extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const size = 36.0;
-    final style = AppTypography.display.copyWith(
+    final style = AppTypography.logotype.copyWith(
       fontSize: size,
       height: 1,
       letterSpacing: ui.lerpDouble(size * 0.28, -size * 0.035, progress),
@@ -369,7 +369,7 @@ class _Name extends StatelessWidget {
         shaderCallback: (bounds) => LinearGradient(
           colors: [
             Colors.transparent,
-            AppColors.irisGlow.withValues(alpha: 0.9 * (1 - progress)),
+            AppColors.action.withValues(alpha: 0.9 * (1 - progress)),
             Colors.transparent,
           ],
           stops: [
@@ -389,7 +389,7 @@ class _Name extends StatelessWidget {
   }
 }
 
-/// A hairline that fills iris to emerald with the real boot progress, with
+/// A hairline that fills plum to champagne with the real boot progress, with
 /// a mote of light running along it while there is still work to wait on,
 /// and the current step beneath in the instrument-panel mono.
 class _Filament extends StatelessWidget {
@@ -447,8 +447,8 @@ class _FilamentPainter extends CustomPainter {
       RRect.fromRectAndRadius(filled, radius),
       Paint()
         ..shader = ui.Gradient.linear(Offset.zero, Offset(size.width, 0), [
-          AppColors.irisGlow,
-          AppColors.emeraldGlow,
+          AppColors.action,
+          AppColors.champagne,
         ]),
     );
 
@@ -517,9 +517,9 @@ class _FocusPainter extends CustomPainter {
           ..strokeWidth = 1
           ..shader = SweepGradient(
             colors: [
-              AppColors.irisGlow.withValues(alpha: alpha),
-              AppColors.emeraldGlow.withValues(alpha: alpha),
-              AppColors.irisGlow.withValues(alpha: alpha),
+              AppColors.action.withValues(alpha: alpha),
+              AppColors.champagne.withValues(alpha: alpha),
+              AppColors.action.withValues(alpha: alpha),
             ],
             transform: GradientRotation(i * 1.3),
           ).createShader(Rect.fromCircle(center: centre, radius: r)),
@@ -579,7 +579,7 @@ class _ApertureClipper extends CustomClipper<Path> {
       old.centre != centre || old.radius != radius;
 }
 
-/// The lens's iris-to-emerald ring, carried out as the edge of the aperture.
+/// The lens's champagne-to-plum ring, carried out as the edge of the aperture.
 class _ApertureRimPainter extends CustomPainter {
   _ApertureRimPainter({
     required this.centre,

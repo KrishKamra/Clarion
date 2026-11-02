@@ -13,7 +13,7 @@ import 'tour_target.dart';
 /// goal, followed by curated contextual intent pills.
 ///
 /// Deliberately not a search bar — no magnifier, no border box. The prompt
-/// is set in display type, and focus is shown by an iris filament drawing
+/// is set in display type, and focus is shown by an plum filament drawing
 /// itself along the base of the field.
 class IntentField extends StatefulWidget {
   const IntentField({
@@ -177,9 +177,9 @@ class _IntentFieldState extends State<IntentField> {
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                AppColors.irisGlow.withValues(alpha: 0),
-                                AppColors.irisGlow,
-                                AppColors.irisGlow.withValues(alpha: 0),
+                                AppColors.action.withValues(alpha: 0),
+                                AppColors.action,
+                                AppColors.action.withValues(alpha: 0),
                               ],
                             ),
                           ),
@@ -227,7 +227,7 @@ class _IntentFieldState extends State<IntentField> {
                             DynamicPill(
                               label: capsule,
                               size: PillSize.regular,
-                              color: AppColors.irisGlow,
+                              color: AppColors.action,
                               selected: widget.activeIntent == capsule,
                               onTap: () => _toggleCapsule(capsule),
                             ),
@@ -360,12 +360,12 @@ class _SubmitButton extends StatelessWidget {
         height: 40,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: enabled ? AppColors.iris : AppColors.hairline,
+          color: enabled ? AppColors.action : AppColors.hairline,
         ),
         child: Icon(
           Icons.arrow_forward_rounded,
           size: 18,
-          color: enabled ? AppColors.onAccent : AppColors.textTertiary,
+          color: enabled ? AppColors.onAction : AppColors.textTertiary,
         ),
       ),
     );

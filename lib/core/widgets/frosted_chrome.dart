@@ -40,7 +40,12 @@ class FrostedChrome extends StatelessWidget {
         filter: AppDecorations.frost(sigma),
         child: CustomPaint(
           foregroundPainter: rim
-              ? RimLightPainter(borderRadius: borderRadius)
+              ? RimLightPainter(
+                  borderRadius: borderRadius,
+                  gradient: borderRadius == BorderRadius.zero
+                      ? null
+                      : AppDecorations.coatingRim,
+                )
               : null,
           child: ColoredBox(
             color: fill ?? AppDecorations.frostFill,

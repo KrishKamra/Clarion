@@ -29,7 +29,7 @@ The first run found these issues. All are fixed.
 | At 200 % text: the tab headers, compare header, cooling-off button, price rows and Horizon header overflowed. | Fixed-height chrome grows with the text size (`AppSpacing.textGrowth`); price rows wrap; the wordmark yields room. |
 | "4.6★" was read as "4.6 black star". | Ratings are announced as "Rated 4.6 out of 5". |
 
-**Known false positive:** the decision drawer's "Leaves ₹801 safe buffer…" uses two text colours on a frosted pane. The test capture leaves out the blurred backdrop, so the contrast check compares the white and emerald text with each other. Against the drawer's real fill, both exceed 7:1. The audit skips this one node and says why.
+**Known false positive:** the decision drawer's "Leaves ₹801 safe buffer…" uses two text colours on a frosted pane. The test capture leaves out the blurred backdrop, so the contrast check compares the ink and sea text with each other. Against the drawer's real fill, both clear AA: sea is 9.2:1 in dark and 5.7:1 in light, ink 15.8:1 and 17:1. The audit skips this one node and says why.
 
 ## Built in already
 

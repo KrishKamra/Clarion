@@ -8,7 +8,7 @@ import '../../../core/widgets/tactile_card.dart';
 import '../application/compare_controller.dart';
 
 /// Differences-only matrix: one ruled row per differing criterion, the
-/// winning value lit in emerald, starred priorities marked in amber.
+/// winning value lit in sea, starred priorities marked in ochre.
 class CompareMatrix extends StatelessWidget {
   const CompareMatrix({
     super.key,
@@ -63,7 +63,7 @@ class _MatrixRow extends StatelessWidget {
               maxLines: 2,
               style: AppTypography.overline.copyWith(
                 fontSize: 10.5,
-                color: starred ? AppColors.amber : AppColors.textTertiary,
+                color: starred ? AppColors.caution : AppColors.textTertiary,
               ),
             ),
           ),
@@ -101,7 +101,7 @@ class _Value extends StatelessWidget {
       style: AppTypography.metric.copyWith(
         fontSize: 14,
         color: wins
-            ? AppColors.emeraldGlow
+            ? AppColors.good
             : neutral
             ? AppColors.textSecondary
             : AppColors.textPrimary,

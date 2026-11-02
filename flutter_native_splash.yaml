@@ -3,12 +3,12 @@
 # Colours are the app's two canvases, so the splash hands off seamlessly to
 # the first frame in either system theme.
 flutter_native_splash:
-  color: "#F3F4F6"
-  color_dark: "#07080B"
+  color: "#EEF0F5"
+  color_dark: "#0A0C14"
   image: assets/brand/icon/splash_logo.png
   android_12:
     image: assets/brand/icon/splash_logo_android12.png
-    color: "#F3F4F6"
-    color_dark: "#07080B"
+    color: "#EEF0F5"
+    color_dark: "#0A0C14"
   ios: false
   web: false

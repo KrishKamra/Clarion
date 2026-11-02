@@ -109,7 +109,7 @@ class _HoldButtonState extends State<HoldButton>
                           widthFactor: t,
                           heightFactor: 1,
                           child: ColoredBox(
-                            color: (widget.color ?? AppColors.rose).withValues(
+                            color: (widget.color ?? AppColors.over).withValues(
                               alpha: 0.2,
                             ),
                           ),
@@ -122,7 +122,7 @@ class _HoldButtonState extends State<HoldButton>
                                 : widget.hint,
                             progress: t,
                             color: holding
-                                ? (widget.color ?? AppColors.rose)
+                                ? (widget.color ?? AppColors.over)
                                 : AppColors.textPrimary,
                           ),
                         ),

@@ -15,7 +15,7 @@ import '../home/application/intent_controller.dart';
 import '../navigation/navigation_controller.dart';
 
 /// Accent for a step's icon (resolved at build so it follows light/dark).
-enum TourAccent { iris, emerald, amber }
+enum TourAccent { action, good, caution }
 
 /// Whether a step just explains something, or asks the user to tap it.
 enum TourAction { info, tap }
@@ -89,7 +89,7 @@ const List<TourStep> tourSteps = [
         'You will tap a few things yourself so you can see what each one '
         'does. It takes about a minute, and we will tidy up after.',
     icon: Icons.auto_awesome_rounded,
-    accent: TourAccent.iris,
+    accent: TourAccent.action,
     cta: 'Begin tour',
     popToRoot: true,
   ),
@@ -101,7 +101,7 @@ const List<TourStep> tourSteps = [
         'can carry a price limit, like the ₹2.5k here, and everything below '
         'is re-ranked around it.',
     icon: Icons.blur_on_rounded,
-    accent: TourAccent.iris,
+    accent: TourAccent.action,
     target: TourTarget.suggestion,
     action: TourAction.tap,
     instruction: 'Tap the highlighted goal',
@@ -114,7 +114,7 @@ const List<TourStep> tourSteps = [
         'Each pick has a Fit score out of 100 that blends your goal, your '
         'budget and the product itself. The best match comes first.',
     icon: Icons.stacked_bar_chart_rounded,
-    accent: TourAccent.iris,
+    accent: TourAccent.action,
     target: TourTarget.firstProduct,
     action: TourAction.tap,
     instruction: 'Tap the top product to open it',
@@ -129,7 +129,7 @@ const List<TourStep> tourSteps = [
         'removes points and they sum exactly to the score, so nothing is a '
         'black box.',
     icon: Icons.fact_check_outlined,
-    accent: TourAccent.iris,
+    accent: TourAccent.action,
     target: TourTarget.ledger,
     maxHole: 170,
     scrollAlignment: 0.12,
@@ -142,7 +142,7 @@ const List<TourStep> tourSteps = [
         'urge passes, you let it go and the money counts as saved. You can '
         'try it later.',
     icon: Icons.hourglass_bottom_rounded,
-    accent: TourAccent.amber,
+    accent: TourAccent.caution,
     target: TourTarget.coolOff,
   ),
   TourStep(
@@ -152,7 +152,7 @@ const List<TourStep> tourSteps = [
         'This puts it in your Intent Cart, checked against your monthly '
         'ceiling. We will remove it again when the tour ends.',
     icon: Icons.add_shopping_cart_rounded,
-    accent: TourAccent.iris,
+    accent: TourAccent.action,
     target: TourTarget.addToCart,
     action: TourAction.tap,
     instruction: 'Tap Add to Intent Cart',
@@ -165,7 +165,7 @@ const List<TourStep> tourSteps = [
         'Your cart sits against your ceiling here, on a bar that moves from '
         'Safe to Caution to Over. Go over and it suggests cheaper swaps.',
     icon: Icons.shield_rounded,
-    accent: TourAccent.emerald,
+    accent: TourAccent.good,
     tab: AppTab.cart,
     action: TourAction.tap,
     instruction: 'Tap Guardian',
@@ -179,7 +179,7 @@ const List<TourStep> tourSteps = [
         'Put two products head to head. Identical specs are hidden, each '
         'row names a winner, and starring a priority makes it count double.',
     icon: Icons.compare_arrows_rounded,
-    accent: TourAccent.iris,
+    accent: TourAccent.action,
     tab: AppTab.compare,
     action: TourAction.tap,
     instruction: 'Tap Compare',
@@ -193,7 +193,7 @@ const List<TourStep> tourSteps = [
         'where the money went. You can change your ceiling, switch light or '
         'dark, and replay this tour here.',
     icon: Icons.donut_large_rounded,
-    accent: TourAccent.iris,
+    accent: TourAccent.action,
     tab: AppTab.profile,
     action: TourAction.tap,
     instruction: 'Tap Profile',
@@ -207,7 +207,7 @@ const List<TourStep> tourSteps = [
         'watch your ceiling. We will clear the sample item from your cart '
         'now.',
     icon: Icons.check_rounded,
-    accent: TourAccent.emerald,
+    accent: TourAccent.good,
     cta: 'Start exploring',
   ),
 ];
@@ -388,7 +388,7 @@ class _TourLayerState extends ConsumerState<_TourLayer>
         final screen = Offset.zero & Size(w, h);
         final dim = AppColors.isDark
             ? const Color(0xC7000000)
-            : const Color(0x990F172A);
+            : const Color(0x99151B33);
 
         // ── What to spotlight ─────────────────────────────────────────────
         Rect? spot;
@@ -626,12 +626,12 @@ class _GlowRing extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: pill ? AppRadii.pillAll : AppRadii.lgAll,
         border: Border.all(
-          color: AppColors.irisGlow.withValues(alpha: 0.65 + 0.35 * pulse),
+          color: AppColors.action.withValues(alpha: 0.65 + 0.35 * pulse),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.irisGlow.withValues(alpha: 0.25 + 0.3 * pulse),
+            color: AppColors.action.withValues(alpha: 0.25 + 0.3 * pulse),
             blurRadius: 14 + 8 * pulse,
           ),
         ],
@@ -658,9 +658,9 @@ class _TourCard extends StatelessWidget {
   final VoidCallback onSkip;
 
   Color get _accent => switch (step.accent) {
-    TourAccent.iris => AppColors.irisGlow,
-    TourAccent.emerald => AppColors.emeraldGlow,
-    TourAccent.amber => AppColors.amber,
+    TourAccent.action => AppColors.action,
+    TourAccent.good => AppColors.good,
+    TourAccent.caution => AppColors.caution,
   };
 
   @override

@@ -4,6 +4,14 @@ All notable changes to Clarion are documented here. Format based on [Keep a Chan
 
 ## [Unreleased]
 
+### Changed — Inkwell: a palette and type of Clarion's own
+- **Palette.** The old accents were Tailwind's stock indigo-600, emerald-500, amber-500 and rose-500, the house style of AI-built interfaces. Inkwell replaces them with three ingredients: ink for the canvas and the type, plum (the magenta of a real lens coating) as the one colour for acting, and champagne as the one metal. Every colour now sits clear of the stock shades (10.4 ΔE median, from 0.0).
+- **Meanings that survive colour blindness.** Good, caution and over were nearly indistinguishable for people with red-green colour blindness (separation 4.7). They are now sea, ochre and brick, chosen together to stay apart under protanopia, deuteranopia and tritanopia (9.6). Every text pair still clears WCAG AA in both themes.
+- **Light on edges, not fog.** The drifting aurora on sign-in becomes one still light from above. Rounded glass (the tab bar, sheets, the sign-in pane, the decision drawer) wears the lens coating on its rim: plum, a champagne glint, clear glass. Buttons in dark mode are light plum with ink labels.
+- **Type.** Newsreader, an editorial serif with optical sizes, sets titles, the goal prompt and hero figures, with Tiro Devanagari Hindi for Hindi titles. Schibsted Grotesk stays for reading and the Clarion logotype. IBM Plex Mono replaces Geist Mono for figures and labels. All three carry ₹.
+- **Mark and icons.** The lens ring now runs champagne into plum with a matte plum focal point; launcher, adaptive, themed and splash icons, the home-screen widget, notification accents and both README banners follow.
+- **Colour tokens are named by role** (`action`, `good`, `caution`, `over`, `champagne`), not by hue, so a future palette change can't leave a name that lies.
+
 ### Changed — lighter, quieter, more native
 - **README banner**: the background no longer drifts (moving the aurora exposed its edges, so the card looked like it was shrinking). One motion remains, the same as the app's splash: focus rings lock onto the lens and a single glint runs round the ring.
 - **Horizon**: the header is just the name and the budget (Profile already has a tab). The goal prompt reads "What’s the goal?" on one line. Scan and the suggestions share a single row that scrolls to the screen edges instead of wrapping over three. Radar rows show the full price and average instead of cutting off inside a number.

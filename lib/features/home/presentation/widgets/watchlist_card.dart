@@ -46,8 +46,8 @@ class _WatchRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final verdict = watchVerdict(price: product.price, target: target);
     final (label, color) = switch (verdict) {
-      WatchVerdict.targetHit => ('Target hit', AppColors.emeraldGlow),
-      WatchVerdict.close => ('Close', AppColors.amber),
+      WatchVerdict.targetHit => ('Target hit', AppColors.good),
+      WatchVerdict.close => ('Close', AppColors.caution),
       WatchVerdict.waiting => ('Waiting', AppColors.textSecondary),
       WatchVerdict.noTarget => ('No target', AppColors.textSecondary),
     };

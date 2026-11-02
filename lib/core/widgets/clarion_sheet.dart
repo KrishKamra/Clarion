@@ -18,8 +18,8 @@ Future<T?> showClarionSheet<T>({
     useSafeArea: true,
     backgroundColor: Colors.transparent,
     barrierColor: AppColors.isDark
-        ? const Color(0x9907080B)
-        : const Color(0x4D0F172A),
+        ? const Color(0x990A0C14)
+        : const Color(0x4D151B33),
     builder: (context) =>
         ClarionSheet(eyebrow: eyebrow, title: title, child: builder(context)),
   );

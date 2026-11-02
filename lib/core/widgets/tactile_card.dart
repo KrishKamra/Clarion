@@ -61,7 +61,7 @@ class TactileCard extends StatelessWidget {
       ),
     };
 
-    final accent = tint ?? AppColors.irisGlow;
+    final accent = tint ?? AppColors.action;
     Widget card = Builder(
       // Under a hovering pointer the rim catches the accent, so the card
       // reads as lit from within rather than merely highlighted.
@@ -93,7 +93,7 @@ class TactileCard extends StatelessWidget {
         onTap: onTap,
         semanticLabel: semanticLabel,
         child: PressGlow(
-          color: tint ?? AppColors.iris,
+          color: tint ?? AppColors.action,
           borderRadius: borderRadius,
           child: card,
         ),

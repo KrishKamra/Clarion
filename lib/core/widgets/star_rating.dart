@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/l10n.dart';
 import '../theme/app_colors.dart';
 
-/// Five stars filled to [rating], in amber. Read out as "Rated 4.5 out of
+/// Five stars filled to [rating], in ochre. Read out as "Rated 4.5 out of
 /// 5" rather than five separate glyphs.
 class StarRating extends StatelessWidget {
   const StarRating({super.key, required this.rating, this.size = 14});
@@ -27,7 +27,7 @@ class StarRating extends StatelessWidget {
                   ? Icons.star_half_rounded
                   : Icons.star_outline_rounded,
               size: size,
-              color: AppColors.amber,
+              color: AppColors.caution,
             ),
         ],
       ),
@@ -62,7 +62,9 @@ class StarPicker extends StatelessWidget {
                 child: Icon(
                   i <= value ? Icons.star_rounded : Icons.star_outline_rounded,
                   size: 32,
-                  color: i <= value ? AppColors.amber : AppColors.textTertiary,
+                  color: i <= value
+                      ? AppColors.caution
+                      : AppColors.textTertiary,
                 ),
               ),
             ),

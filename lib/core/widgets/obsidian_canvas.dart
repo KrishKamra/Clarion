@@ -24,7 +24,7 @@ class ObsidianCanvas extends StatelessWidget {
 
   final Widget child;
 
-  /// Defaults to iris.
+  /// Defaults to plum.
   final Color? glow;
   final double glowIntensity;
 
@@ -36,7 +36,7 @@ class ObsidianCanvas extends StatelessWidget {
         RepaintBoundary(
           child: CustomPaint(
             painter: _CanvasPainter(
-              glow: glow ?? AppColors.iris,
+              glow: glow ?? AppColors.action,
               intensity: glowIntensity,
             ),
           ),

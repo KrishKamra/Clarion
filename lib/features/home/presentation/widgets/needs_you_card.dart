@@ -44,7 +44,7 @@ class NeedsYouCard extends ConsumerWidget {
         container: true,
         child: Row(
           children: [
-            _Dot(color: AppColors.emeraldGlow),
+            _Dot(color: AppColors.good),
             const SizedBox(width: AppSpacing.sm),
             Text(l10n.attentionClear, style: AppTypography.label),
             const SizedBox(width: AppSpacing.sm),
@@ -113,9 +113,9 @@ class _Row extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = switch (item.kind) {
-      AttentionKind.holdReady => AppColors.irisGlow,
-      AttentionKind.returnClosing => AppColors.amber,
-      AttentionKind.targetHit => AppColors.emeraldGlow,
+      AttentionKind.holdReady => AppColors.action,
+      AttentionKind.returnClosing => AppColors.caution,
+      AttentionKind.targetHit => AppColors.good,
       AttentionKind.checkIn => AppColors.textTertiary,
     };
     return Pressable(

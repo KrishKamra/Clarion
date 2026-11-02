@@ -32,12 +32,12 @@ extension OrderLabels on AppLocalizations {
   }
 }
 
-/// Emerald once it can be collected or has been, iris while on its way,
+/// Sea once it can be collected or has been, plum while on its way,
 /// quiet once it has all gone back.
 Color orderStatusColor(Order order, DateTime now) {
   if (order.isFullyReturned) return AppColors.textSecondary;
   return switch (order.stageAt(now)) {
-    OrderStage.placed || OrderStage.packed => AppColors.irisGlow,
-    OrderStage.ready || OrderStage.collected => AppColors.emeraldGlow,
+    OrderStage.placed || OrderStage.packed => AppColors.action,
+    OrderStage.ready || OrderStage.collected => AppColors.good,
   };
 }

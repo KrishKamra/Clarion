@@ -63,7 +63,7 @@ class _SpecListState extends State<SpecList> {
                         ? 'Show fewer'
                         : 'Show all ${specs.length} specifications',
                     style: AppTypography.label.copyWith(
-                      color: AppColors.irisGlow,
+                      color: AppColors.action,
                     ),
                   ),
                   const Spacer(),
@@ -74,7 +74,7 @@ class _SpecListState extends State<SpecList> {
                     child: Icon(
                       Icons.expand_more_rounded,
                       size: 18,
-                      color: AppColors.irisGlow,
+                      color: AppColors.action,
                     ),
                   ),
                 ],

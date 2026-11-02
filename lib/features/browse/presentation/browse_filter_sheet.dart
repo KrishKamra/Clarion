@@ -82,7 +82,7 @@ class _FilterSheet extends ConsumerWidget {
                 label: r == null ? l10n.anyRating : l10n.ratingAtLeast('$r'),
                 icon: r == null ? null : Icons.star_rounded,
                 size: PillSize.regular,
-                color: AppColors.irisGlow,
+                color: AppColors.action,
                 selected: filters.minRating == r,
                 onTap: () => set(filters.copyWith(minRating: () => r)),
               ),
@@ -99,7 +99,7 @@ class _FilterSheet extends ConsumerWidget {
               label: l10n.pickupNearby,
               icon: Icons.storefront_outlined,
               size: PillSize.regular,
-              color: AppColors.irisGlow,
+              color: AppColors.action,
               selected: filters.pickupOnly,
               onTap: () =>
                   set(filters.copyWith(pickupOnly: !filters.pickupOnly)),
@@ -108,7 +108,7 @@ class _FilterSheet extends ConsumerWidget {
               label: l10n.belowAverageFilter,
               icon: Icons.trending_down_rounded,
               size: PillSize.regular,
-              color: AppColors.emeraldGlow,
+              color: AppColors.good,
               selected: filters.belowAverageOnly,
               onTap: () => set(
                 filters.copyWith(belowAverageOnly: !filters.belowAverageOnly),
@@ -161,7 +161,7 @@ class _SortSheet extends ConsumerWidget {
                 ),
               ),
               trailing: filters.sort == sort
-                  ? Icon(Icons.check_rounded, color: AppColors.irisGlow)
+                  ? Icon(Icons.check_rounded, color: AppColors.action)
                   : null,
               onTap: () {
                 ref
